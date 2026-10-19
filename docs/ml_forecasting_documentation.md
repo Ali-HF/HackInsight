@@ -157,3 +157,69 @@ python -m src.ml_pipeline.cli run
   - `artifacts/figures/actual_vs_predicted.png`
   - `artifacts/figures/error_by_group.png`
   - `artifacts/figures/prediction_interval_sample.png`
+
+---
+
+## 10. Serving & Live Inference Interface
+
+Member 3 (Insight/RAG Agent) and Member 4 (Dashboard) can query 24-hour-ahead forecasts and calibrated uncertainty bands directly using the unified serving function:
+
+```python
+from src.ml_pipeline.inference import predict_pm25_24h
+```
+
+### Input Schema
+Input must be a `pd.DataFrame` containing hourly observations for one or more sensors:
+
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `timestamp_utc` | `str` or `datetime64[ns, UTC]` | Observation timestamp in UTC. |
+| `city` | `str` | Geographic city boundary (`Lahore`, `Karachi`). |
+| `sensor_id` | `str` | Sensor identifier (e.g., `sensor_lahore_01`). |
+| `latitude` | `float` | Sensor latitude. |
+| `longitude` | `float` | Sensor longitude. |
+| `pm25` | `float` | Observed ground $PM_{2.5}$ concentration ($\mu g/m^3$). |
+
+### Output Schema
+Returns a DataFrame containing one forecast row per sensor for its latest observation:
+
+| Column | Description |
+| :--- | :--- |
+| `sensor_id` | Sensor identifier. |
+| `city` | City boundary. |
+| `forecast_issue_time` | Timestamp $t$ of the latest available observation. |
+| `forecast_target_time` | Target timestamp ($t + 24\text{ hours}$). |
+| `current_pm25` | Observed $PM_{2.5}$ at time $t$ ($\mu g/m^3$). |
+| `predicted_pm25_24h` | Point forecast for $t+24\text{h}$ ($\mu g/m^3$). |
+| `lower_80` | Lower bound of the 80% prediction interval. |
+| `upper_80` | Upper bound of the 80% prediction interval. |
+| `baseline_persistence` | Seasonal naive persistence benchmark ($= \text{current\_pm25}$). |
+
+### Example Python Usage
+```python
+import pandas as pd
+from src.ml_pipeline.inference import predict_pm25_24h
+
+# Pass recent sensor history (at least current reading, ideally 24-168h for lags)
+sensor_history = pd.DataFrame({
+    "timestamp_utc": pd.date_range("2024-01-01 00:00", periods=24, freq="1h", tz="UTC"),
+    "city": ["Lahore"] * 24,
+    "sensor_id": ["sensor_lahore_01"] * 24,
+    "latitude": [31.52] * 24,
+    "longitude": [74.35] * 24,
+    "pm25": [85.0 + i * 2.0 for i in range(24)]
+})
+
+# Generate 24h-ahead point and interval forecast
+forecast_df = predict_pm25_24h(sensor_history, coverage=0.80)
+print(forecast_df[[
+    "sensor_id", "forecast_issue_time", "forecast_target_time",
+    "current_pm25", "predicted_pm25_24h", "lower_80", "upper_80"
+]])
+```
+
+### Safety & History Guarantees
+1. **Zero Future Leakage:** All lags and rolling statistics are strictly causal ($\le t$). Changing observations after $t$ has zero impact on the forecast.
+2. **Multi-Sensor Isolation:** Features are partitioned strictly per sensor; observations never cross sensor boundaries.
+3. **No Synthetic Backfilling:** If a sensor has only a few hours of history, missing lags are natively routed by `HistGradientBoostingRegressor` rather than fabricated.
+

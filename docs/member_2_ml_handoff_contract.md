@@ -53,3 +53,21 @@ Member 1 (Data Engineering) provides the canonical, leakage-safe Gold dataset to
      - Season (e.g., Smog Season [Oct–Feb] vs. Summer/Monsoon [Mar–Sep])
 5. **Uncertainty Output:**
    - Member 2 must output prediction intervals (e.g., 10th and 90th percentiles or conformal prediction range) alongside point forecasts.
+
+---
+
+### 4. Member 2 to Member 3 (Agents) & Member 4 (Dashboard) Serving Contract
+
+Member 2 delivers the operational serving function:
+
+```python
+from src.ml_pipeline.inference import predict_pm25_24h
+```
+
+- **Function Signature:**
+  `predict_pm25_24h(sensor_history_df: pd.DataFrame, model_path: str = "artifacts/models/pm25_forecaster.joblib", coverage: float = 0.80) -> pd.DataFrame`
+- **Model Artifact:** `artifacts/models/pm25_forecaster.joblib` (611 KB, pre-trained `HistGradientBoostingRegressor` with calibrated 80% and 90% uncertainty intervals).
+- **Required Input Columns:** `["timestamp_utc", "city", "sensor_id", "latitude", "longitude", "pm25"]`
+- **Output Columns:** `["sensor_id", "city", "forecast_issue_time", "forecast_target_time", "current_pm25", "predicted_pm25_24h", "lower_80", "upper_80", "baseline_persistence"]`
+- **Causality & Safety:** Zero lookahead leakage; features are partitioned strictly per sensor; missing lags during startup are handled natively without data fabrication.
+
