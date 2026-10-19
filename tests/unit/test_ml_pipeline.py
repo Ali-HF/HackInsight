@@ -140,6 +140,28 @@ class TestMLPipeline(unittest.TestCase):
         reloaded_preds = loaded.predict(test_df[feature_cols])
         np.testing.assert_allclose(preds, reloaded_preds, rtol=1e-5)
 
+    def test_tier_weighting_training(self):
+        """Verify that training-set tier sample weighting calculates threshold and fits correctly."""
+        modeling_df, feature_cols, _ = build_ml_feature_set(self.fixture_df, drop_lag1_nulls=True)
+        train_df, val_df, test_df, _ = chronological_split(modeling_df, train_ratio=0.60, val_ratio=0.20, buffer_hours=2)
+
+        forecaster = PM25Forecaster(max_iter=20, random_state=42)
+        forecaster.fit(
+            train_df[feature_cols],
+            train_df["pm25_target_24h"],
+            val_df[feature_cols],
+            val_df["pm25_target_24h"],
+            use_tier_weighting=True,
+            tier_threshold_quantile=0.75,
+            tier_multiplier=1.5
+        )
+
+        self.assertIsNotNone(forecaster.tier_threshold)
+        self.assertEqual(forecaster.tier_multiplier, 1.5)
+        preds = forecaster.predict(test_df[feature_cols])
+        self.assertEqual(len(preds), len(test_df))
+        self.assertFalse(np.isnan(preds).any())
+
     def test_evaluation_identical_rows(self):
         """Verify baseline and model metrics are evaluated on exactly identical records."""
         eval_df = pd.DataFrame({

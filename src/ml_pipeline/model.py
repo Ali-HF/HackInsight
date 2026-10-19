@@ -62,6 +62,8 @@ class PM25Forecaster:
         self.feature_names: List[str] = []
         self.residual_quantiles: Dict[str, float] = {}
         self.is_fitted: bool = False
+        self.tier_threshold: Optional[float] = None
+        self.tier_multiplier: Optional[float] = None
 
     def _transform_y(self, y: np.ndarray) -> np.ndarray:
         if self.transform_target == "log1p":
@@ -78,7 +80,11 @@ class PM25Forecaster:
         X_train: pd.DataFrame,
         y_train: pd.Series,
         X_val: Optional[pd.DataFrame] = None,
-        y_val: Optional[pd.Series] = None
+        y_val: Optional[pd.Series] = None,
+        sample_weight: Optional[np.ndarray] = None,
+        use_tier_weighting: bool = False,
+        tier_threshold_quantile: float = 0.75,
+        tier_multiplier: float = 1.5
     ) -> "PM25Forecaster":
         """
         Fit the model on training data and calibrate empirical prediction
@@ -87,7 +93,17 @@ class PM25Forecaster:
         self.feature_names = list(X_train.columns)
         y_t = self._transform_y(y_train.values)
 
-        self.model.fit(X_train[self.feature_names], y_t)
+        if use_tier_weighting and sample_weight is None:
+            q_thresh = float(np.percentile(y_train.values, tier_threshold_quantile * 100))
+            w = np.ones(len(y_train), dtype=np.float64)
+            w[y_train.values >= q_thresh] = tier_multiplier
+            sample_weight = w / np.mean(w)
+            self.tier_threshold = q_thresh
+            self.tier_multiplier = tier_multiplier
+        elif sample_weight is not None:
+            sample_weight = sample_weight / np.mean(sample_weight)
+
+        self.model.fit(X_train[self.feature_names], y_t, sample_weight=sample_weight)
         self.is_fitted = True
 
         # Calibrate prediction intervals using validation residuals

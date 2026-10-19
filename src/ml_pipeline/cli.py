@@ -162,9 +162,17 @@ def run_pipeline(
     )
 
     t_train = time.time()
-    forecaster.fit(X_train, y_train, X_val, y_val)
+    forecaster.fit(
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        use_tier_weighting=True,
+        tier_threshold_quantile=0.75,
+        tier_multiplier=1.5
+    )
     train_duration = time.time() - t_train
-    print(f"  Model trained in {train_duration:.2f}s using target transformation: '{transform_target}'.")
+    print(f"  Model trained in {train_duration:.2f}s using target transformation: '{transform_target}' and tier weighting (q75={forecaster.tier_threshold:.1f}, mult={forecaster.tier_multiplier}).")
     print(f"  Empirical error quantiles calibrated: {forecaster.residual_quantiles}")
 
     # 6. Evaluation on Validation & Final Test Sets
@@ -235,6 +243,12 @@ def run_pipeline(
         "execution_timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "model_type": "HistGradientBoostingRegressor",
         "target_transform": transform_target,
+        "sample_weighting": {
+            "strategy": "training_set_q75_tier_boost",
+            "threshold_quantile": 0.75,
+            "threshold_value_ugm3": round(forecaster.tier_threshold, 2) if forecaster.tier_threshold else None,
+            "multiplier": forecaster.tier_multiplier
+        },
         "feature_count": len(feature_names),
         "train_rows": len(train_df),
         "validation_rows": len(val_df),
