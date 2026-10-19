@@ -1,0 +1,7 @@
+timestamp_utc,rule_id,action,records_checked,records_affected,severity,rationale
+2026-10-19T14:46:56.039490+00:00,DQ-SCH-001,NO_ACTION,176392,0,info,All expected columns present.
+2026-10-19T14:46:56.039490+00:00,DQ-NULL-001,NO_ACTION,176392,0,info,Zero null target values.
+2026-10-19T14:46:56.039490+00:00,DQ-RNG-001,NO_ACTION,176392,0,info,"0 PM2.5 readings outside [0, 1500] ug/m3."
+2026-10-19T14:46:56.039490+00:00,DQ-RNG-002,NO_ACTION,176392,0,info,"0 temperature values outside [-10, 60] °C."
+2026-10-19T14:46:56.039490+00:00,DQ-RNG-003,NO_ACTION,176392,0,info,"0 RH2M values outside [0, 100]%."
+2026-10-19T14:46:56.056345+00:00,DQ-DUP-001,NO_ACTION,176392,0,info,All record IDs are strictly unique.

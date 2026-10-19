@@ -8,8 +8,9 @@ Responsibilities:
 3. Extract sensor coordinate table (lat, lon, bounding-box assigned city).
 """
 
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from pathlib import Path
+import re
 import pandas as pd
 
 
@@ -23,34 +24,88 @@ class PAQIIngestionManager:
         Args:
             raw_icartt_path: Path to the local raw .ict file.
         """
-        # TODO: Store path and verify existence
-        pass
+        self.raw_icartt_path = Path(raw_icartt_path)
+        if not self.raw_icartt_path.is_file():
+            raise FileNotFoundError(f"Raw ICARTT file not found: {self.raw_icartt_path}")
 
     def extract_sensor_metadata(self) -> pd.DataFrame:
         """
-        Parse ICARTT Header Line 21 to extract geographic coordinates for all 210 sensors.
-
-        Logic:
-        1. Open raw ICARTT file in text mode (encoding='utf-8', errors='replace').
-        2. Locate line starting with 'DEVICE LOCATIONS:'.
-        3. Parse '<sensor_id> (lat, lon)' token pairs using regular expressions.
-        4. Assign city based on predefined geographic bounding boxes:
-           - Karachi: Lat 24.7 to 25.2, Lon 66.8 to 67.5
-           - Lahore: Lat 31.3 to 31.7, Lon 74.1 to 74.6
-           - Islamabad: Lat 33.5 to 33.85, Lon 72.8 to 73.3
-           - Peshawar: Lat 33.9 to 34.15, Lon 71.4 to 71.7
-        5. Return DataFrame with columns: ['sensor_id', 'latitude', 'longitude', 'city'].
+        Parse ICARTT Header Line 21 to extract geographic coordinates for all sensors.
         """
-        raise NotImplementedError("Sensor metadata extraction to be implemented by team.")
+        device_locations_line = ""
+        with open(self.raw_icartt_path, "r", encoding="utf-8", errors="replace") as f:
+            for idx, line in enumerate(f, start=1):
+                if line.startswith("DEVICE LOCATIONS:"):
+                    device_locations_line = line
+                    break
+                if idx > 37:
+                    break
 
-    def load_raw_matrix_chunk(self, nrows: int = 100) -> pd.DataFrame:
-        """
-        Load a bounded test sample of the wide ICARTT matrix for profiling.
+        if not device_locations_line:
+            raise ValueError("DEVICE LOCATIONS line not found in ICARTT header!")
 
-        Logic:
-        1. Identify the column names row (Line 38).
-        2. Read data using pandas with on_bad_lines='skip'.
-        3. Convert sentinels (-9999, -9999.0) to NaN.
-        4. Return DataFrame.
+        pattern = re.findall(
+            r"([0-9a-fA-F]+)\s*\(\s*([-0-9.]+)\s*,\s*([-0-9.]+)\s*\)",
+            device_locations_line
+        )
+
+        records = []
+        for sensor_id, lat_s, lon_s in pattern:
+            lat = float(lat_s)
+            lon = float(lon_s)
+            city = self._assign_city(lat, lon)
+            records.append({
+                "sensor_id": sensor_id.strip(),
+                "latitude": round(lat, 4),
+                "longitude": round(lon, 4),
+                "city": city
+            })
+
+        return pd.DataFrame(records)
+
+    @staticmethod
+    def _assign_city(lat: float, lon: float) -> str:
+        """Assign Pakistani city boundary based on geographic coordinates."""
+        if 24.7 <= lat <= 25.2 and 66.8 <= lon <= 67.5:
+            return "Karachi"
+        elif 31.3 <= lat <= 31.7 and 74.1 <= lon <= 74.6:
+            return "Lahore"
+        elif 33.5 <= lat <= 33.85 and 72.8 <= lon <= 73.3:
+            return "Islamabad"
+        elif 33.9 <= lat <= 34.15 and 71.4 <= lon <= 71.7:
+            return "Peshawar"
+        return "Other"
+
+    def load_raw_table(
+        self,
+        target_cities: Optional[List[str]] = None,
+        nrows: Optional[int] = None
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
-        raise NotImplementedError("Load raw matrix chunk to be implemented by team.")
+        Load the ICARTT table filtered by sensor columns matching target cities.
+        Returns: (df_filtered, metadata_df)
+        """
+        metadata_df = self.extract_sensor_metadata()
+        if target_cities:
+            metadata_df = metadata_df[metadata_df["city"].isin(target_cities)].copy()
+
+        target_sensors = set(metadata_df["sensor_id"])
+
+        # Read header columns line (Line 38, skiprows=37)
+        sample_df = pd.read_csv(self.raw_icartt_path, skiprows=37, nrows=1, on_bad_lines="skip")
+        all_cols = [c.strip() for c in sample_df.columns]
+
+        selected_cols = ["datetime"] + [s for s in all_cols if s in target_sensors]
+
+        df = pd.read_csv(
+            self.raw_icartt_path,
+            skiprows=37,
+            usecols=selected_cols,
+            na_values=[-9999, -9999.0, "-9999", "-9999.0"],
+            nrows=nrows,
+            on_bad_lines="skip",
+            low_memory=False
+        )
+        df.columns = [c.strip() for c in df.columns]
+
+        return df, metadata_df

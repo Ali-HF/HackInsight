@@ -4,8 +4,8 @@ HackInsight 2026 - Member 1: Data Engineering & Provenance.
 
 Responsibilities:
 1. Maintain cryptographic checksums (SHA-256) of all raw artifacts.
-2. Record immutable provenance entries in manifest.csv / manifest.json.
-3. Validate artifacts against manifest records before any pipeline stage runs.
+2. Record immutable provenance entries in manifest.csv and manifest.json.
+3. Validate artifacts against manifest records before pipeline stages run.
 """
 
 from typing import Dict, Any, List, Optional
@@ -13,6 +13,7 @@ from pathlib import Path
 import hashlib
 import json
 import csv
+import os
 from datetime import datetime, timezone
 
 
@@ -27,20 +28,37 @@ class ManifestManager:
             manifest_path: Path to the persistent manifest.csv file.
             schema_path: Path to the JSON schema for manifest record validation.
         """
-        # TODO: Initialize file paths and ensure parent directories exist
-        pass
+        self.manifest_path = Path(manifest_path)
+        self.schema_path = Path(schema_path) if schema_path else None
+        self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        self.fieldnames = [
+            "source_id",
+            "source_name",
+            "publisher",
+            "source_url",
+            "fetch_timestamp_utc",
+            "raw_file_path",
+            "sha256_checksum",
+            "byte_size",
+            "file_format",
+            "license",
+            "row_count",
+            "query_parameters"
+        ]
 
     def calculate_sha256(self, file_path: Path) -> str:
         """
         Compute the SHA-256 cryptographic digest of a local file in 8MB chunks.
-
-        Logic:
-        1. Assert file exists and is a readable file.
-        2. Initialize hashlib.sha256().
-        3. Stream bytes in binary mode using 8MB chunks to avoid memory bottlenecks.
-        4. Return lowercase 64-character hexadecimal string.
         """
-        raise NotImplementedError("Calculate sha256 logic to be implemented by team.")
+        path = Path(file_path)
+        if not path.is_file():
+            raise FileNotFoundError(f"File not found for hash calculation: {path}")
+
+        sha256_hash = hashlib.sha256()
+        with open(path, "rb") as f:
+            while chunk := f.read(8 * 1024 * 1024):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest().lower()
 
     def record_artifact(
         self,
@@ -50,29 +68,69 @@ class ManifestManager:
         source_url: str,
         raw_file_path: Path,
         license_str: str,
+        file_format: str = "text/plain",
         query_parameters: Optional[Dict[str, Any]] = None,
         row_count: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Record a newly ingested raw artifact into the manifest.
-
-        Logic:
-        1. Calculate SHA-256 hash and byte size of raw_file_path.
-        2. Construct manifest record with UTC timestamp (datetime.now(timezone.utc)).
-        3. If schema_path is provided, validate record structure.
-        4. If manifest.csv does not exist, initialize with header; otherwise append.
-        5. Return the structured record.
         """
-        raise NotImplementedError("Record artifact logic to be implemented by team.")
+        path = Path(raw_file_path)
+        if not path.is_file():
+            raise FileNotFoundError(f"Artifact does not exist: {path}")
+
+        file_hash = self.calculate_sha256(path)
+        byte_size = path.stat().st_size
+        fetch_time = datetime.now(timezone.utc).isoformat()
+
+        record = {
+            "source_id": source_id,
+            "source_name": source_name,
+            "publisher": publisher,
+            "source_url": source_url,
+            "fetch_timestamp_utc": fetch_time,
+            "raw_file_path": str(path.as_posix()),
+            "sha256_checksum": file_hash,
+            "byte_size": int(byte_size),
+            "file_format": file_format,
+            "license": license_str,
+            "row_count": row_count if row_count is not None else -1,
+            "query_parameters": json.dumps(query_parameters or {})
+        }
+
+        # Check if CSV exists, if not write header
+        write_header = not self.manifest_path.exists() or self.manifest_path.stat().st_size == 0
+        
+        # Read existing records to prevent exact duplicate rows
+        existing_hashes = set()
+        if self.manifest_path.exists() and self.manifest_path.stat().st_size > 0:
+            with open(self.manifest_path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for r in reader:
+                    existing_hashes.add((r.get("source_id"), r.get("sha256_checksum")))
+
+        if (source_id, file_hash) not in existing_hashes:
+            with open(self.manifest_path, "a", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=self.fieldnames)
+                if write_header:
+                    writer.writeheader()
+                writer.writerow(record)
+
+        return record
 
     def verify_artifact(self, raw_file_path: Path, expected_hash: str) -> bool:
         """
         Verify the integrity of a raw artifact against an expected SHA-256 hash.
-
-        Logic:
-        1. Assert file exists.
-        2. Compute current SHA-256 hash.
-        3. Compare computed hash with expected_hash.
-        4. Raise ValueError or return False on discrepancy (detect corrupted/modified data).
         """
-        raise NotImplementedError("Verify artifact logic to be implemented by team.")
+        path = Path(raw_file_path)
+        if not path.is_file():
+            raise FileNotFoundError(f"Cannot verify missing file: {path}")
+
+        current_hash = self.calculate_sha256(path)
+        if current_hash.lower() != expected_hash.lower():
+            raise ValueError(
+                f"Tamper detection failed for {path}!\n"
+                f"Expected SHA-256: {expected_hash}\n"
+                f"Calculated SHA-256: {current_hash}"
+            )
+        return True

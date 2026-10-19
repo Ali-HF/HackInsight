@@ -9,9 +9,10 @@ Responsibilities:
 4. Filter/flag records according to explicit, auditable rules.
 """
 
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from pathlib import Path
 import pandas as pd
+import numpy as np
 
 
 class DataCleaner:
@@ -24,46 +25,62 @@ class DataCleaner:
         Args:
             interim_dir: Destination path for cleaned intermediate artifacts.
         """
-        # TODO: Store destination directory
-        pass
+        self.interim_dir = Path(interim_dir)
+        self.interim_dir.mkdir(parents=True, exist_ok=True)
 
     def reshape_to_long_format(
         self,
         wide_df: pd.DataFrame,
         sensor_metadata_df: pd.DataFrame,
-        time_col: str = "datetime"
-    ) -> pd.DataFrame:
-        """
-        Melt the 210-column PAQI matrix into a canonical observation table.
-
-        Logic:
-        1. Assert wide_df contains time_col and sensor_metadata_df contains ['sensor_id', 'city'].
-        2. Melt DataFrame:
-           id_vars=[time_col],
-           value_vars=sensor_columns,
-           var_name='sensor_id',
-           value_name='pm25'
-        3. Merge with sensor_metadata_df on 'sensor_id' to attach latitude, longitude, and city.
-        4. Drop explicit nulls or sentinels while preserving observation counts in audit log.
-        5. Return DataFrame with schema:
-           ['timestamp_utc', 'city', 'sensor_id', 'latitude', 'longitude', 'pm25']
-        """
-        raise NotImplementedError("Reshape to long format logic to be implemented by team.")
-
-    def handle_sentinels_and_extremes(
-        self,
-        df: pd.DataFrame,
-        pm25_col: str = "pm25",
-        sentinel_value: float = -9999.0,
-        max_physical_limit: float = 1500.0
+        time_col: str = "datetime",
+        start_year: Optional[int] = 2022,
+        end_year: Optional[int] = 2024
     ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
         """
-        Replace sentinel values with NaN and flag physically implausible readings.
-
-        Logic:
-        1. Identify rows where pm25 == sentinel_value -> convert to NaN (count affected).
-        2. Identify negative non-sentinel values (pm25 < 0) -> flag or correct per sensor type.
-        3. Identify extreme values (pm25 > max_physical_limit) -> flag as anomaly, do NOT delete.
-        4. Return (cleaned_df, audit_summary_dict).
+        Melt the wide ICARTT matrix into a canonical observation table.
         """
-        raise NotImplementedError("Sentinel and extreme handling logic to be implemented by team.")
+        df = wide_df.copy()
+        df[time_col] = pd.to_datetime(df[time_col], utc=True)
+
+        if start_year and end_year:
+            df = df[(df[time_col].dt.year >= start_year) & (df[time_col].dt.year <= end_year)].copy()
+
+        sensor_cols = [c for c in df.columns if c != time_col]
+
+        # Melt to long format
+        melted = pd.melt(
+            df,
+            id_vars=[time_col],
+            value_vars=sensor_cols,
+            var_name="sensor_id",
+            value_name="pm25"
+        )
+
+        initial_rows = len(melted)
+
+        # Drop rows where pm25 is missing/sentinel (do not impute target)
+        melted = melted[melted["pm25"].notna()].copy()
+        non_null_rows = len(melted)
+
+        # Merge with sensor metadata to attach city, lat, lon
+        merged = pd.merge(melted, sensor_metadata_df, on="sensor_id", how="inner")
+
+        # Standardize column names
+        merged = merged.rename(columns={time_col: "timestamp_utc"})
+
+        # Flag negative values and extreme spikes (> 1500 ug/m3)
+        neg_count = int((merged["pm25"] < 0).sum())
+        extreme_count = int((merged["pm25"] > 1500).sum())
+
+        # Exclude negative readings (sensor optical malfunction)
+        cleaned = merged[merged["pm25"] >= 0].copy()
+
+        audit = {
+            "initial_melted_rows": initial_rows,
+            "valid_pm25_readings": non_null_rows,
+            "negative_readings_dropped": neg_count,
+            "extreme_readings_flagged": extreme_count,
+            "final_cleaned_rows": len(cleaned)
+        }
+
+        return cleaned, audit

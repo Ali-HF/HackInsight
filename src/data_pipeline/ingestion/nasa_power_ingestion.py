@@ -4,12 +4,16 @@ HackInsight 2026 - Member 1: Data Engineering.
 
 Responsibilities:
 1. Fetch hourly surface meteorology parameters via NASA POWER REST API.
-2. Preserve raw response artifacts (JSON / CSV) unchanged in data/raw/nasa_power/.
+2. Preserve raw response artifacts (JSON) unchanged in data/raw/nasa_power/.
 3. Log request parameters, checksums, and fetch timestamps to manifest.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from pathlib import Path
+import urllib.request
+import urllib.error
+import json
+import time
 
 
 class NASAPowerIngestionManager:
@@ -23,10 +27,10 @@ class NASAPowerIngestionManager:
         Initialize the NASA POWER ingestion manager.
 
         Args:
-            raw_output_dir: Destination path (e.g., data/raw/nasa_power/).
+            raw_output_dir: Destination path (e.g. data/raw/nasa_power/).
         """
-        # TODO: Store destination directory and ensure it exists
-        pass
+        self.raw_output_dir = Path(raw_output_dir)
+        self.raw_output_dir.mkdir(parents=True, exist_ok=True)
 
     def build_query_url(
         self,
@@ -34,18 +38,19 @@ class NASAPowerIngestionManager:
         longitude: float,
         start_date: str,
         end_date: str,
-        parameters: List[str]
+        parameters: Optional[List[str]] = None
     ) -> str:
         """
         Construct the NASA POWER REST endpoint URL.
-
-        Logic:
-        1. Validate latitude (-90 to 90) and longitude (-180 to 180).
-        2. Format dates as YYYYMMDD string.
-        3. Join parameters into comma-separated list.
-        4. Return full parameterized URL.
         """
-        raise NotImplementedError("Build query URL logic to be implemented by team.")
+        params = parameters or self.DEFAULT_PARAMETERS
+        param_str = ",".join(params)
+        url = (
+            f"{self.BASE_URL}?parameters={param_str}&community=RE"
+            f"&longitude={longitude:.4f}&latitude={latitude:.4f}"
+            f"&start={start_date}&end={end_date}&format=JSON"
+        )
+        return url
 
     def fetch_and_preserve(
         self,
@@ -54,18 +59,44 @@ class NASAPowerIngestionManager:
         longitude: float,
         start_date: str,
         end_date: str,
-        parameters: List[str]
+        parameters: Optional[List[str]] = None,
+        timeout: int = 45,
+        max_retries: int = 3
     ) -> Path:
         """
         Fetch weather data from NASA POWER and save exact raw bytes to disk.
-
-        Logic:
-        1. Construct query URL using build_query_url().
-        2. Execute HTTP GET with appropriate timeout (e.g. 30 seconds).
-        3. Check response status == 200; handle network or quota errors gracefully.
-        4. Generate deterministic raw filename:
-           nasa_power_hourly_{city_name}_{start_date}_{end_date}.json
-        5. Write raw byte response directly to raw_output_dir without parsing/altering.
-        6. Return absolute path to saved raw artifact.
         """
-        raise NotImplementedError("Fetch and preserve logic to be implemented by team.")
+        out_filename = f"nasa_power_hourly_{city_name.lower()}_{start_date}_{end_date}.json"
+        out_path = self.raw_output_dir / out_filename
+
+        # If already downloaded and valid, return existing artifact
+        if out_path.exists() and out_path.stat().st_size > 1024:
+            return out_path
+
+        url = self.build_query_url(latitude, longitude, start_date, end_date, parameters)
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                req = urllib.request.Request(
+                    url,
+                    headers={"User-Agent": "HackInsight-DataPipeline/1.0 (Student Team)"}
+                )
+                with urllib.request.urlopen(req, timeout=timeout) as response:
+                    raw_bytes = response.read()
+
+                # Basic validation: ensure it's valid JSON
+                data = json.loads(raw_bytes.decode("utf-8"))
+                if "properties" not in data or "parameter" not in data["properties"]:
+                    raise ValueError(f"Malformed NASA POWER response for {city_name}: missing properties/parameter")
+
+                # Write exact raw bytes to disk
+                with open(out_path, "wb") as f:
+                    f.write(raw_bytes)
+
+                return out_path
+            except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+                if attempt == max_retries:
+                    raise RuntimeError(f"Failed to fetch NASA POWER data for {city_name} after {max_retries} attempts: {e}")
+                time.sleep(2 * attempt)
+
+        return out_path

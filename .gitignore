@@ -1,9 +1,11 @@
 # Data & storage
 data/raw/
+data/interim/
 data/cleaned/
 data/processed/
 *.ict
 *.duckdb
+*.parquet
 Low-Cost-Sensors-AQ*
 
 # Environment & credentials
