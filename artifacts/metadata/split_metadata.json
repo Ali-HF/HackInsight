@@ -1,0 +1,45 @@
+{
+  "train": {
+    "start": "2022-01-01 01:00:00+00:00",
+    "end": "2024-02-08 19:00:00+00:00",
+    "cutoff": "2024-02-08 20:00:00+00:00",
+    "rows": 77277,
+    "sensors": 13,
+    "cities": {
+      "Lahore": 54556,
+      "Karachi": 22721
+    }
+  },
+  "validation": {
+    "start": "2024-02-09 20:00:00+00:00",
+    "end": "2024-07-22 04:00:00+00:00",
+    "cutoff": "2024-07-22 05:00:00+00:00",
+    "rows": 39971,
+    "sensors": 15,
+    "seen_sensors_count": 13,
+    "unseen_sensors_count": 2,
+    "seen_rows": 36259,
+    "unseen_rows": 3712,
+    "cities": {
+      "Lahore": 30127,
+      "Karachi": 9844
+    }
+  },
+  "test": {
+    "start": "2024-07-23 05:00:00+00:00",
+    "end": "2024-12-30 23:00:00+00:00",
+    "rows": 49116,
+    "sensors": 30,
+    "seen_sensors_count": 13,
+    "unseen_sensors_count": 17,
+    "seen_rows": 32003,
+    "unseen_rows": 17113,
+    "cities": {
+      "Lahore": 36948,
+      "Karachi": 12168
+    }
+  },
+  "buffer_hours": 24,
+  "train_buffer_dropped_rows": 213,
+  "val_buffer_dropped_rows": 237
+}

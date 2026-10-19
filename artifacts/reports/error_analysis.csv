@@ -1,0 +1,15 @@
+category,slice,n,model_mae,model_rmse,base_mae,base_rmse,mae_absolute_improvement,mae_pct_improvement,rmse_absolute_improvement,rmse_pct_improvement,beats_baseline
+Overall,All Records,49116,41.332,71.3,42.347,73.902,1.015,2.4,2.602,3.52,True
+by_city,Karachi,12168,14.099,21.335,14.583,23.93,0.484,3.32,2.595,10.84,True
+by_city,Lahore,36948,50.301,81.29,51.491,84.092,1.19,2.31,2.802,3.33,True
+by_season,DJF (Winter/Smog),15024,45.922,62.718,48.099,69.644,2.177,4.53,6.926,9.94,True
+by_season,JJA (Monsoon),9496,15.769,22.29,19.112,28.651,3.343,17.49,6.361,22.2,True
+by_season,SON (Autumn),24596,48.398,86.932,47.805,87.329,-0.593,-1.24,0.397,0.45,False
+by_smog_season,Smog Season (Oct-Feb),32869,53.864,85.67,54.022,88.139,0.158,0.29,2.469,2.8,True
+by_smog_season,Non-Smog Season (Mar-Sep),16247,15.979,22.817,18.73,28.18,2.751,14.69,5.363,19.03,True
+by_sensor_visibility,Seen in Training,32003,38.5,70.357,39.118,71.633,0.618,1.58,1.276,1.78,True
+by_sensor_visibility,Unseen in Training,17113,46.628,73.033,48.386,77.967,1.758,3.63,4.934,6.33,True
+by_pollution_tier,Low (<= 38.5 ug/m3),12280,14.741,21.964,13.996,25.362,-0.745,-5.32,3.398,13.4,False
+by_pollution_tier,Medium (38.5 - 165.5 ug/m3),24563,32.332,47.331,36.835,58.258,4.503,12.22,10.927,18.76,True
+by_pollution_tier,High (> 165.5 ug/m3),12273,85.952,124.011,81.747,120.084,-4.205,-5.14,-3.927,-3.27,False
+by_pollution_tier,Top Decile (>= 275.0 ug/m3),4916,141.344,181.192,117.245,163.973,-24.099,-20.55,-17.219,-10.5,False
