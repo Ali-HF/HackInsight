@@ -1,0 +1,10 @@
+data/raw/
+data/cleaned/
+data/processed/
+*.ict
+*.duckdb
+.env
+*.env
+__pycache__/
+.venv/
+Low-Cost-Sensors-AQ*
