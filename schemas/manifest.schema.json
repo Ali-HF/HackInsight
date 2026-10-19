@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DataManifestSchema",
+  "description": "Validation schema for HackInsight raw data manifest (manifest.csv / manifest.json)",
+  "type": "object",
+  "required": [
+    "source_id",
+    "source_name",
+    "publisher",
+    "source_url",
+    "fetch_timestamp_utc",
+    "raw_file_path",
+    "sha256_checksum",
+    "byte_size",
+    "file_format",
+    "license"
+  ],
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "description": "Unique identifier, e.g. SRC-PAQI-PM25, SRC-NASA-POWER"
+    },
+    "source_name": {
+      "type": "string",
+      "description": "Formal human-readable name of the dataset"
+    },
+    "publisher": {
+      "type": "string",
+      "description": "Publishing entity or organization"
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL or query description where source was obtained"
+    },
+    "fetch_timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Exact UTC timestamp when the data was acquired"
+    },
+    "raw_file_path": {
+      "type": "string",
+      "description": "Relative path to the immutable raw file inside the workspace"
+    },
+    "sha256_checksum": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "64-character lowercase hex SHA-256 cryptographic digest"
+    },
+    "byte_size": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "File size in bytes"
+    },
+    "file_format": {
+      "type": "string",
+      "description": "MIME type or common format descriptor (e.g., text/icartt, application/json, text/csv)"
+    },
+    "license": {
+      "type": "string",
+      "description": "Explicit license identifier or terms reference"
+    },
+    "row_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total raw observation rows if applicable"
+    },
+    "query_parameters": {
+      "type": "object",
+      "description": "Non-secret query parameters (e.g. coordinates, dates, parameters)"
+    }
+  }
+}
