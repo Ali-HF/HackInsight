@@ -8,6 +8,7 @@ Usage:
 
 import sys
 import argparse
+from typing import Optional
 from pathlib import Path
 import pandas as pd
 
@@ -17,9 +18,11 @@ from src.data_pipeline.ingestion.nasa_power_ingestion import NASAPowerIngestionM
 from src.data_pipeline.cleaning.cleaner import DataCleaner
 from src.data_pipeline.processing.gold_builder import GoldDatasetBuilder
 from src.data_pipeline.validation.quality_engine import ValidationEngine
+from src.data_pipeline.validation.data_quality_agent import DataQualityAgent
 
 
 def run_make_data(base_dir: Path):
+
     print("=" * 80)
     print("HACKINSIGHT 2026: MEMBER 1 'MAKE DATA' PIPELINE EXECUTION")
     print("=" * 80)
@@ -145,16 +148,54 @@ def run_make_data(base_dir: Path):
     print("=" * 80)
 
 
+def run_quality_agent(base_dir: Path, input_path: Optional[Path] = None, auto_remediate: bool = False):
+    input_file = input_path or (base_dir / "data" / "processed" / "gold_pm25_forecasting.parquet")
+    if not input_file.exists():
+        raise FileNotFoundError(f"Dataset not found at {input_file}")
+
+    print("=" * 80)
+    print("HACKINSIGHT 2026: DATA QUALITY AGENT AUDIT")
+    print("=" * 80)
+    print(f"Target: {input_file}")
+    print(f"Remediation Enabled: {auto_remediate}")
+
+    df = pd.read_parquet(input_file) if str(input_file).endswith(".parquet") else pd.read_csv(input_file)
+    agent = DataQualityAgent()
+    _, report = agent.run_assessment(df, auto_remediate=auto_remediate)
+
+    print(f"\nStatus:          {report['overall_status']}")
+    print(f"Records Checked: {report['total_records_checked']:,}")
+    print(f"Actions Summary: {report['actions_summary']}")
+    print(f"Findings:        {len(report['findings'])}")
+    print("=" * 80)
+    return report
+
+
 def main():
+    base_dir = Path(__file__).resolve().parent.parent.parent
     parser = argparse.ArgumentParser(description="HackInsight 2026 PM2.5 Data Pipeline CLI")
     subparsers = parser.add_subparsers(dest="command", help="Available pipeline stages")
     subparsers.add_parser("make-data", help="Rebuild all layers (raw -> cleaned -> gold) end-to-end")
 
+    qa_parser = subparsers.add_parser("quality-agent", help="Run Data Quality Agent audit & policy on dataset")
+    qa_parser.add_argument(
+        "--input",
+        type=Path,
+        default=base_dir / "data" / "processed" / "gold_pm25_forecasting.parquet",
+        help="Path to input dataset"
+    )
+    qa_parser.add_argument(
+        "--auto-remediate",
+        action="store_true",
+        help="Apply safe deterministic FIX and bounded FILL actions"
+    )
+
     args = parser.parse_args()
-    base_dir = Path(__file__).resolve().parent.parent.parent
 
     if args.command == "make-data":
         run_make_data(base_dir)
+    elif args.command == "quality-agent":
+        run_quality_agent(base_dir, input_path=args.input, auto_remediate=args.auto_remediate)
     else:
         # Default behavior: run make-data
         run_make_data(base_dir)
@@ -162,3 +203,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
