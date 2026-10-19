@@ -228,5 +228,18 @@ class PM25Forecaster:
         path = Path(filepath)
         if not path.is_file():
             raise FileNotFoundError(f"Model artifact not found at {path}")
+        
+        # Compatibility shims for unpickling models saved across scikit-learn versions
+        import sys
+        try:
+            import sklearn._loss
+            if "_loss" not in sys.modules:
+                sys.modules["_loss"] = sklearn._loss
+            if hasattr(sklearn._loss, "HalfSquaredError") and not hasattr(sklearn._loss, "CyHalfSquaredError"):
+                sklearn._loss.CyHalfSquaredError = sklearn._loss.HalfSquaredError
+        except (ImportError, AttributeError):
+            pass
+
         forecaster = joblib.load(path)
         return forecaster
+
