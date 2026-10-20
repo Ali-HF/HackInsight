@@ -1,0 +1,22 @@
+run_id,timestamp_utc,status,duration_seconds,forecast_output,quality_output,records_checked,agent_grounding_passed,error
+20261020180416,2026-10-20 18:04:16.518076+00:00,FAILED,0.005,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261020180405,2026-10-20 18:04:16.422775+00:00,SUCCESS,11.399000000000001,outputs\forecasts\latest_forecast.json,outputs\quality\latest_quality.json,176392,True,
+20261020180312,2026-10-20 18:03:52.116614+00:00,FAILED,39.976,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020175918,2026-10-20 17:59:18.009400+00:00,FAILED,0.004,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261020175911,2026-10-20 17:59:16.567069+00:00,SUCCESS,4.956,outputs\forecasts\latest_forecast.json,outputs\quality\latest_quality.json,176392,True,
+20261020175901,2026-10-20 17:59:01.196872+00:00,FAILED,0.003,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020175127,2026-10-20 17:51:32.269358+00:00,FAILED,4.779,,,0,False,TypeError: Body() got an unexpected keyword argument 'min_items'
+20261020174917,2026-10-20 17:49:17.378096+00:00,FAILED,0.002,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261020174916,2026-10-20 17:49:16.045665+00:00,FAILED,0.029,,,0,False,TypeError: Body() got an unexpected keyword argument 'min_items'
+20261020174857,2026-10-20 17:49:04.539408+00:00,FAILED,6.589,,,0,False,TypeError: Body() got an unexpected keyword argument 'min_items'
+20261020173216,2026-10-20 17:32:16.847319+00:00,FAILED,0.002,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261020173211,2026-10-20 17:32:16.752117+00:00,SUCCESS,5.518,outputs\forecasts\latest_forecast.json,outputs\quality\latest_quality.json,176392,True,
+20261020173159,2026-10-20 17:31:59.845873+00:00,FAILED,0.003,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020132147,2026-10-20 13:21:47.854623+00:00,FAILED,0.004,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261020132143,2026-10-20 13:21:47.768761+00:00,SUCCESS,4.634,outputs\forecasts\latest_forecast.json,outputs\quality\latest_quality.json,49116,True,
+20261020132111,2026-10-20 13:21:32.298802+00:00,FAILED,21.154,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020131731,2026-10-20 13:17:31.239460+00:00,FAILED,0.004,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261020131726,2026-10-20 13:17:30.887940+00:00,SUCCESS,4.715,outputs\forecasts\latest_forecast.json,outputs\quality\latest_quality.json,49116,True,
+20261020131655,2026-10-20 13:17:15.153496+00:00,FAILED,20.022,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020131508,2026-10-20 13:15:08.316964+00:00,FAILED,0.076,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020130933,2026-10-20 13:09:43.489571+00:00,SUCCESS,10.239,outputs\forecasts\latest_forecast.json,outputs\quality\latest_quality.json,49116,True,
