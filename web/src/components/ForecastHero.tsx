@@ -58,51 +58,33 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
+      style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
     >
-      {/* Editorial Headline with 3D View Toggle */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
-        <div style={{ maxWidth: '820px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <span className="badge badge-green">EPD Certified Monitoring</span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>• Zero-Leakage HistGradientBoosting</span>
-          </div>
-          <h1 className="hero-title" style={{
-            fontSize: '2.65rem',
-            fontWeight: 700,
-            letterSpacing: '-0.035em',
-            lineHeight: 1.15,
-            color: 'var(--text-primary)',
-            marginBottom: '14px'
-          }}>
-            We monitor air quality where accuracy isn’t optional, it’s critical.
-          </h1>
-          <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            Providing provincial smog-response officers in <strong>{city}</strong> with 24-hour calibrated forecasting,
-            conformal uncertainty bounds, and statutory compliance checks to enact interventions before peak citizen exposure.
-          </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <span className="badge badge-green" style={{ marginBottom: '6px' }}>Verified Telemetry</span>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Ground PM2.5 Forecast & Spatial Analytics • {city}
+          </h2>
         </div>
-
-        {/* 3D Atmospheric Toggle Button */}
         <button
           onClick={() => setShow3DView(!show3DView)}
           className="btn-outline"
           style={{
-            padding: '10px 18px',
+            padding: '8px 16px',
             borderRadius: 'var(--radius-pill)',
             backgroundColor: show3DView ? 'var(--brand-green-subtle)' : 'transparent',
             borderColor: show3DView ? 'var(--brand-green)' : 'var(--card-border)',
             color: show3DView ? 'var(--brand-green-text)' : 'var(--text-primary)',
             fontWeight: 600,
-            fontSize: '0.85rem'
+            fontSize: '0.825rem'
           }}
         >
-          <Layers size={16} />
+          <Layers size={15} />
           {show3DView ? 'Hide 3D Atmosphere' : 'View 3D Particle Cloud'}
         </button>
       </div>
 
-      {/* 3D WebGL Atmospheric Visualizer Section */}
       <AnimatePresence>
         {show3DView && (
           <motion.div
