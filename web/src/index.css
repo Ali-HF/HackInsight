@@ -31,6 +31,32 @@
   --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
+[data-theme="dark"] {
+  --bg-main: #0E1217;
+  --bg-subtle: #090C10;
+  --bg-card: #151B23;
+  --card-border: #2D333B;
+  --brand-green: #73D152;
+  --brand-green-dark: #58A638;
+  --brand-green-subtle: #1C2E1A;
+  --brand-green-text: #99DE7B;
+
+  --text-primary: #F0F6FC;
+  --text-secondary: #8B949E;
+  --text-muted: #6E7681;
+
+  --danger-bg: #3E1014;
+  --danger-text: #F87171;
+  --danger-border: #7F1D1D;
+
+  --warning-bg: #32220B;
+  --warning-text: #FBBF24;
+  --warning-border: #78350F;
+
+  --shadow-subtle: 0 2px 10px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -43,6 +69,7 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 code, pre {
@@ -97,8 +124,8 @@ code, pre {
 }
 
 .btn-outline:hover {
-  background-color: #F1F4F0;
-  border-color: #D3DAD0;
+  background-color: var(--bg-card);
+  border-color: var(--brand-green);
 }
 
 /* Feature card styles matching Airlab reference */
@@ -108,12 +135,13 @@ code, pre {
   border-radius: var(--radius-md);
   padding: 24px;
   box-shadow: var(--shadow-subtle);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .airlab-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-card);
+  border-color: var(--brand-green);
 }
 
 /* Airlab green icon box */
@@ -127,7 +155,7 @@ code, pre {
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
-  border: 1px solid rgba(153, 222, 123, 0.4);
+  border: 1px solid rgba(153, 222, 123, 0.3);
 }
 
 /* Badge styles */
@@ -145,17 +173,66 @@ code, pre {
 .badge-green {
   background-color: var(--brand-green-subtle);
   color: var(--brand-green-text);
-  border: 1px solid rgba(153, 222, 123, 0.5);
+  border: 1px solid rgba(153, 222, 123, 0.4);
 }
 
 .badge-hazard {
-  background-color: #FFEAE8;
-  color: #9B1C1C;
-  border: 1px solid #F8B4B4;
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
 }
 
 .badge-yellow {
-  background-color: #FEF3C7;
-  color: #92400E;
-  border: 1px solid #FCD34D;
+  background-color: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+}
+
+/* Responsive Grid Utilities */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.grid-split {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 32px;
+}
+
+.grid-sectors {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+}
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-split {
+    grid-template-columns: 1fr;
+  }
+  .grid-sectors {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 16px;
+  }
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .nav-menu {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hero-title {
+    font-size: 1.85rem !important;
+  }
 }

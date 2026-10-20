@@ -5,11 +5,12 @@ import { AgentAssistant } from './components/AgentAssistant';
 import { DataQualityView } from './components/DataQualityView';
 import { ModelMetricsView } from './components/ModelMetricsView';
 import type { LatestForecastPayload, QualityAssessmentPayload, ModelMetricsPayload, TimeSeriesPoint } from './types';
-import { Building2, Truck, School, Factory, ExternalLink } from 'lucide-react';
+import { Building2, Truck, School, Factory, ExternalLink, ArrowRight, Quote } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [selectedCity, setSelectedCity] = useState<'Lahore' | 'Karachi'>('Lahore');
+  const [isDark, setIsDark] = useState<boolean>(false);
 
   const [forecastData, setForecastData] = useState<LatestForecastPayload | null>(null);
   const [qualityData, setQualityData] = useState<QualityAssessmentPayload | null>(null);
@@ -17,7 +18,27 @@ export const App: React.FC = () => {
   const [timeseriesData, setTimeseriesData] = useState<Record<string, TimeSeriesPoint[]>>({});
 
   useEffect(() => {
-    // Load local static pipeline JSON payloads exported directly from backend
+    // Check saved theme or system preference
+    const saved = localStorage.getItem('airlab_theme');
+    if (saved === 'dark') {
+      setIsDark(true);
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  }, []);
+
+  const toggleDark = () => {
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('airlab_theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('airlab_theme', 'light');
+    }
+  };
+
+  useEffect(() => {
     fetch('/data/latest_forecast.json')
       .then(res => res.json())
       .then(data => setForecastData(data))
@@ -46,7 +67,7 @@ export const App: React.FC = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-subtle)' }}>
       {/* Top Banner: Statutory Clean Air Standards */}
       <div style={{
-        backgroundColor: '#1C2E1A',
+        backgroundColor: isDark ? '#142312' : '#1C2E1A',
         color: '#E5F6DF',
         padding: '8px 24px',
         fontSize: '0.8rem',
@@ -55,29 +76,31 @@ export const App: React.FC = () => {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--brand-green)' }} />
-            Punjab Smog Prevention & Control Policy 2023 | Pak-NEQS Statutory Benchmark: 35 µg/m³
+            Punjab Smog Prevention & Control Policy 2023 | Pak-NEQS Benchmark: 35 µg/m³
           </div>
           <div style={{ display: 'flex', gap: '16px' }}>
-            <span>Verified Zero-Leakage Pipeline</span>
-            <span style={{ color: 'var(--brand-green)' }}>Asia/Karachi Standard Time</span>
+            <span>Zero Lookahead Leakage</span>
+            <span style={{ color: 'var(--brand-green)' }}>Asia/Karachi UTC+5</span>
           </div>
         </div>
       </div>
 
-      {/* Primary Navigation */}
+      {/* Primary Navigation with Theme Toggle */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         selectedCity={selectedCity}
         setSelectedCity={setSelectedCity}
         lastUpdated={forecastData?.timestamp_utc}
+        isDark={isDark}
+        toggleDark={toggleDark}
       />
 
       {/* Main Page Body */}
-      <main className="container" style={{ flex: 1, padding: '40px 24px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+      <main className="container" style={{ flex: 1, padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: '44px' }}>
         {activeTab === 'overview' && (
           <>
             <ForecastHero
@@ -87,12 +110,12 @@ export const App: React.FC = () => {
             />
 
             {/* Decision Protocol Section (Airlab "What this means for you" style) */}
-            <section id="decision-protocol" style={{ marginTop: '24px' }}>
-              <div style={{ maxWidth: '780px', marginBottom: '28px' }}>
+            <section id="decision-protocol" style={{ marginTop: '16px' }}>
+              <div style={{ maxWidth: '820px', marginBottom: '24px' }}>
                 <span className="badge badge-green" style={{ marginBottom: '8px' }}>
                   Statutory Smog Protocols
                 </span>
-                <h2 style={{ fontSize: '1.85rem', fontWeight: 700, color: '#1C2024' }}>
+                <h2 style={{ fontSize: '1.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Targeted municipal interventions 24 hours in advance.
                 </h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '6px' }}>
@@ -101,14 +124,16 @@ export const App: React.FC = () => {
                 </p>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+              <div className="grid-4">
                 <div className="airlab-card">
                   <div className="green-icon-box">
                     <School size={22} />
                   </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '6px' }}>Schools & Youth</h4>
+                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                    Schools & Outdoor
+                  </h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Suspend outdoor physical training and enact remote/hybrid schooling when PM2.5 forecast &gt; 150 µg/m³.
+                    Suspend outdoor morning assemblies and physical education when PM2.5 &gt; 150 µg/m³.
                   </p>
                 </div>
 
@@ -116,9 +141,11 @@ export const App: React.FC = () => {
                   <div className="green-icon-box">
                     <Truck size={22} />
                   </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '6px' }}>Heavy Transport</h4>
+                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                    Transport Restrictions
+                  </h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Re-route non-essential heavy diesel trucks away from urban centers during forecasted peak morning inversions.
+                    Divert heavy diesel transport away from Ring Roads and city cores during inversion hours.
                   </p>
                 </div>
 
@@ -126,9 +153,11 @@ export const App: React.FC = () => {
                   <div className="green-icon-box">
                     <Factory size={22} />
                   </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '6px' }}>Industrial Emitters</h4>
+                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                    Industrial Emitters
+                  </h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Preemptively shift high-emission operating hours and mandate wet scrubbers on brick kilns and steel mills.
+                    Enforce wet scrubbers on brick kilns and mandate staggered operation for high emitters.
                   </p>
                 </div>
 
@@ -136,10 +165,55 @@ export const App: React.FC = () => {
                   <div className="green-icon-box">
                     <Building2 size={22} />
                   </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '6px' }}>Hospital Preparedness</h4>
+                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                    Clinical Read-Ahead
+                  </h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Alert public respiratory clinics to increase bronchodilator inventories and oxygen reserves 24 hours prior.
+                    Mobilize hospital respiratory triage units and expand bronchodilator inventories 24h prior.
                   </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Airlab Reference Section: Regional Coverage & Technical Depth split layout */}
+            <section style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '24px',
+              marginTop: '12px'
+            }}>
+              <div className="airlab-card" style={{ padding: '32px' }}>
+                <span className="badge badge-green" style={{ marginBottom: '12px' }}>
+                  Regional Reach
+                </span>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px' }}>
+                  Continuous Ground Coverage Across Pakistan
+                </h3>
+                <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '20px' }}>
+                  With sensor arrays active across Punjab and Sindh, our pipeline fuses PAQI ground monitors
+                  with NASA POWER boundary meteorology to deliver certified 24h foresight.
+                </p>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => setSelectedCity('Lahore')} className="btn-outline">
+                    Inspect Lahore Sector <ArrowRight size={14} />
+                  </button>
+                  <button onClick={() => setSelectedCity('Karachi')} className="btn-outline">
+                    Inspect Karachi Sector <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="airlab-card" style={{ padding: '32px', backgroundColor: 'var(--brand-green-subtle)', borderColor: 'rgba(153, 222, 123, 0.4)' }}>
+                <Quote size={28} color="#2D5A1E" style={{ marginBottom: '8px', opacity: 0.8 }} />
+                <p style={{ fontSize: '1.05rem', color: 'var(--brand-green-text)', fontWeight: 500, lineHeight: 1.6, marginBottom: '18px' }}>
+                  "The 24-hour lead time allows environmental response teams to enact targeted vehicle rationing
+                  and school advisories before citizens are exposed to extreme smog peaks."
+                </p>
+                <div style={{ fontSize: '0.85rem', color: 'var(--brand-green-text)', fontWeight: 700 }}>
+                  Environmental Protection Department (EPD) Smog Protocol
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--brand-green-text)', opacity: 0.8 }}>
+                  Statutory Smog Prevention Benchmark • Punjab 2023
                 </div>
               </div>
             </section>
@@ -161,20 +235,20 @@ export const App: React.FC = () => {
 
       {/* Airlab-style Clean Minimal Footer */}
       <footer style={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'var(--bg-main)',
         borderTop: '1px solid var(--card-border)',
         padding: '48px 0 32px 0',
         marginTop: 'auto'
       }}>
         <div className="container" style={{
           display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr',
-          gap: '40px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '32px',
           marginBottom: '36px'
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <span className="text-xl font-bold tracking-tight text-[#1C1F26]">
+              <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
                 air<span style={{ color: 'var(--brand-green-dark)' }}>lab</span>
                 <span style={{ fontSize: '0.8rem', marginLeft: '6px', color: 'var(--text-muted)' }}>Pakistan Operational Pipeline</span>
               </span>
@@ -185,7 +259,7 @@ export const App: React.FC = () => {
           </div>
 
           <div>
-            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1C2024', marginBottom: '14px', textTransform: 'uppercase' }}>
+            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
               Architecture
             </h5>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -197,7 +271,7 @@ export const App: React.FC = () => {
           </div>
 
           <div>
-            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1C2024', marginBottom: '14px', textTransform: 'uppercase' }}>
+            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
               Standards
             </h5>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -209,7 +283,7 @@ export const App: React.FC = () => {
           </div>
 
           <div>
-            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1C2024', marginBottom: '14px', textTransform: 'uppercase' }}>
+            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
               Deploy
             </h5>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -230,10 +304,12 @@ export const App: React.FC = () => {
         </div>
 
         <div className="container" style={{
-          borderTop: '1px solid #EDF2F7',
+          borderTop: '1px solid var(--card-border)',
           paddingTop: '20px',
           display: 'flex',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px',
           fontSize: '0.8rem',
           color: 'var(--text-muted)'
         }}>

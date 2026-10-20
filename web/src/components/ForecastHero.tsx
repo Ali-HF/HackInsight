@@ -1,5 +1,6 @@
+import React, { useState } from 'react';
 import type { CityForecast, TimeSeriesPoint } from '../types';
-import { TrendingUp, ShieldCheck, Compass, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, ShieldCheck, Compass, CheckCircle2, SlidersHorizontal } from 'lucide-react';
 
 interface ForecastHeroProps {
   city: 'Lahore' | 'Karachi';
@@ -8,6 +9,9 @@ interface ForecastHeroProps {
 }
 
 export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, timeseries }) => {
+  const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; val: number; ts: string } | null>(null);
+  const [timeFilter, setTimeFilter] = useState<'48h' | '24h' | '12h'>('48h');
+
   if (!forecast) {
     return (
       <div className="airlab-card" style={{ padding: '40px', textAlign: 'center' }}>
@@ -23,21 +27,28 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
   const delta = predicted - forecast.baseline_persistence;
   const isHighRisk = predicted > 150.0;
 
-  // Render SVG Sparkline
-  const maxVal = Math.max(...timeseries.map(t => t.pm25), upper80, 200);
+  // Filter timeseries based on user selection
+  const filteredSeries = timeseries.slice(
+    timeFilter === '12h' ? -12 : timeFilter === '24h' ? -24 : -48
+  );
+
+  // SVG dimensions & responsive padding
+  const maxVal = Math.max(...filteredSeries.map(t => t.pm25), upper80, 200);
   const minVal = 0;
-  const svgWidth = 720;
-  const svgHeight = 220;
-  const paddingX = 40;
-  const paddingY = 25;
+  const svgWidth = 840;
+  const svgHeight = 240;
+  const paddingX = 45;
+  const paddingY = 30;
 
-  const points = timeseries.map((pt, idx) => {
-    const x = paddingX + (idx / Math.max(timeseries.length - 1, 1)) * (svgWidth - 2 * paddingX - 80);
+  const pointsData = filteredSeries.map((pt, idx) => {
+    const x = paddingX + (idx / Math.max(filteredSeries.length - 1, 1)) * (svgWidth - 2 * paddingX - 90);
     const y = svgHeight - paddingY - ((pt.pm25 - minVal) / (maxVal - minVal)) * (svgHeight - 2 * paddingY);
-    return `${x},${y}`;
-  }).join(' ');
+    return { x, y, pt };
+  });
 
-  const forecastX = svgWidth - paddingX;
+  const polylineStr = pointsData.map(p => `${p.x},${p.y}`).join(' ');
+
+  const forecastX = svgWidth - paddingX - 10;
   const forecastY = svgHeight - paddingY - ((predicted - minVal) / (maxVal - minVal)) * (svgHeight - 2 * paddingY);
   const lowerY = svgHeight - paddingY - ((lower80 - minVal) / (maxVal - minVal)) * (svgHeight - 2 * paddingY);
   const upperY = svgHeight - paddingY - ((upper80 - minVal) / (maxVal - minVal)) * (svgHeight - 2 * paddingY);
@@ -45,17 +56,17 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Editorial Headline matching Airlab aesthetic */}
-      <div style={{ maxWidth: '880px', marginTop: '16px' }}>
+      <div style={{ maxWidth: '920px', marginTop: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
           <span className="badge badge-green">EPD Certified Monitoring</span>
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>• Zero-Leakage HistGradientBoosting</span>
         </div>
-        <h1 style={{
+        <h1 className="hero-title" style={{
           fontSize: '2.5rem',
           fontWeight: 700,
           letterSpacing: '-0.03em',
           lineHeight: 1.15,
-          color: '#1C2024',
+          color: 'var(--text-primary)',
           marginBottom: '14px'
         }}>
           We monitor air quality where accuracy isn’t optional, it’s critical.
@@ -66,12 +77,8 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
         </p>
       </div>
 
-      {/* Primary KPI Grid (Airlab green cards style) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '16px'
-      }}>
+      {/* Primary KPI Grid (4 Cards reflow to 2x2 on tablet, 1 col on mobile) */}
+      <div className="grid-4">
         {/* Card 1: Current */}
         <div className="airlab-card">
           <div className="green-icon-box">
@@ -80,7 +87,7 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
           <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Current Ground Observation
           </div>
-          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: '#1C2024' }}>
+          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: 'var(--text-primary)' }}>
             {current.toFixed(1)} <span style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-secondary)' }}>µg/m³</span>
           </div>
           <div style={{ marginTop: '10px' }}>
@@ -91,14 +98,14 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
         </div>
 
         {/* Card 2: 24h Ahead Model Forecast */}
-        <div className="airlab-card" style={{ borderColor: isHighRisk ? '#FEB2B2' : 'var(--brand-green)' }}>
-          <div className="green-icon-box" style={{ backgroundColor: isHighRisk ? '#FDEDED' : 'var(--brand-green-subtle)', color: isHighRisk ? '#C53030' : 'var(--brand-green-text)' }}>
+        <div className="airlab-card" style={{ borderColor: isHighRisk ? 'var(--danger-border)' : 'var(--brand-green)' }}>
+          <div className="green-icon-box" style={{ backgroundColor: isHighRisk ? 'var(--danger-bg)' : 'var(--brand-green-subtle)', color: isHighRisk ? 'var(--danger-text)' : 'var(--brand-green-text)' }}>
             <TrendingUp size={22} />
           </div>
           <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             24h Horizon Forecast (t+24)
           </div>
-          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: '#1C2024' }}>
+          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: 'var(--text-primary)' }}>
             {predicted.toFixed(1)} <span style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-secondary)' }}>µg/m³</span>
           </div>
           <div style={{ marginTop: '10px' }}>
@@ -116,7 +123,7 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
           <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             80% Conformal Prediction Band
           </div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 700, marginTop: '10px', color: '#1C2024' }}>
+          <div style={{ fontSize: '1.65rem', fontWeight: 700, marginTop: '10px', color: 'var(--text-primary)' }}>
             [{lower80.toFixed(0)}, {upper80.toFixed(0)}] <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)' }}>µg/m³</span>
           </div>
           <div style={{ marginTop: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -132,7 +139,7 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
           <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Persistence Baseline Delta
           </div>
-          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: '#1C2024' }}>
+          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: 'var(--text-primary)' }}>
             {delta > 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)} <span style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-secondary)' }}>µg/m³</span>
           </div>
           <div style={{ marginTop: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -142,39 +149,81 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
       </div>
 
       {/* Interactive Time Series Chart Block */}
-      <div className="airlab-card" style={{ padding: '32px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+      <div className="airlab-card" style={{ padding: '28px', position: 'relative' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginBottom: '20px'
+        }}>
           <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1C2024' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Historical Ground Observations & Calibrated 24h Forecast
             </h3>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               Continuous sensor stream against Punjab Smog Policy thresholds (150 µg/m³) and Pak-NEQS (35 µg/m³).
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#6CAE4F' }} />
-              Historical Observations
+
+          {/* Time range switcher */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <SlidersHorizontal size={13} /> Window:
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#E53E3E' }} />
-              24h Prediction Point
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '12px', height: '2px', backgroundColor: '#E53E3E', borderTop: '1px dashed #E53E3E' }} />
-              Punjab 150 µg/m³ Smog Line
-            </span>
+            {(['12h', '24h', '48h'] as const).map(w => (
+              <button
+                key={w}
+                onClick={() => setTimeFilter(w)}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius-pill)',
+                  border: '1px solid var(--card-border)',
+                  background: timeFilter === w ? 'var(--brand-green)' : 'transparent',
+                  color: timeFilter === w ? '#172B10' : 'var(--text-secondary)',
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {w}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Crisp Vector Visualization */}
+        {/* Hover Tooltip Overlay */}
+        {hoveredPoint && (
+          <div style={{
+            position: 'absolute',
+            left: `${Math.min(hoveredPoint.x, svgWidth - 140)}px`,
+            top: `${Math.max(hoveredPoint.y - 45, 10)}px`,
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--card-border)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '6px 12px',
+            fontSize: '0.75rem',
+            boxShadow: 'var(--shadow-card)',
+            pointerEvents: 'none',
+            zIndex: 10
+          }}>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{hoveredPoint.val.toFixed(1)} µg/m³</div>
+            <div style={{ color: 'var(--text-muted)' }}>{hoveredPoint.ts.replace('T', ' ').slice(0, 16)} UTC</div>
+          </div>
+        )}
+
+        {/* Vector SVG Chart with Interactive Points */}
         <div style={{ width: '100%', overflowX: 'auto' }}>
-          <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} style={{ width: '100%', height: 'auto', maxHeight: '280px' }}>
+          <svg
+            viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+            style={{ width: '100%', height: 'auto', minHeight: '220px' }}
+            onMouseLeave={() => setHoveredPoint(null)}
+          >
             {/* Guide Grid Lines */}
-            <line x1={paddingX} y1={paddingY} x2={svgWidth - paddingX} y2={paddingY} stroke="#EDF2F7" strokeWidth="1" />
-            <line x1={paddingX} y1={svgHeight / 2} x2={svgWidth - paddingX} y2={svgHeight / 2} stroke="#EDF2F7" strokeWidth="1" />
-            <line x1={paddingX} y1={svgHeight - paddingY} x2={svgWidth - paddingX} y2={svgHeight - paddingY} stroke="#CBD5E1" strokeWidth="1" />
+            <line x1={paddingX} y1={paddingY} x2={svgWidth - paddingX} y2={paddingY} stroke="var(--card-border)" strokeWidth="1" />
+            <line x1={paddingX} y1={svgHeight / 2} x2={svgWidth - paddingX} y2={svgHeight / 2} stroke="var(--card-border)" strokeWidth="1" />
+            <line x1={paddingX} y1={svgHeight - paddingY} x2={svgWidth - paddingX} y2={svgHeight - paddingY} stroke="var(--card-border)" strokeWidth="1" />
 
             {/* Threshold Line: Punjab Smog Emergency 150 */}
             {(() => {
@@ -209,8 +258,21 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              points={points}
+              points={polylineStr}
             />
+
+            {/* Interactive Data Hover Circles */}
+            {pointsData.map((p, idx) => (
+              <circle
+                key={idx}
+                cx={p.x}
+                cy={p.y}
+                r={4}
+                fill="#6CAE4F"
+                style={{ cursor: 'pointer', transition: 'r 0.15s ease' }}
+                onMouseEnter={() => setHoveredPoint({ x: p.x, y: p.y, val: p.pt.pm25, ts: p.pt.timestamp_utc })}
+              />
+            ))}
 
             {/* Prediction Interval Vertical Range */}
             <line
@@ -233,20 +295,25 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
               fill="#E53E3E"
               stroke="#FFFFFF"
               strokeWidth="2.5"
+              style={{ cursor: 'pointer' }}
+              onMouseEnter={() => setHoveredPoint({ x: forecastX, y: forecastY, val: predicted, ts: 'Target t+24h' })}
             />
           </svg>
         </div>
 
         <div style={{
           marginTop: '16px',
-          padding: '14px 18px',
+          padding: '12px 16px',
           borderRadius: 'var(--radius-sm)',
-          backgroundColor: '#F7FAFC',
-          border: '1px solid #E2E8F0',
+          backgroundColor: 'var(--bg-subtle)',
+          border: '1px solid var(--card-border)',
           display: 'flex',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px',
           alignItems: 'center',
-          fontSize: '0.85rem'
+          fontSize: '0.85rem',
+          color: 'var(--text-secondary)'
         }}>
           <div>
             <strong>Sensor Coverage:</strong> {forecast.sensors_evaluated} low-cost reference-grade nodes evaluated across {city}.

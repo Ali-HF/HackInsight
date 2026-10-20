@@ -1,5 +1,5 @@
 import { Logo } from './Logo';
-import { ShieldCheck, Activity, BrainCircuit, BarChart3 } from 'lucide-react';
+import { ShieldCheck, Activity, BrainCircuit, BarChart3, Sun, Moon } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -7,6 +7,8 @@ interface NavbarProps {
   selectedCity: 'Lahore' | 'Karachi';
   setSelectedCity: (city: 'Lahore' | 'Karachi') => void;
   lastUpdated?: string;
+  isDark: boolean;
+  toggleDark: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -14,27 +16,34 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   selectedCity,
   setSelectedCity,
-  lastUpdated
+  lastUpdated,
+  isDark,
+  toggleDark
 }) => {
   return (
     <header style={{
       borderBottom: '1px solid var(--card-border)',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: 'var(--bg-main)',
       position: 'sticky',
       top: 0,
-      zIndex: 50
+      zIndex: 50,
+      transition: 'background-color 0.2s ease, border-color 0.2s ease'
     }}>
       <div className="container" style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        height: '74px'
+        minHeight: '74px',
+        flexWrap: 'wrap',
+        gap: '12px',
+        paddingTop: '8px',
+        paddingBottom: '8px'
       }}>
-        {/* Brand identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+        {/* Brand identity & Navigation links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
           <Logo />
           
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <nav className="nav-menu" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button
               onClick={() => setActiveTab('overview')}
               style={{
@@ -121,15 +130,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
         </div>
 
-        {/* Action Controls & City Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        {/* Action Controls & City Selector & Dark Mode Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           {/* City switcher pill */}
           <div style={{
             display: 'inline-flex',
-            backgroundColor: '#F1F4EE',
+            backgroundColor: 'var(--bg-subtle)',
             padding: '3px',
             borderRadius: 'var(--radius-pill)',
-            border: '1px solid #E1E6DE'
+            border: '1px solid var(--card-border)'
           }}>
             <button
               onClick={() => setSelectedCity('Lahore')}
@@ -137,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 padding: '6px 14px',
                 borderRadius: 'var(--radius-pill)',
                 border: 'none',
-                background: selectedCity === 'Lahore' ? '#FFFFFF' : 'transparent',
+                background: selectedCity === 'Lahore' ? 'var(--bg-card)' : 'transparent',
                 color: selectedCity === 'Lahore' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: 600,
                 fontSize: '0.8125rem',
@@ -146,7 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 transition: 'all 0.15s ease'
               }}
             >
-              Lahore (Smog Zone)
+              Lahore
             </button>
             <button
               onClick={() => setSelectedCity('Karachi')}
@@ -154,7 +163,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 padding: '6px 14px',
                 borderRadius: 'var(--radius-pill)',
                 border: 'none',
-                background: selectedCity === 'Karachi' ? '#FFFFFF' : 'transparent',
+                background: selectedCity === 'Karachi' ? 'var(--bg-card)' : 'transparent',
                 color: selectedCity === 'Karachi' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: 600,
                 fontSize: '0.8125rem',
@@ -163,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 transition: 'all 0.15s ease'
               }}
             >
-              Karachi (Coastal)
+              Karachi
             </button>
           </div>
 
@@ -175,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             padding: '6px 12px',
             borderRadius: 'var(--radius-pill)',
             backgroundColor: 'var(--brand-green-subtle)',
-            border: '1px solid #D1EBC2',
+            border: '1px solid rgba(153, 222, 123, 0.4)',
             fontSize: '0.75rem',
             color: 'var(--brand-green-text)',
             fontWeight: 600
@@ -187,16 +196,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               backgroundColor: '#48BB78',
               display: 'inline-block'
             }} />
-            {lastUpdated ? `Live: ${lastUpdated.slice(11, 16)} UTC` : 'Prefect: Asia/Karachi'}
+            {lastUpdated ? `Live: ${lastUpdated.slice(11, 16)} UTC` : 'Prefect: Live'}
           </div>
 
-          <a
-            href="#decision-protocol"
-            className="btn-airlab"
-            style={{ fontSize: '0.8125rem', padding: '8px 18px' }}
+          {/* Dark / Light Mode Toggle Button */}
+          <button
+            onClick={toggleDark}
+            aria-label="Toggle theme"
+            className="btn-outline"
+            style={{ padding: '8px', borderRadius: '50%', width: '36px', height: '36px', justifyContent: 'center' }}
           >
-            Action Protocol
-          </a>
+            {isDark ? <Sun size={16} color="#99DE7B" /> : <Moon size={16} color="#4A5568" />}
+          </button>
         </div>
       </div>
     </header>
