@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TiltCard } from './TiltCard';
 import { AtmosphericGlobe } from './AtmosphericGlobe';
 
+import { ForecastSkeleton } from './LoadingSkeleton';
+
 interface ForecastHeroProps {
   city: 'Lahore' | 'Karachi';
   forecast?: CityForecast;
@@ -17,11 +19,7 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
   const [show3DView, setShow3DView] = useState(false);
 
   if (!forecast) {
-    return (
-      <div className="airlab-card" style={{ padding: '60px', textAlign: 'center' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Loading live forecast telemetry for {city}...</p>
-      </div>
-    );
+    return <ForecastSkeleton />;
   }
 
   const current = forecast.current_pm25;
