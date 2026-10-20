@@ -274,6 +274,23 @@ const evaluateQueryGrounded = (
     };
   }
 
+  // F. Conversational Greetings / Identity / Help
+  if (['hello', 'hi', 'hey', 'salam', 'assalam', 'aoa'].some(g => q === g || q.startsWith(g + ' ') || q.endsWith(' ' + g))) {
+    return {
+      answer: `Hello! I am the HackInsight Environmental Decision-Support Assistant. I monitor real-time ground sensors across Lahore and Karachi and generate 24-hour PM2.5 forecasts using verified machine learning models and Pak-EPA regulatory benchmarks. You can ask me about current air quality, next-day smog forecasts, data quality health, or statutory school/hospital advisories.`,
+      status: "greeting",
+      evidence: { active_cities: ["Lahore", "Karachi"], pipeline_status: "operational" },
+      citations: [
+        { title: "Pakistan Air Quality Initiative (PAQI) Monitoring Network" },
+        { title: "Pak-EPA NEQS Ambient Air Standards (2010)" }
+      ],
+      warnings: [],
+      tools_used: ["conversational_agent"],
+      grounding_passed: true,
+      interaction_id: interactionId
+    };
+  }
+
   // Default: Fallback out-of-scope handler per Hackathon Chapter 9 Rule 3 ("I don't know")
   return {
     answer: `I don't know. The query "${rawQuery}" falls outside the scope of verified sensor data, PM2.5 forecasts, data quality audits, and environmental health advisories. Please ask about current air quality, 24-hour forecasts, data quality, or statutory smog policies for Lahore and Karachi.`,
@@ -286,6 +303,7 @@ const evaluateQueryGrounded = (
     interaction_id: interactionId
   };
 };
+
 
 export const AgentAssistant: React.FC = () => {
   const [query, setQuery] = useState('');
