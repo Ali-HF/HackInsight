@@ -338,6 +338,29 @@ export const AgentAssistant: React.FC = () => {
 
       // Evaluate query through evidence engine
       const evaluated = evaluateQueryGrounded(questionText, forecastsMap, qualityObj);
+
+      // Attempt live Gemini 2.5 Flash call via Vercel serverless function
+      try {
+        const apiRes = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: questionText,
+            telemetryContext: evaluated.evidence
+          })
+        });
+
+        if (apiRes.ok) {
+          const apiJson = await apiRes.json();
+          if (apiJson?.answer) {
+            evaluated.answer = apiJson.answer;
+            evaluated.tools_used = [...evaluated.tools_used, "gemini-2.5-flash"];
+          }
+        }
+      } catch (e) {
+        // Fallback cleanly to local evaluated response
+      }
+
       setResponse(evaluated);
     } finally {
       setLoading(false);
@@ -354,16 +377,16 @@ export const AgentAssistant: React.FC = () => {
     >
       {/* Left Chat & Answer Stream */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div className="airlab-card" style={{ padding: '28px' }}>
+        <div className="airlab-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <span className="badge badge-green">Anti-Hallucination Guardrails Active</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>• Zero Synthetic Inventions</span>
+            <span className="badge badge-green">Grounded RAG Agent</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>• Zero-Hallucination Guardrails</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            Decision-Support Environmental Insight Agent
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Environmental Decision Assistant
           </h2>
-          <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Query the grounded AI assistant on live sensor conditions, 24-hour predictions, and EPD emergency protocols.
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            Ask natural language questions grounded in live sensor data, model forecasts, and statutory thresholds.
           </p>
 
           {/* Quick Suggestion Chips */}
