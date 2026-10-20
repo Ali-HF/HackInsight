@@ -30,13 +30,12 @@ from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-# Prefect imports with graceful standalone fallback
+# Prefect imports with graceful standalone fallback and backwards compatibility
 try:
     from prefect import flow, task
-    from prefect.schedules import Cron
     PREFECT_AVAILABLE = True
 except ImportError:
-    # Standalone fallback decorators if Prefect is not initialized
+    PREFECT_AVAILABLE = False
     def flow(*args, **kwargs):
         def decorator(f):
             f.deploy = lambda *a, **kw: print(f"Deployment configured for {f.__name__}")
@@ -47,18 +46,33 @@ except ImportError:
         return decorator
 
     def task(*args, **kwargs):
+        retries = kwargs.get("retries", None)
+        retry_delay_seconds = kwargs.get("retry_delay_seconds", None)
         def decorator(f):
+            if retries is not None:
+                setattr(f, "retries", retries)
+            if retry_delay_seconds is not None:
+                setattr(f, "retry_delay_seconds", retry_delay_seconds)
             return f
         if len(args) == 1 and callable(args[0]):
             return decorator(args[0])
         return decorator
 
-    class Cron:
-        def __init__(self, cron: str, timezone: str = "Asia/Karachi"):
-            self.cron = cron
-            self.timezone = timezone
+# Provide standard Cron schedule object and ensure prefect.schedules is importable
+class Cron:
+    def __init__(self, cron: str, timezone: str = "Asia/Karachi"):
+        self.cron = cron
+        self.timezone = timezone
 
-    PREFECT_AVAILABLE = False
+try:
+    import prefect.schedules as _ps
+    _ps.Cron = Cron
+except (ImportError, AttributeError, ModuleNotFoundError):
+    import types
+    _schedules_mod = types.ModuleType("prefect.schedules")
+    _schedules_mod.Cron = Cron
+    sys.modules["prefect.schedules"] = _schedules_mod
+
 
 
 # Local pipeline imports
@@ -114,7 +128,7 @@ class ConcurrencyLock:
                 pass
 
 
-@task(name="acquire_sensor_data")
+@task(name="acquire_sensor_data", retries=3, retry_delay_seconds=5)
 def task_acquire_data(data_path: Optional[str] = None) -> pd.DataFrame:
     """
     Step 1: Acquire or load available source data.

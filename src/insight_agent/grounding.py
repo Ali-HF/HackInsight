@@ -22,7 +22,7 @@ AUTHORITATIVE_STANDARDS = {
         "citation": "World Health Organization (2021). Global Air Quality Guidelines: Particulate Matter (PM2.5 and PM10)."
     },
     "PAK_NEQS_2010": {
-        "title": "National Environmental Quality Standards for Ambient Air (Pakistan EPA, 2010)",
+        "title": "National Environmental Quality Standards for Ambient Air (Pak-EPA, 2010)",
         "pm25_24h_standard": 35.0,
         "pm25_annual_standard": 15.0,
         "citation": "Pakistan Environmental Protection Agency (Pak-EPA, S.R.O. 1062(I)/2010)."
