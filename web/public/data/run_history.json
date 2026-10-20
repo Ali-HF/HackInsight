@@ -1,0 +1,90 @@
+[
+  {
+    "run_id": "20261020_132147",
+    "timestamp_utc": "2026-10-20T13:21:47.854623+00:00",
+    "status": "FAILED",
+    "duration_seconds": 0.004,
+    "forecast_output": null,
+    "quality_output": null,
+    "records_checked": 0,
+    "agent_grounding_passed": false,
+    "error": "RuntimeError: Simulated pipeline ingestion or service failure for testing."
+  },
+  {
+    "run_id": "20261020_132143",
+    "timestamp_utc": "2026-10-20T13:21:47.768761+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 4.634,
+    "forecast_output": "outputs\\forecasts\\latest_forecast.json",
+    "quality_output": "outputs\\quality\\latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
+    "run_id": "20261020_132111",
+    "timestamp_utc": "2026-10-20T13:21:32.298802+00:00",
+    "status": "FAILED",
+    "duration_seconds": 21.154,
+    "forecast_output": null,
+    "quality_output": null,
+    "records_checked": 0,
+    "agent_grounding_passed": false,
+    "error": "FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'"
+  },
+  {
+    "run_id": "20261020_131731",
+    "timestamp_utc": "2026-10-20T13:17:31.239460+00:00",
+    "status": "FAILED",
+    "duration_seconds": 0.004,
+    "forecast_output": null,
+    "quality_output": null,
+    "records_checked": 0,
+    "agent_grounding_passed": false,
+    "error": "RuntimeError: Simulated pipeline ingestion or service failure for testing."
+  },
+  {
+    "run_id": "20261020_131726",
+    "timestamp_utc": "2026-10-20T13:17:30.887940+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 4.715,
+    "forecast_output": "outputs\\forecasts\\latest_forecast.json",
+    "quality_output": "outputs\\quality\\latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
+    "run_id": "20261020_131655",
+    "timestamp_utc": "2026-10-20T13:17:15.153496+00:00",
+    "status": "FAILED",
+    "duration_seconds": 20.022,
+    "forecast_output": null,
+    "quality_output": null,
+    "records_checked": 0,
+    "agent_grounding_passed": false,
+    "error": "FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'"
+  },
+  {
+    "run_id": "20261020_131508",
+    "timestamp_utc": "2026-10-20T13:15:08.316964+00:00",
+    "status": "FAILED",
+    "duration_seconds": 0.076,
+    "forecast_output": null,
+    "quality_output": null,
+    "records_checked": 0,
+    "agent_grounding_passed": false,
+    "error": "FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'"
+  },
+  {
+    "run_id": "20261020_130933",
+    "timestamp_utc": "2026-10-20T13:09:43.489571+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 10.239,
+    "forecast_output": "outputs\\forecasts\\latest_forecast.json",
+    "quality_output": "outputs\\quality\\latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  }
+]
