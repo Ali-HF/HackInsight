@@ -1,5 +1,6 @@
 import { Logo } from './Logo';
 import { ShieldCheck, Activity, BrainCircuit, BarChart3, Sun, Moon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface NavbarProps {
   activeTab: string;
@@ -10,6 +11,13 @@ interface NavbarProps {
   isDark: boolean;
   toggleDark: () => void;
 }
+
+const NAV_ITEMS = [
+  { id: 'overview', label: '24h Forecast', icon: Activity },
+  { id: 'assistant', label: 'Insight Agent', icon: BrainCircuit },
+  { id: 'quality', label: 'Data Quality', icon: ShieldCheck },
+  { id: 'model', label: 'Model Metrics', icon: BarChart3 }
+];
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
@@ -27,7 +35,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       position: 'sticky',
       top: 0,
       zIndex: 50,
-      transition: 'background-color 0.2s ease, border-color 0.2s ease'
+      backdropFilter: 'blur(12px)',
+      transition: 'background-color 0.25s ease, border-color 0.25s ease'
     }}>
       <div className="container" style={{
         display: 'flex',
@@ -39,144 +48,109 @@ export const Navbar: React.FC<NavbarProps> = ({
         paddingTop: '8px',
         paddingBottom: '8px'
       }}>
-        {/* Brand identity & Navigation links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+        {/* Brand identity & Interactive Animated Navigation */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '28px', flexWrap: 'wrap' }}>
           <Logo />
           
-          <nav className="nav-menu" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <button
-              onClick={() => setActiveTab('overview')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
-                borderRadius: 'var(--radius-pill)',
-                border: 'none',
-                background: activeTab === 'overview' ? 'var(--brand-green-subtle)' : 'transparent',
-                color: activeTab === 'overview' ? 'var(--brand-green-text)' : 'var(--text-secondary)',
-                fontWeight: activeTab === 'overview' ? 600 : 500,
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Activity size={16} />
-              24h Forecast
-            </button>
-
-            <button
-              onClick={() => setActiveTab('assistant')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
-                borderRadius: 'var(--radius-pill)',
-                border: 'none',
-                background: activeTab === 'assistant' ? 'var(--brand-green-subtle)' : 'transparent',
-                color: activeTab === 'assistant' ? 'var(--brand-green-text)' : 'var(--text-secondary)',
-                fontWeight: activeTab === 'assistant' ? 600 : 500,
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <BrainCircuit size={16} />
-              Insight Agent
-            </button>
-
-            <button
-              onClick={() => setActiveTab('quality')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
-                borderRadius: 'var(--radius-pill)',
-                border: 'none',
-                background: activeTab === 'quality' ? 'var(--brand-green-subtle)' : 'transparent',
-                color: activeTab === 'quality' ? 'var(--brand-green-text)' : 'var(--text-secondary)',
-                fontWeight: activeTab === 'quality' ? 600 : 500,
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <ShieldCheck size={16} />
-              Data Quality
-            </button>
-
-            <button
-              onClick={() => setActiveTab('model')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
-                borderRadius: 'var(--radius-pill)',
-                border: 'none',
-                background: activeTab === 'model' ? 'var(--brand-green-subtle)' : 'transparent',
-                color: activeTab === 'model' ? 'var(--brand-green-text)' : 'var(--text-secondary)',
-                fontWeight: activeTab === 'model' ? 600 : 500,
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <BarChart3 size={16} />
-              Model Metrics
-            </button>
+          <nav className="nav-menu" style={{ display: 'flex', alignItems: 'center', gap: '6px', position: 'relative' }}>
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  style={{
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: 'var(--radius-pill)',
+                    border: 'none',
+                    background: 'transparent',
+                    color: isActive ? 'var(--brand-green-text)' : 'var(--text-secondary)',
+                    fontWeight: isActive ? 600 : 500,
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    zIndex: 1,
+                    transition: 'color 0.2s ease'
+                  }}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTabBadge"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        backgroundColor: 'var(--brand-green-subtle)',
+                        borderRadius: 'var(--radius-pill)',
+                        border: '1px solid rgba(153, 222, 123, 0.4)',
+                        zIndex: -1
+                      }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <Icon size={16} />
+                  {item.label}
+                </button>
+              );
+            })}
           </nav>
         </div>
 
-        {/* Action Controls & City Selector & Dark Mode Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          {/* City switcher pill */}
+        {/* Action Controls & City Switcher with Spring Animation */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          {/* Animated City Switcher */}
           <div style={{
+            position: 'relative',
             display: 'inline-flex',
             backgroundColor: 'var(--bg-subtle)',
             padding: '3px',
             borderRadius: 'var(--radius-pill)',
             border: '1px solid var(--card-border)'
           }}>
-            <button
-              onClick={() => setSelectedCity('Lahore')}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 'var(--radius-pill)',
-                border: 'none',
-                background: selectedCity === 'Lahore' ? 'var(--bg-card)' : 'transparent',
-                color: selectedCity === 'Lahore' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: '0.8125rem',
-                cursor: 'pointer',
-                boxShadow: selectedCity === 'Lahore' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Lahore
-            </button>
-            <button
-              onClick={() => setSelectedCity('Karachi')}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 'var(--radius-pill)',
-                border: 'none',
-                background: selectedCity === 'Karachi' ? 'var(--bg-card)' : 'transparent',
-                color: selectedCity === 'Karachi' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: '0.8125rem',
-                cursor: 'pointer',
-                boxShadow: selectedCity === 'Karachi' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Karachi
-            </button>
+            {(['Lahore', 'Karachi'] as const).map((city) => {
+              const isSelected = selectedCity === city;
+              return (
+                <button
+                  key={city}
+                  onClick={() => setSelectedCity(city)}
+                  style={{
+                    position: 'relative',
+                    padding: '6px 16px',
+                    borderRadius: 'var(--radius-pill)',
+                    border: 'none',
+                    background: 'transparent',
+                    color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fontWeight: 600,
+                    fontSize: '0.8125rem',
+                    cursor: 'pointer',
+                    zIndex: 1,
+                    transition: 'color 0.2s ease'
+                  }}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="activeCityIndicator"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        backgroundColor: 'var(--bg-card)',
+                        borderRadius: 'var(--radius-pill)',
+                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                        zIndex: -1
+                      }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  {city}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Operational Status Pill */}
+          {/* Operational Pulse Pill */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -194,20 +168,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               height: '7px',
               borderRadius: '50%',
               backgroundColor: '#48BB78',
-              display: 'inline-block'
+              boxShadow: '0 0 8px #48BB78'
             }} />
             {lastUpdated ? `Live: ${lastUpdated.slice(11, 16)} UTC` : 'Prefect: Live'}
           </div>
 
-          {/* Dark / Light Mode Toggle Button */}
-          <button
+          {/* Theme Switcher with subtle rotation */}
+          <motion.button
+            whileTap={{ scale: 0.9, rotate: 15 }}
             onClick={toggleDark}
             aria-label="Toggle theme"
             className="btn-outline"
             style={{ padding: '8px', borderRadius: '50%', width: '36px', height: '36px', justifyContent: 'center' }}
           >
             {isDark ? <Sun size={16} color="#99DE7B" /> : <Moon size={16} color="#4A5568" />}
-          </button>
+          </motion.button>
         </div>
       </div>
     </header>

@@ -5,7 +5,8 @@ import { AgentAssistant } from './components/AgentAssistant';
 import { DataQualityView } from './components/DataQualityView';
 import { ModelMetricsView } from './components/ModelMetricsView';
 import type { LatestForecastPayload, QualityAssessmentPayload, ModelMetricsPayload, TimeSeriesPoint } from './types';
-import { Building2, Truck, School, Factory, ExternalLink, ArrowRight, Quote } from 'lucide-react';
+import { Building2, Truck, School, Factory, ArrowRight, Quote, GitBranch } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
@@ -18,7 +19,6 @@ export const App: React.FC = () => {
   const [timeseriesData, setTimeseriesData] = useState<Record<string, TimeSeriesPoint[]>>({});
 
   useEffect(() => {
-    // Check saved theme or system preference
     const saved = localStorage.getItem('airlab_theme');
     if (saved === 'dark') {
       setIsDark(true);
@@ -88,7 +88,7 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Primary Navigation with Theme Toggle */}
+      {/* Primary Navigation with Framer Motion Tabs */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -99,138 +99,171 @@ export const App: React.FC = () => {
         toggleDark={toggleDark}
       />
 
-      {/* Main Page Body */}
+      {/* Main Page Body with Animated Tab Transitions */}
       <main className="container" style={{ flex: 1, padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: '44px' }}>
-        {activeTab === 'overview' && (
-          <>
-            <ForecastHero
-              city={selectedCity}
-              forecast={currentCityForecast}
-              timeseries={cityTimeseries}
-            />
+        <AnimatePresence mode="wait">
+          {activeTab === 'overview' && (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '44px' }}
+            >
+              <ForecastHero
+                city={selectedCity}
+                forecast={currentCityForecast}
+                timeseries={cityTimeseries}
+              />
 
-            {/* Decision Protocol Section (Airlab "What this means for you" style) */}
-            <section id="decision-protocol" style={{ marginTop: '16px' }}>
-              <div style={{ maxWidth: '820px', marginBottom: '24px' }}>
-                <span className="badge badge-green" style={{ marginBottom: '8px' }}>
-                  Statutory Smog Protocols
-                </span>
-                <h2 style={{ fontSize: '1.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Targeted municipal interventions 24 hours in advance.
-                </h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '6px' }}>
-                  Standardized decision triggers approved for Punjab and Sindh provincial authorities
-                  when 24-hour PM2.5 forecasts exceed statutory tiers.
-                </p>
-              </div>
-
-              <div className="grid-4">
-                <div className="airlab-card">
-                  <div className="green-icon-box">
-                    <School size={22} />
-                  </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
-                    Schools & Outdoor
-                  </h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Suspend outdoor morning assemblies and physical education when PM2.5 &gt; 150 µg/m³.
+              {/* Decision Protocol Section */}
+              <section id="decision-protocol" style={{ marginTop: '16px' }}>
+                <div style={{ maxWidth: '820px', marginBottom: '24px' }}>
+                  <span className="badge badge-green" style={{ marginBottom: '8px' }}>
+                    Statutory Smog Protocols
+                  </span>
+                  <h2 style={{ fontSize: '1.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    Targeted municipal interventions 24 hours in advance.
+                  </h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '6px' }}>
+                    Standardized decision triggers approved for Punjab and Sindh provincial authorities
+                    when 24-hour PM2.5 forecasts exceed statutory tiers.
                   </p>
                 </div>
 
-                <div className="airlab-card">
-                  <div className="green-icon-box">
-                    <Truck size={22} />
-                  </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
-                    Transport Restrictions
-                  </h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Divert heavy diesel transport away from Ring Roads and city cores during inversion hours.
+                <div className="grid-4">
+                  <motion.div whileHover={{ y: -4 }} className="airlab-card">
+                    <div className="green-icon-box">
+                      <School size={22} />
+                    </div>
+                    <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                      Schools & Outdoor
+                    </h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      Suspend outdoor morning assemblies and physical education when PM2.5 &gt; 150 µg/m³.
+                    </p>
+                  </motion.div>
+
+                  <motion.div whileHover={{ y: -4 }} className="airlab-card">
+                    <div className="green-icon-box">
+                      <Truck size={22} />
+                    </div>
+                    <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                      Transport Restrictions
+                    </h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      Divert heavy diesel transport away from Ring Roads and city cores during inversion hours.
+                    </p>
+                  </motion.div>
+
+                  <motion.div whileHover={{ y: -4 }} className="airlab-card">
+                    <div className="green-icon-box">
+                      <Factory size={22} />
+                    </div>
+                    <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                      Industrial Emitters
+                    </h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      Enforce wet scrubbers on brick kilns and mandate staggered operation for high emitters.
+                    </p>
+                  </motion.div>
+
+                  <motion.div whileHover={{ y: -4 }} className="airlab-card">
+                    <div className="green-icon-box">
+                      <Building2 size={22} />
+                    </div>
+                    <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                      Clinical Read-Ahead
+                    </h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      Mobilize hospital respiratory triage units and expand bronchodilator inventories 24h prior.
+                    </p>
+                  </motion.div>
+                </div>
+              </section>
+
+              {/* Airlab Reference Section: Regional Coverage & Technical Depth split layout */}
+              <section style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                gap: '24px',
+                marginTop: '12px'
+              }}>
+                <div className="airlab-card" style={{ padding: '32px' }}>
+                  <span className="badge badge-green" style={{ marginBottom: '12px' }}>
+                    Regional Reach
+                  </span>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px' }}>
+                    Continuous Ground Coverage Across Pakistan
+                  </h3>
+                  <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '20px' }}>
+                    With sensor arrays active across Punjab and Sindh, our pipeline fuses PAQI ground monitors
+                    with NASA POWER boundary meteorology to deliver certified 24h foresight.
                   </p>
-                </div>
-
-                <div className="airlab-card">
-                  <div className="green-icon-box">
-                    <Factory size={22} />
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <button onClick={() => setSelectedCity('Lahore')} className="btn-outline">
+                      Inspect Lahore Sector <ArrowRight size={14} />
+                    </button>
+                    <button onClick={() => setSelectedCity('Karachi')} className="btn-outline">
+                      Inspect Karachi Sector <ArrowRight size={14} />
+                    </button>
                   </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
-                    Industrial Emitters
-                  </h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Enforce wet scrubbers on brick kilns and mandate staggered operation for high emitters.
-                  </p>
                 </div>
 
-                <div className="airlab-card">
-                  <div className="green-icon-box">
-                    <Building2 size={22} />
+                <div className="airlab-card" style={{ padding: '32px', backgroundColor: 'var(--brand-green-subtle)', borderColor: 'rgba(153, 222, 123, 0.4)' }}>
+                  <Quote size={28} color="#2D5A1E" style={{ marginBottom: '8px', opacity: 0.8 }} />
+                  <p style={{ fontSize: '1.05rem', color: 'var(--brand-green-text)', fontWeight: 500, lineHeight: 1.6, marginBottom: '18px' }}>
+                    "The 24-hour lead time allows environmental response teams to enact targeted vehicle rationing
+                    and school advisories before citizens are exposed to extreme smog peaks."
+                  </p>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--brand-green-text)', fontWeight: 700 }}>
+                    Environmental Protection Department (EPD) Smog Protocol
                   </div>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
-                    Clinical Read-Ahead
-                  </h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    Mobilize hospital respiratory triage units and expand bronchodilator inventories 24h prior.
-                  </p>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--brand-green-text)', opacity: 0.8 }}>
+                    Statutory Smog Prevention Benchmark • Punjab 2023
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </motion.div>
+          )}
 
-            {/* Airlab Reference Section: Regional Coverage & Technical Depth split layout */}
-            <section style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '24px',
-              marginTop: '12px'
-            }}>
-              <div className="airlab-card" style={{ padding: '32px' }}>
-                <span className="badge badge-green" style={{ marginBottom: '12px' }}>
-                  Regional Reach
-                </span>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px' }}>
-                  Continuous Ground Coverage Across Pakistan
-                </h3>
-                <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '20px' }}>
-                  With sensor arrays active across Punjab and Sindh, our pipeline fuses PAQI ground monitors
-                  with NASA POWER boundary meteorology to deliver certified 24h foresight.
-                </p>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={() => setSelectedCity('Lahore')} className="btn-outline">
-                    Inspect Lahore Sector <ArrowRight size={14} />
-                  </button>
-                  <button onClick={() => setSelectedCity('Karachi')} className="btn-outline">
-                    Inspect Karachi Sector <ArrowRight size={14} />
-                  </button>
-                </div>
-              </div>
+          {activeTab === 'assistant' && (
+            <motion.div
+              key="assistant"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <AgentAssistant />
+            </motion.div>
+          )}
 
-              <div className="airlab-card" style={{ padding: '32px', backgroundColor: 'var(--brand-green-subtle)', borderColor: 'rgba(153, 222, 123, 0.4)' }}>
-                <Quote size={28} color="#2D5A1E" style={{ marginBottom: '8px', opacity: 0.8 }} />
-                <p style={{ fontSize: '1.05rem', color: 'var(--brand-green-text)', fontWeight: 500, lineHeight: 1.6, marginBottom: '18px' }}>
-                  "The 24-hour lead time allows environmental response teams to enact targeted vehicle rationing
-                  and school advisories before citizens are exposed to extreme smog peaks."
-                </p>
-                <div style={{ fontSize: '0.85rem', color: 'var(--brand-green-text)', fontWeight: 700 }}>
-                  Environmental Protection Department (EPD) Smog Protocol
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--brand-green-text)', opacity: 0.8 }}>
-                  Statutory Smog Prevention Benchmark • Punjab 2023
-                </div>
-              </div>
-            </section>
-          </>
-        )}
+          {activeTab === 'quality' && (
+            <motion.div
+              key="quality"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <DataQualityView quality={qualityData ?? undefined} />
+            </motion.div>
+          )}
 
-        {activeTab === 'assistant' && (
-          <AgentAssistant />
-        )}
-
-        {activeTab === 'quality' && (
-          <DataQualityView quality={qualityData ?? undefined} />
-        )}
-
-        {activeTab === 'model' && (
-          <ModelMetricsView metrics={metricsData ?? undefined} />
-        )}
+          {activeTab === 'model' && (
+            <motion.div
+              key="model"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <ModelMetricsView metrics={metricsData ?? undefined} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Airlab-style Clean Minimal Footer */}
@@ -284,20 +317,20 @@ export const App: React.FC = () => {
 
           <div>
             <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
-              Deploy
+              Source & Code
             </h5>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <a
-                href="https://vercel.com/new"
+                href="https://github.com/Ali-HF/HackInsight"
                 target="_blank"
                 rel="noreferrer"
-                className="btn-airlab"
+                className="btn-outline"
                 style={{ fontSize: '0.8125rem', padding: '8px 16px' }}
               >
-                Deploy to Vercel <ExternalLink size={13} />
+                <GitBranch size={14} /> View on GitHub
               </a>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Native Vite + TypeScript SPA
+                Production Deployment Verified
               </span>
             </div>
           </div>

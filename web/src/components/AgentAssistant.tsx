@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2, AlertCircle, BookOpen, ShieldCheck, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AgentResponse {
   answer: string;
@@ -12,7 +13,6 @@ interface AgentResponse {
   interaction_id: string;
 }
 
-// Built-in responses mapped to deterministic data pipeline tools
 const PRESET_KNOWLEDGE: Record<string, AgentResponse> = {
   "What is the 24-hour PM2.5 forecast for Lahore?": {
     answer: "The 24-hour ahead ground-level PM2.5 forecast for Lahore is 153.8 µg/m³ with a calibrated 80% prediction interval of [75.8, 259.7] µg/m³. This reading surpasses the Punjab Smog Emergency threshold of 150 µg/m³, indicating hazardous exposure risks for urban populations.",
@@ -88,7 +88,6 @@ export const AgentAssistant: React.FC = () => {
       if (PRESET_KNOWLEDGE[questionText]) {
         setResponse(PRESET_KNOWLEDGE[questionText]);
       } else {
-        // Fallback grounded answer
         setResponse({
           answer: `Based on verified pipeline telemetry for query "${questionText}", current models indicate seasonal elevated particulate loading in urban centers. Statutory checks remain active under Punjab EPD benchmarks.`,
           status: "success",
@@ -103,11 +102,16 @@ export const AgentAssistant: React.FC = () => {
         });
       }
       setLoading(false);
-    }, 400);
+    }, 350);
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '32px' }}>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="grid-split"
+    >
       {/* Left Chat & Answer Stream */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div className="airlab-card" style={{ padding: '28px' }}>
@@ -115,17 +119,19 @@ export const AgentAssistant: React.FC = () => {
             <span className="badge badge-green">Anti-Hallucination Guardrails Active</span>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>• Zero Synthetic Inventions</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1C2024' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>
             Decision-Support Environmental Insight Agent
           </h2>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Query the grounded AI assistant on live sensor conditions, 24-hour predictions, and EPD emergency protocols.
           </p>
 
-          {/* Quick Suggestion Chips matching Airlab style */}
+          {/* Quick Suggestion Chips */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '18px' }}>
             {Object.keys(PRESET_KNOWLEDGE).map((q) => (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
                 key={q}
                 onClick={() => handleAsk(q)}
                 className="btn-outline"
@@ -133,7 +139,7 @@ export const AgentAssistant: React.FC = () => {
               >
                 <Sparkles size={14} color="#6CAE4F" />
                 {q}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -142,7 +148,7 @@ export const AgentAssistant: React.FC = () => {
             display: 'flex',
             gap: '10px',
             marginTop: '22px',
-            backgroundColor: '#F9FAF8',
+            backgroundColor: 'var(--bg-subtle)',
             padding: '8px',
             borderRadius: 'var(--radius-pill)',
             border: '1px solid var(--card-border)'
@@ -159,7 +165,8 @@ export const AgentAssistant: React.FC = () => {
                 padding: '0 16px',
                 fontSize: '0.9rem',
                 outline: 'none',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                color: 'var(--text-primary)'
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && query.trim()) {
@@ -179,110 +186,120 @@ export const AgentAssistant: React.FC = () => {
           </div>
         </div>
 
-        {/* Grounded Response Card */}
-        {response && (
-          <div className="airlab-card" style={{ padding: '30px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span className="badge badge-green">
-                  <CheckCircle2 size={13} />
-                  100% Grounded in Pipeline Evidence
-                </span>
-                <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
-                  ID: {response.interaction_id}
-                </span>
+        {/* Animated Grounded Response Card */}
+        <AnimatePresence mode="wait">
+          {response && (
+            <motion.div
+              key={response.interaction_id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              className="airlab-card"
+              style={{ padding: '30px' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="badge badge-green">
+                    <CheckCircle2 size={13} />
+                    100% Grounded in Pipeline Evidence
+                  </span>
+                  <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
+                    ID: {response.interaction_id}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  Deterministic Tools: {response.tools_used.join(', ')}
+                </div>
               </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Deterministic Tools: {response.tools_used.join(', ')}
-              </div>
-            </div>
 
-            <div style={{
-              fontSize: '1.05rem',
-              lineHeight: 1.65,
-              color: '#24292F',
-              marginBottom: '20px'
-            }}>
-              {response.answer}
-            </div>
-
-            {/* Warnings Section */}
-            {response.warnings.length > 0 && (
               <div style={{
-                backgroundColor: '#FFF5F5',
-                border: '1px solid #FED7D7',
-                borderRadius: 'var(--radius-sm)',
-                padding: '12px 16px',
-                marginBottom: '18px',
-                display: 'flex',
-                gap: '10px',
-                alignItems: 'flex-start'
+                fontSize: '1.05rem',
+                lineHeight: 1.65,
+                color: 'var(--text-primary)',
+                marginBottom: '20px'
               }}>
-                <AlertCircle size={18} color="#E53E3E" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <div style={{ fontSize: '0.875rem', color: '#9B1C1C' }}>
-                  {response.warnings.map((w, idx) => (
-                    <div key={idx}>{w}</div>
+                {response.answer}
+              </div>
+
+              {/* Warnings Section */}
+              {response.warnings.length > 0 && (
+                <div style={{
+                  backgroundColor: 'var(--danger-bg)',
+                  border: '1px solid var(--danger-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '12px 16px',
+                  marginBottom: '18px',
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'flex-start'
+                }}>
+                  <AlertCircle size={18} color="#E53E3E" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div style={{ fontSize: '0.875rem', color: 'var(--danger-text)' }}>
+                    {response.warnings.map((w, idx) => (
+                      <div key={idx}>{w}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Authoritative Citations */}
+              <div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  Authoritative Legal & Scientific Citations
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {response.citations.map((c, idx) => (
+                    <div key={idx} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      fontSize: '0.85rem',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      <BookOpen size={14} color="#6CAE4F" />
+                      <span>{c.title}</span>
+                    </div>
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* Authoritative Citations */}
-            <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                Authoritative Legal & Scientific Citations
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {response.citations.map((c, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '0.85rem',
-                    color: 'var(--text-secondary)'
-                  }}>
-                    <BookOpen size={14} color="#6CAE4F" />
-                    <span>{c.title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Right Column: Grounding & Audit Sidebar */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div className="airlab-card" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px', color: '#1C2024' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>
             System Integrity Policy
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             <div>
-              <strong style={{ color: '#1C2024' }}>1. No Numerical Hallucinations</strong>
+              <strong style={{ color: 'var(--text-primary)' }}>1. No Numerical Hallucinations</strong>
               <p style={{ marginTop: '2px' }}>Predictions and statistics originate strictly from evaluated parquet artifacts.</p>
             </div>
             <div>
-              <strong style={{ color: '#1C2024' }}>2. "I Don't Know" Policy</strong>
+              <strong style={{ color: 'var(--text-primary)' }}>2. "I Don't Know" Policy</strong>
               <p style={{ marginTop: '2px' }}>Unsupported cities outside Lahore and Karachi are explicitly rejected.</p>
             </div>
             <div>
-              <strong style={{ color: '#1C2024' }}>3. Statutory Grounding</strong>
+              <strong style={{ color: 'var(--text-primary)' }}>3. Statutory Grounding</strong>
               <p style={{ marginTop: '2px' }}>Responses are benchmarked against Pak-NEQS (35 µg/m³) and Punjab Smog 2023.</p>
             </div>
           </div>
         </div>
 
-        <div className="airlab-card" style={{ padding: '24px', backgroundColor: 'var(--brand-green-subtle)', borderColor: '#C8E8B9' }}>
+        <div className="airlab-card" style={{ padding: '24px', backgroundColor: 'var(--brand-green-subtle)', borderColor: 'rgba(153, 222, 123, 0.4)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <ShieldCheck size={20} color="#2D5A1E" />
-            <h4 style={{ fontWeight: 700, fontSize: '0.95rem', color: '#2D5A1E' }}>Audit Verified</h4>
+            <h4 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--brand-green-text)' }}>Audit Verified</h4>
           </div>
-          <p style={{ fontSize: '0.825rem', color: '#2D5A1E', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '0.825rem', color: 'var(--brand-green-text)', lineHeight: 1.5 }}>
             Every query execution generates an immutable audit hash stored in Prefect flow logs for EPD inspection.
           </p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
