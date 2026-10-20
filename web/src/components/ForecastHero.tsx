@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import type { CityForecast, TimeSeriesPoint } from '../types';
-import { TrendingUp, ShieldCheck, Compass, CheckCircle2, SlidersHorizontal } from 'lucide-react';
+import { TrendingUp, ShieldCheck, Compass, CheckCircle2, SlidersHorizontal, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TiltCard } from './TiltCard';
+import { AtmosphericGlobe } from './AtmosphericGlobe';
 
 interface ForecastHeroProps {
   city: 'Lahore' | 'Karachi';
@@ -12,6 +14,7 @@ interface ForecastHeroProps {
 export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, timeseries }) => {
   const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; val: number; ts: string } | null>(null);
   const [timeFilter, setTimeFilter] = useState<'48h' | '24h' | '12h'>('48h');
+  const [show3DView, setShow3DView] = useState(false);
 
   if (!forecast) {
     return (
@@ -59,35 +62,81 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
       transition={{ duration: 0.35, ease: 'easeOut' }}
       style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
     >
-      {/* Editorial Headline */}
-      <div style={{ maxWidth: '920px', marginTop: '4px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <span className="badge badge-green">EPD Certified Monitoring</span>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>• Zero-Leakage HistGradientBoosting</span>
+      {/* Editorial Headline with 3D View Toggle */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+        <div style={{ maxWidth: '820px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <span className="badge badge-green">EPD Certified Monitoring</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>• Zero-Leakage HistGradientBoosting</span>
+          </div>
+          <h1 className="hero-title" style={{
+            fontSize: '2.65rem',
+            fontWeight: 700,
+            letterSpacing: '-0.035em',
+            lineHeight: 1.15,
+            color: 'var(--text-primary)',
+            marginBottom: '14px'
+          }}>
+            We monitor air quality where accuracy isn’t optional, it’s critical.
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Providing provincial smog-response officers in <strong>{city}</strong> with 24-hour calibrated forecasting,
+            conformal uncertainty bounds, and statutory compliance checks to enact interventions before peak citizen exposure.
+          </p>
         </div>
-        <h1 className="hero-title" style={{
-          fontSize: '2.65rem',
-          fontWeight: 700,
-          letterSpacing: '-0.035em',
-          lineHeight: 1.15,
-          color: 'var(--text-primary)',
-          marginBottom: '14px'
-        }}>
-          We monitor air quality where accuracy isn’t optional, it’s critical.
-        </h1>
-        <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          Providing provincial smog-response officers in <strong>{city}</strong> with 24-hour calibrated forecasting,
-          conformal uncertainty bounds, and statutory compliance checks to enact interventions before peak citizen exposure.
-        </p>
+
+        {/* 3D Atmospheric Toggle Button */}
+        <button
+          onClick={() => setShow3DView(!show3DView)}
+          className="btn-outline"
+          style={{
+            padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)',
+            backgroundColor: show3DView ? 'var(--brand-green-subtle)' : 'transparent',
+            borderColor: show3DView ? 'var(--brand-green)' : 'var(--card-border)',
+            color: show3DView ? 'var(--brand-green-text)' : 'var(--text-primary)',
+            fontWeight: 600,
+            fontSize: '0.85rem'
+          }}
+        >
+          <Layers size={16} />
+          {show3DView ? 'Hide 3D Atmosphere' : 'View 3D Particle Cloud'}
+        </button>
       </div>
 
-      {/* KPI Cards Grid with Framer Motion Staggered Hover Effect */}
+      {/* 3D WebGL Atmospheric Visualizer Section */}
+      <AnimatePresence>
+        {show3DView && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, scale: 0.95 }}
+            animate={{ opacity: 1, height: 'auto', scale: 1 }}
+            exit={{ opacity: 0, height: 0, scale: 0.95 }}
+            transition={{ duration: 0.35 }}
+            className="airlab-card"
+            style={{ padding: '24px', overflow: 'hidden' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  3D Ambient Dispersion Simulator • {city}
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  Simulated particulate aerosol suspension based on live optical low-cost sensor telemetry.
+                </p>
+              </div>
+              <span className={isHighRisk ? "badge badge-hazard" : "badge badge-green"}>
+                {isHighRisk ? "Hazardous Density" : "Stable Dispersion"}
+              </span>
+            </div>
+            <AtmosphericGlobe city={city} pm25={current} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 3D Tilt Cards KPI Grid */}
       <div className="grid-4">
         {/* Card 1: Current */}
-        <motion.div
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="airlab-card"
-        >
+        <TiltCard>
           <div className="green-icon-box">
             <Compass size={22} />
           </div>
@@ -102,14 +151,10 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
               {current > 150 ? "Smog Alert" : "Moderate Risk"}
             </span>
           </div>
-        </motion.div>
+        </TiltCard>
 
         {/* Card 2: 24h Ahead Model Forecast */}
-        <motion.div
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="airlab-card"
-          style={{ borderColor: isHighRisk ? 'var(--danger-border)' : 'var(--brand-green)' }}
-        >
+        <TiltCard style={{ borderColor: isHighRisk ? 'var(--danger-border)' : 'var(--brand-green)' }}>
           <div className="green-icon-box" style={{ backgroundColor: isHighRisk ? 'var(--danger-bg)' : 'var(--brand-green-subtle)', color: isHighRisk ? 'var(--danger-text)' : 'var(--brand-green-text)' }}>
             <TrendingUp size={22} />
           </div>
@@ -124,13 +169,10 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
               {isHighRisk ? "Punjab Emergency Threshold Exceeded" : "Within Standard Bounds"}
             </span>
           </div>
-        </motion.div>
+        </TiltCard>
 
         {/* Card 3: 80% Conformal Interval */}
-        <motion.div
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="airlab-card"
-        >
+        <TiltCard>
           <div className="green-icon-box">
             <ShieldCheck size={22} />
           </div>
@@ -143,13 +185,10 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
           <div style={{ marginTop: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
             Empirical Coverage: <strong>82.4%</strong> (Target: 80%)
           </div>
-        </motion.div>
+        </TiltCard>
 
         {/* Card 4: Persistence Benchmark */}
-        <motion.div
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="airlab-card"
-        >
+        <TiltCard>
           <div className="green-icon-box">
             <CheckCircle2 size={22} />
           </div>
@@ -162,7 +201,7 @@ export const ForecastHero: React.FC<ForecastHeroProps> = ({ city, forecast, time
           <div style={{ marginTop: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
             Baseline: {forecast.baseline_persistence.toFixed(1)} µg/m³
           </div>
-        </motion.div>
+        </TiltCard>
       </div>
 
       {/* Interactive Time Series Chart Block */}
