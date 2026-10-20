@@ -31,3 +31,107 @@ timestamp_utc,rule_id,action,records_checked,records_affected,severity,rationale
 2026-10-19T17:00:33.905175+00:00,DQ-FLT-001,FLAG,176392,421,warning,Detected 40 sensor flatline episodes (>=6h constant pm25) affecting 421 records. Indicates potential frozen sensor; FLAGGED.
 2026-10-19T17:00:33.908371+00:00,DQ-TIM-001,NO_ACTION,176392,0,info,All timestamps parse validly in UTC. Range: 2022-01-01 00:00:00+00:00 to 2024-12-30 23:00:00+00:00.
 2026-10-19T17:00:33.908568+00:00,DQ-DST-001,FLAG,176392,123,warning,Detected 123 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review.
+2026-10-20T13:05:46.259670+00:00,DQ-SCH-001,NO_ACTION,49116,0,info,All contract schema columns are present.
+2026-10-20T13:05:46.288863+00:00,DQ-FIX-001,NO_ACTION,49116,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:05:46.311772+00:00,DQ-DUP-001,NO_ACTION,49116,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:05:46.315423+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25_target_24h'.
+2026-10-20T13:05:46.316965+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25'.
+2026-10-20T13:05:46.321453+00:00,DQ-FILL-001,NO_ACTION,49116,0,info,Zero null values across all meteorological covariates.
+2026-10-20T13:05:46.324146+00:00,DQ-RNG-001,NO_ACTION,49116,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:05:46.326285+00:00,DQ-RNG-002,NO_ACTION,49116,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:05:46.328235+00:00,DQ-RNG-003,NO_ACTION,49116,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:05:46.544301+00:00,DQ-TMP-001,FLAG,49116,3591,warning,Detected 3591 temporal gaps exceeding 1h (maximum gap: 1299.0h). Time series discontinuity preserved; FLAGGED.
+2026-10-20T13:05:46.685317+00:00,DQ-FLT-001,FLAG,49116,297,warning,Detected 23 sensor flatline episodes (>=6h constant pm25) affecting 297 records. Indicates potential frozen sensor; FLAGGED.
+2026-10-20T13:05:46.709464+00:00,DQ-TIM-001,NO_ACTION,49116,0,info,All timestamps parse validly in UTC. Range: 2024-07-23 05:00:00+00:00 to 2024-12-30 23:00:00+00:00.
+2026-10-20T13:05:46.710693+00:00,DQ-DST-001,FLAG,49116,81,warning,Detected 81 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review.
+2026-10-20T13:09:33.731530+00:00,DQ-SCH-001,NO_ACTION,49116,0,info,All contract schema columns are present.
+2026-10-20T13:09:33.784131+00:00,DQ-FIX-001,NO_ACTION,49116,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:09:33.841529+00:00,DQ-DUP-001,NO_ACTION,49116,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:09:33.844577+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25_target_24h'.
+2026-10-20T13:09:33.848416+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25'.
+2026-10-20T13:09:33.858180+00:00,DQ-FILL-001,NO_ACTION,49116,0,info,Zero null values across all meteorological covariates.
+2026-10-20T13:09:33.863910+00:00,DQ-RNG-001,NO_ACTION,49116,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:09:33.869419+00:00,DQ-RNG-002,NO_ACTION,49116,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:09:33.874634+00:00,DQ-RNG-003,NO_ACTION,49116,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:09:34.382457+00:00,DQ-TMP-001,FLAG,49116,3591,warning,Detected 3591 temporal gaps exceeding 1h (maximum gap: 1299.0h). Time series discontinuity preserved; FLAGGED.
+2026-10-20T13:09:34.682910+00:00,DQ-FLT-001,FLAG,49116,297,warning,Detected 23 sensor flatline episodes (>=6h constant pm25) affecting 297 records. Indicates potential frozen sensor; FLAGGED.
+2026-10-20T13:09:34.721349+00:00,DQ-TIM-001,NO_ACTION,49116,0,info,All timestamps parse validly in UTC. Range: 2024-07-23 05:00:00+00:00 to 2024-12-30 23:00:00+00:00.
+2026-10-20T13:09:34.724080+00:00,DQ-DST-001,FLAG,49116,81,warning,Detected 81 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review.
+2026-10-20T13:12:15.343164+00:00,DQ-SCH-001,NO_ACTION,3,0,info,All contract schema columns are present.
+2026-10-20T13:12:15.356024+00:00,DQ-FIX-001,NO_ACTION,3,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:12:15.359679+00:00,DQ-DUP-001,NO_ACTION,3,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:12:15.361266+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25_target_24h'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:12:15.362754+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:12:15.375973+00:00,DQ-FILL-001,FILL,3,1,info,[Modified=True] Safely filled 1 missing covariate values using backward-looking forward fill (max limit=2h). Zero future leakage.
+2026-10-20T13:12:15.378033+00:00,DQ-RNG-001,NO_ACTION,3,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:12:15.379714+00:00,DQ-RNG-002,NO_ACTION,3,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:12:15.381443+00:00,DQ-RNG-003,NO_ACTION,3,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:12:15.389194+00:00,DQ-TMP-001,NO_ACTION,3,0,info,Time series exhibits continuous hourly progression with zero unexpected gaps.
+2026-10-20T13:12:15.393659+00:00,DQ-FLT-001,NO_ACTION,3,0,info,Zero flatline sequences (>=6 consecutive hours) detected.
+2026-10-20T13:12:15.396196+00:00,DQ-TIM-001,NO_ACTION,3,0,info,All timestamps parse validly in UTC. Range: 2024-01-01 00:00:00+00:00 to 2024-01-01 02:00:00+00:00.
+2026-10-20T13:12:15.397477+00:00,DQ-DST-001,NO_ACTION,3,0,info,Zero readings exceeding extreme spike threshold (800.0 ug/m3).
+2026-10-20T13:16:55.069178+00:00,DQ-SCH-001,NO_ACTION,3,0,info,All contract schema columns are present.
+2026-10-20T13:16:55.083498+00:00,DQ-FIX-001,NO_ACTION,3,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:16:55.086710+00:00,DQ-DUP-001,NO_ACTION,3,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:16:55.088058+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25_target_24h'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:16:55.089346+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:16:55.101173+00:00,DQ-FILL-001,FILL,3,1,info,[Modified=True] Safely filled 1 missing covariate values using backward-looking forward fill (max limit=2h). Zero future leakage.
+2026-10-20T13:16:55.103498+00:00,DQ-RNG-001,NO_ACTION,3,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:16:55.105535+00:00,DQ-RNG-002,NO_ACTION,3,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:16:55.108123+00:00,DQ-RNG-003,NO_ACTION,3,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:16:55.116042+00:00,DQ-TMP-001,NO_ACTION,3,0,info,Time series exhibits continuous hourly progression with zero unexpected gaps.
+2026-10-20T13:16:55.119814+00:00,DQ-FLT-001,NO_ACTION,3,0,info,Zero flatline sequences (>=6 consecutive hours) detected.
+2026-10-20T13:16:55.122007+00:00,DQ-TIM-001,NO_ACTION,3,0,info,All timestamps parse validly in UTC. Range: 2024-01-01 00:00:00+00:00 to 2024-01-01 02:00:00+00:00.
+2026-10-20T13:16:55.123108+00:00,DQ-DST-001,NO_ACTION,3,0,info,Zero readings exceeding extreme spike threshold (800.0 ug/m3).
+2026-10-20T13:17:26.398373+00:00,DQ-SCH-001,NO_ACTION,49116,0,info,All contract schema columns are present.
+2026-10-20T13:17:26.414550+00:00,DQ-FIX-001,NO_ACTION,49116,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:17:26.431001+00:00,DQ-DUP-001,NO_ACTION,49116,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:17:26.432217+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25_target_24h'.
+2026-10-20T13:17:26.433528+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25'.
+2026-10-20T13:17:26.436925+00:00,DQ-FILL-001,NO_ACTION,49116,0,info,Zero null values across all meteorological covariates.
+2026-10-20T13:17:26.439290+00:00,DQ-RNG-001,NO_ACTION,49116,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:17:26.440988+00:00,DQ-RNG-002,NO_ACTION,49116,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:17:26.442526+00:00,DQ-RNG-003,NO_ACTION,49116,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:17:26.597400+00:00,DQ-TMP-001,FLAG,49116,3591,warning,Detected 3591 temporal gaps exceeding 1h (maximum gap: 1299.0h). Time series discontinuity preserved; FLAGGED.
+2026-10-20T13:17:26.676414+00:00,DQ-FLT-001,FLAG,49116,297,warning,Detected 23 sensor flatline episodes (>=6h constant pm25) affecting 297 records. Indicates potential frozen sensor; FLAGGED.
+2026-10-20T13:17:26.689126+00:00,DQ-TIM-001,NO_ACTION,49116,0,info,All timestamps parse validly in UTC. Range: 2024-07-23 05:00:00+00:00 to 2024-12-30 23:00:00+00:00.
+2026-10-20T13:17:26.690192+00:00,DQ-DST-001,FLAG,49116,81,warning,Detected 81 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review.
+2026-10-20T13:18:24.434182+00:00,DQ-SCH-001,NO_ACTION,3,0,info,All contract schema columns are present.
+2026-10-20T13:18:24.446040+00:00,DQ-FIX-001,NO_ACTION,3,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:18:24.448721+00:00,DQ-DUP-001,NO_ACTION,3,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:18:24.450130+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25_target_24h'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:18:24.451474+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:18:24.463644+00:00,DQ-FILL-001,FILL,3,1,info,[Modified=True] Safely filled 1 missing covariate values using backward-looking forward fill (max limit=2h). Zero future leakage.
+2026-10-20T13:18:24.465995+00:00,DQ-RNG-001,NO_ACTION,3,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:18:24.468030+00:00,DQ-RNG-002,NO_ACTION,3,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:18:24.470337+00:00,DQ-RNG-003,NO_ACTION,3,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:18:24.478293+00:00,DQ-TMP-001,NO_ACTION,3,0,info,Time series exhibits continuous hourly progression with zero unexpected gaps.
+2026-10-20T13:18:24.482541+00:00,DQ-FLT-001,NO_ACTION,3,0,info,Zero flatline sequences (>=6 consecutive hours) detected.
+2026-10-20T13:18:24.485097+00:00,DQ-TIM-001,NO_ACTION,3,0,info,All timestamps parse validly in UTC. Range: 2024-01-01 00:00:00+00:00 to 2024-01-01 02:00:00+00:00.
+2026-10-20T13:18:24.486729+00:00,DQ-DST-001,NO_ACTION,3,0,info,Zero readings exceeding extreme spike threshold (800.0 ug/m3).
+2026-10-20T13:21:11.083036+00:00,DQ-SCH-001,NO_ACTION,3,0,info,All contract schema columns are present.
+2026-10-20T13:21:11.095018+00:00,DQ-FIX-001,NO_ACTION,3,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:21:11.098169+00:00,DQ-DUP-001,NO_ACTION,3,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:21:11.100057+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25_target_24h'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:21:11.101724+00:00,DQ-NULL-001,FLAG,3,1,critical,Detected 1 null target values in 'pm25'. Target imputation is strictly prohibited to prevent data fabrication and leakage; FLAGGED.
+2026-10-20T13:21:11.115750+00:00,DQ-FILL-001,FILL,3,1,info,[Modified=True] Safely filled 1 missing covariate values using backward-looking forward fill (max limit=2h). Zero future leakage.
+2026-10-20T13:21:11.117796+00:00,DQ-RNG-001,NO_ACTION,3,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:21:11.119501+00:00,DQ-RNG-002,NO_ACTION,3,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:21:11.121112+00:00,DQ-RNG-003,NO_ACTION,3,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:21:11.128590+00:00,DQ-TMP-001,NO_ACTION,3,0,info,Time series exhibits continuous hourly progression with zero unexpected gaps.
+2026-10-20T13:21:11.132983+00:00,DQ-FLT-001,NO_ACTION,3,0,info,Zero flatline sequences (>=6 consecutive hours) detected.
+2026-10-20T13:21:11.135385+00:00,DQ-TIM-001,NO_ACTION,3,0,info,All timestamps parse validly in UTC. Range: 2024-01-01 00:00:00+00:00 to 2024-01-01 02:00:00+00:00.
+2026-10-20T13:21:11.136680+00:00,DQ-DST-001,NO_ACTION,3,0,info,Zero readings exceeding extreme spike threshold (800.0 ug/m3).
+2026-10-20T13:21:43.569497+00:00,DQ-SCH-001,NO_ACTION,49116,0,info,All contract schema columns are present.
+2026-10-20T13:21:43.601086+00:00,DQ-FIX-001,NO_ACTION,49116,0,info,No untrimmed string whitespace detected.
+2026-10-20T13:21:43.635208+00:00,DQ-DUP-001,NO_ACTION,49116,0,info,All 'record_id' identifiers are strictly unique.
+2026-10-20T13:21:43.637465+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25_target_24h'.
+2026-10-20T13:21:43.639577+00:00,DQ-NULL-001,NO_ACTION,49116,0,info,Zero null values in target column 'pm25'.
+2026-10-20T13:21:43.645684+00:00,DQ-FILL-001,NO_ACTION,49116,0,info,Zero null values across all meteorological covariates.
+2026-10-20T13:21:43.648788+00:00,DQ-RNG-001,NO_ACTION,49116,0,info,"All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
+2026-10-20T13:21:43.651706+00:00,DQ-RNG-002,NO_ACTION,49116,0,info,"All temperature values conform to realistic range [-10, 60] °C."
+2026-10-20T13:21:43.654811+00:00,DQ-RNG-003,NO_ACTION,49116,0,info,"All relative humidity readings conform to [0, 100]%."
+2026-10-20T13:21:43.882171+00:00,DQ-TMP-001,FLAG,49116,3591,warning,Detected 3591 temporal gaps exceeding 1h (maximum gap: 1299.0h). Time series discontinuity preserved; FLAGGED.
+2026-10-20T13:21:43.961682+00:00,DQ-FLT-001,FLAG,49116,297,warning,Detected 23 sensor flatline episodes (>=6h constant pm25) affecting 297 records. Indicates potential frozen sensor; FLAGGED.
+2026-10-20T13:21:43.973947+00:00,DQ-TIM-001,NO_ACTION,49116,0,info,All timestamps parse validly in UTC. Range: 2024-07-23 05:00:00+00:00 to 2024-12-30 23:00:00+00:00.
+2026-10-20T13:21:43.974998+00:00,DQ-DST-001,FLAG,49116,81,warning,Detected 81 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review.

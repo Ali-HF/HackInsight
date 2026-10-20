@@ -11,10 +11,22 @@ Low-Cost-Sensors-AQ*
 # Environment & credentials
 .env
 *.env
+!.env.example
 
-# Python caches
+# Python caches & virtual environments
 __pycache__/
+*.py[cod]
+*$py.class
 .venv/
+env/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Locks and temporary staging files
+*.lock
+*.tmp
 
 # Prompts, internal context & guides
 hackathonguide.pdf
@@ -26,3 +38,4 @@ rules.md
 # Inspection scripts & reports
 inspect_paqi.py
 paqi_inspection_report.md
+

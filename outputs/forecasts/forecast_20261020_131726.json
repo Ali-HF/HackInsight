@@ -1,0 +1,55 @@
+{
+  "run_id": "20261020_131726",
+  "timestamp_utc": "2026-10-20T13:17:30.887940+00:00",
+  "forecast_data": {
+    "issue_timestamp": "2026-10-20T13:17:29.178377+00:00",
+    "horizon_hours": 24,
+    "target_timestamp": "2026-10-21T13:17:29.178410+00:00",
+    "cities": {
+      "Lahore": {
+        "status": "success",
+        "city": "Lahore",
+        "sensor_id": "0166919645da6ef4",
+        "sensors_evaluated": 26,
+        "forecast_issue_time": "2024-12-30 23:00:00",
+        "forecast_target_time": "2024-12-31 23:00:00",
+        "current_pm25": 180.06,
+        "predicted_pm25_24h": 153.84,
+        "lower_80": 75.77,
+        "upper_80": 259.74,
+        "baseline_persistence": 180.06,
+        "coverage": 0.8,
+        "unit": "ug/m3",
+        "message": "24h forecast for Lahore: 153.84 ug/m3 (80% CI: [75.77, 259.74] ug/m3, persistence baseline: 180.06 ug/m3)."
+      },
+      "Karachi": {
+        "status": "success",
+        "city": "Karachi",
+        "sensor_id": "212607b3f328c11e",
+        "sensors_evaluated": 4,
+        "forecast_issue_time": "2024-12-30 23:00:00",
+        "forecast_target_time": "2024-12-31 23:00:00",
+        "current_pm25": 95.5,
+        "predicted_pm25_24h": 107.91,
+        "lower_80": 53.0,
+        "upper_80": 182.41,
+        "baseline_persistence": 95.5,
+        "coverage": 0.8,
+        "unit": "ug/m3",
+        "message": "24h forecast for Karachi: 107.91 ug/m3 (80% CI: [53.0, 182.41] ug/m3, persistence baseline: 95.5 ug/m3)."
+      }
+    }
+  },
+  "validation": {
+    "status": "PASS",
+    "total_records": 49116,
+    "valid_pm25_records": 49116,
+    "negative_readings": 0,
+    "supported_cities": [
+      "Karachi",
+      "Lahore"
+    ],
+    "latest_timestamp": "2024-12-30 23:00:00+00:00",
+    "validation_passed": true
+  }
+}

@@ -1,0 +1,9 @@
+run_id,timestamp_utc,status,duration_seconds,records_checked,error
+20261020_130933,2026-10-20T13:09:43.489571+00:00,SUCCESS,10.239,49116,
+20261020_131508,2026-10-20T13:15:08.316964+00:00,FAILED,0.076,0,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020_131655,2026-10-20T13:17:15.153496+00:00,FAILED,20.022,0,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020_131726,2026-10-20T13:17:30.887940+00:00,SUCCESS,4.715,49116,
+20261020_131731,2026-10-20T13:17:31.239460+00:00,FAILED,0.004,0,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261020_132111,2026-10-20T13:21:32.298802+00:00,FAILED,21.154,0,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261020_132143,2026-10-20T13:21:47.768761+00:00,SUCCESS,4.634,49116,
+20261020_132147,2026-10-20T13:21:47.854623+00:00,FAILED,0.004,0,RuntimeError: Simulated pipeline ingestion or service failure for testing.

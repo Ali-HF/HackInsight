@@ -26,8 +26,8 @@ class TestMLPipeline(unittest.TestCase):
     def setUp(self):
         self.test_dir = Path(tempfile.mkdtemp())
 
-        # Create a synthetic fixture with 2 sensors and 100 hourly steps
-        dates = pd.date_range("2023-01-01 00:00:00", periods=100, freq="1h", tz="UTC")
+        # Create a synthetic fixture with 2 sensors and 300 hourly steps (ensuring all lags up to 168h are populated in train split)
+        dates = pd.date_range("2023-01-01 00:00:00", periods=300, freq="1h", tz="UTC")
         records = []
         for s_idx, sid in enumerate(["sensor_A", "sensor_B"]):
             base_val = 50.0 if sid == "sensor_A" else 100.0
