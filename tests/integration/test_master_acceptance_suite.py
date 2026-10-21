@@ -11,6 +11,10 @@ Covers all 29 verification criteria defined in the Competition Testing Plan:
 """
 
 import os
+os.environ["PREFECT_LOGGING_TO_API_WHEN_MISSING_FLOW"] = "ignore"
+os.environ["PREFECT_SERVER_LOGGING_LEVEL"] = "WARNING"
+os.environ["PREFECT_LOGGING_LEVEL"] = "WARNING"
+os.environ["PREFECT_LOGGING_EXTRA_LOGGERS"] = ""
 import sys
 import json
 import time
@@ -231,6 +235,14 @@ def test_P01_manual_flow_execution():
     run_res = pipeline_fn()
     assert run_res["status"] == "SUCCESS"
     assert run_res["duration_seconds"] > 0
+
+    # Explicitly flush logging handlers to prevent teardown I/O errors on closed streams
+    import logging
+    for handler in logging.root.handlers[:]:
+        try:
+            handler.flush()
+        except Exception:
+            pass
 
 
 def test_P02_hourly_schedule_configuration():

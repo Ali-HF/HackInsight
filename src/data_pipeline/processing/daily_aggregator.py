@@ -69,7 +69,7 @@ def compute_daily_validity(
     else:
         raise ValueError("Input DataFrame missing required timestamp column (timestamp_utc).")
 
-    df_work["timestamp_pkt"] = ts_utc + pd.Timedelta(hours=5)
+    df_work["timestamp_pkt"] = ts_utc + pd.to_timedelta(5, unit="h")
     df_work["pkt_date"] = df_work["timestamp_pkt"].dt.date.astype(str)
 
     # Determine validity mask (valid if not null, not negative, and not flagged if flag exists)

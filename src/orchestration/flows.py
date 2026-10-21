@@ -244,7 +244,7 @@ def task_generate_forecast(df: pd.DataFrame) -> Dict[str, Any]:
     return {
         "issue_timestamp": datetime.now(timezone.utc).isoformat(),
         "horizon_hours": 24,
-        "target_timestamp": (datetime.now(timezone.utc) + pd.Timedelta(hours=24)).isoformat(),
+        "target_timestamp": (datetime.now(timezone.utc) + pd.Timedelta(24, unit="h")).isoformat(),
         "cities": forecasts
     }
 

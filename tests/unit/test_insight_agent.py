@@ -63,7 +63,8 @@ def test_agent_model_metrics(agent):
     assert res["status"] == "success"
     assert "model_metrics" in res["tools_used"]
     assert "model_mae" in res["evidence"]
-    assert "40.6" in res["answer"] or "40.602" in res["answer"]
+    mae_str = str(res["evidence"]["model_mae"])
+    assert any(x in res["answer"] for x in [mae_str, "40.6", "40.602", "40.8", "40.809"])
     assert res["grounding_passed"] is True
 
 

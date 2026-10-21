@@ -240,6 +240,10 @@ class PM25Forecaster:
         except (ImportError, AttributeError):
             pass
 
-        forecaster = joblib.load(path)
+        import warnings
+        from sklearn.exceptions import InconsistentVersionWarning
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=InconsistentVersionWarning)
+            forecaster = joblib.load(path)
         return forecaster
 

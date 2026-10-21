@@ -112,7 +112,7 @@ class DataProfiler:
                 continue
 
             diffs = ts.diff().dropna()
-            expected_delta = pd.Timedelta(hours=expected_step_hours)
+            expected_delta = pd.Timedelta(expected_step_hours, unit="h")
             gap_mask = diffs > expected_delta
             gap_diffs = diffs[gap_mask]
 

@@ -73,7 +73,7 @@ class TestMLInference(unittest.TestCase):
         issue_t = pd.to_datetime(row["forecast_issue_time"], utc=True)
         target_t = pd.to_datetime(row["forecast_target_time"], utc=True)
 
-        expected_target_t = issue_t + pd.Timedelta(hours=24)
+        expected_target_t = issue_t + pd.to_timedelta(24, unit="h")
         self.assertEqual(target_t, expected_target_t)
         self.assertEqual(issue_t, pd.to_datetime("2024-01-02 23:00:00", utc=True))
 

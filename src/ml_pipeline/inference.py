@@ -158,7 +158,7 @@ def predict_pm25_24h(
     upper_col = f"upper_{cov_key}"
 
     issue_times = pd.to_datetime(latest_feat["timestamp_utc"], utc=True)
-    target_times = issue_times + pd.Timedelta(hours=24)
+    target_times = issue_times + pd.to_timedelta(24, unit="h")
 
     output_df = pd.DataFrame({
         "sensor_id": latest_feat["sensor_id"].values,

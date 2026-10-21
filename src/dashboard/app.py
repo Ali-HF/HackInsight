@@ -408,7 +408,7 @@ with tab_forecast:
         if not grouped.empty:
             # Append forecast point at t+24h
             last_ts = grouped["timestamp_utc"].max()
-            forecast_ts = last_ts + pd.Timedelta(hours=24)
+            forecast_ts = last_ts + pd.to_timedelta(24, unit="h")
 
             # Create Altair chart
             chart_base = alt.Chart(grouped).encode(x=alt.X("timestamp_utc:T", title="Timestamp (UTC)"))

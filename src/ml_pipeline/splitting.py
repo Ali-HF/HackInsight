@@ -47,9 +47,9 @@ def chronological_split(
     val_end_idx = int(n_ts * (train_ratio + val_ratio))
 
     train_cutoff = pd.to_datetime(unique_ts.iloc[train_end_idx], utc=True)
-    val_start = train_cutoff + pd.Timedelta(hours=buffer_hours)
+    val_start = train_cutoff + pd.Timedelta(buffer_hours, unit="h")
     val_cutoff = pd.to_datetime(unique_ts.iloc[val_end_idx], utc=True)
-    test_start = val_cutoff + pd.Timedelta(hours=buffer_hours)
+    test_start = val_cutoff + pd.Timedelta(buffer_hours, unit="h")
 
     # Masks
     train_mask = df[time_col] < train_cutoff
