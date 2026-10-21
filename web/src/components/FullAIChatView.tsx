@@ -6,16 +6,17 @@ import {
   BookOpen,
   ChevronDown,
   ChevronRight,
-  Folder,
   MessageSquare,
   Mic,
-  MoreHorizontal,
   Plus,
   Search,
   Share2,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles
+  Sparkles,
+  TrendingUp,
+  School,
+  Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { evaluateQueryGrounded, type AgentResponse, type ForecastCityData } from './AgentAssistant';
@@ -28,6 +29,14 @@ interface ChatMessage {
   responseObj?: AgentResponse;
 }
 
+interface ChatSession {
+  id: string;
+  title: string;
+  preview: string;
+  timestamp: string;
+  messages: ChatMessage[];
+}
+
 interface FullAIChatViewProps {
   onBackToDashboard: () => void;
   forecasts: Record<string, ForecastCityData> | null;
@@ -37,99 +46,16 @@ interface FullAIChatViewProps {
   onSelectCity?: (city: 'Lahore' | 'Karachi') => void;
 }
 
-interface FolderItem {
-  id: string;
-  name: string;
-  color: string;
-  query: string;
-}
-
-interface PresetChat {
-  id: string;
-  title: string;
-  subtitle: string;
-  query: string;
-  category: string;
-}
-
-const FOLDERS: FolderItem[] = [
-  {
-    id: 'folder-live',
-    name: 'Live Sensor Telemetry',
-    color: '#10B981', // Emerald
-    query: 'What are the exact live PM2.5 readings for Lahore and Karachi right now? Compare their air quality levels.'
-  },
-  {
-    id: 'folder-forecast',
-    name: '24h Forecast Trajectory',
-    color: '#A855F7', // Purple
-    query: 'What is the 24-hour predictive PM2.5 forecast for Lahore and Karachi? Will air improve tomorrow?'
-  },
-  {
-    id: 'folder-rules',
-    name: 'School & Smog Protocols',
-    color: '#F59E0B', // Amber
-    query: 'What are the official government school closure rules and emergency smog orders in Punjab and Sindh?'
-  },
-  {
-    id: 'folder-health',
-    name: 'Health, Masks & Exercise',
-    color: '#EC4899', // Pink
-    query: 'Is it safe to go jogging or exercise outdoors today? What masking precautions are required?'
-  }
-];
-
-const PRESET_CHATS: PresetChat[] = [
-  {
-    id: 'chat-compare',
-    title: 'Compare Lahore & Karachi',
-    subtitle: 'Which city has worse air right now and why? Live sensor comparison...',
-    query: 'Compare Lahore and Karachi air quality right now. Which city is worse and why?',
-    category: 'Compare'
-  },
-  {
-    id: 'chat-forecast',
-    title: 'Tomorrow’s 24h Forecast',
-    subtitle: 'Will pollution rise or fall over the next 24 hours? ML trajectory...',
-    query: 'What is the 24-hour PM2.5 forecast for Lahore and Karachi? Will air improve tomorrow?',
-    category: 'Forecasts'
-  },
-  {
-    id: 'chat-smog',
-    title: 'Punjab Smog Protocols',
-    subtitle: 'Official criteria for outdoor sports, school closures & odd-even rules...',
-    query: 'What are the government school rules and mask requirements for smog in Punjab and Sindh?',
-    category: 'Regulations'
-  },
-  {
-    id: 'chat-exercise',
-    title: 'Outdoor Exercise Safety',
-    subtitle: 'Can I go jogging or send kids out to play today? Health guidelines...',
-    query: 'Is it safe to go jogging or exercise outdoors today? What precautions should I take?',
-    category: 'Health'
-  },
-  {
-    id: 'chat-sensor',
-    title: 'Sensor Reliability & Truth',
-    subtitle: 'Audit trail, PAQI network, zero synthetic hallucinations...',
-    query: 'How reliable is this sensor data? How do you prevent fake or hallucinated readings?',
-    category: 'Sensors'
-  }
-];
-
 const FILTER_TAGS = ['All', 'Forecasts', 'Health', 'Regulations', 'Sensors', 'Compare'];
 
-// airLabs stylized glowing flower/wind emblem matching screenshot
-const AirlabsEmblem: React.FC<{ size?: number; glow?: boolean }> = ({ size = 26, glow = false }) => (
+// airLabs brand flower/wind emblem matching our theme
+const AirlabsEmblem: React.FC<{ size?: number }> = ({ size = 26 }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
     fill="none"
-    style={{
-      filter: glow ? 'drop-shadow(0 0 10px rgba(16, 185, 129, 0.75))' : 'none',
-      flexShrink: 0
-    }}
+    style={{ flexShrink: 0 }}
   >
     <path
       d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z"
@@ -140,12 +66,55 @@ const AirlabsEmblem: React.FC<{ size?: number; glow?: boolean }> = ({ size = 26,
     <circle cx="12" cy="12" r="4.5" fill="#10B981" />
     <path
       d="M12 4.5V7.5M12 16.5V19.5M4.5 12H7.5M16.5 12H19.5M6.7 6.7L8.8 8.8M15.2 15.2L17.3 17.3M6.7 17.3L8.8 15.2M15.2 8.8L17.3 6.7"
-      stroke="#34D399"
+      stroke="#059669"
       strokeWidth="1.8"
       strokeLinecap="round"
     />
   </svg>
 );
+
+const DEFAULT_SESSIONS: ChatSession[] = [
+  {
+    id: 'sample-1',
+    title: 'Compare Lahore & Karachi',
+    preview: 'Lahore current PM2.5 vs Karachi coastal air quality comparison...',
+    timestamp: 'Today, 2:15 PM',
+    messages: [
+      {
+        id: 'msg-1',
+        sender: 'user',
+        text: 'Compare Lahore and Karachi air quality right now. Which city is worse and why?',
+        timestamp: '2:15 PM'
+      },
+      {
+        id: 'msg-2',
+        sender: 'assistant',
+        text: `**Air Quality Comparison (Right Now):**\n\n• **Lahore:** **94.5 µg/m³** (Unhealthy) — Higher particulate concentration.\n• **Karachi:** **31.9 µg/m³** (Moderate)\n\n*Lahore suffers from inland basin temperature inversions, while Karachi benefits from horizontal maritime ventilation.*`,
+        timestamp: '2:15 PM'
+      }
+    ]
+  },
+  {
+    id: 'sample-2',
+    title: 'Tomorrow’s 24h Forecast',
+    preview: 'Projected 24-hour PM2.5 trajectory with conformal uncertainty...',
+    timestamp: 'Yesterday',
+    messages: [
+      {
+        id: 'msg-3',
+        sender: 'user',
+        text: 'What is the 24-hour PM2.5 forecast for Lahore and Karachi?',
+        timestamp: 'Yesterday'
+      },
+      {
+        id: 'msg-4',
+        sender: 'assistant',
+        text: `**Tomorrow's 24-Hour PM2.5 Forecast (Both Cities):**\n\n• **Lahore:** Projected at **119.3 µg/m³** (80% CI: [21 - 165] µg/m³)\n• **Karachi:** Projected at **57.3 µg/m³** (80% CI: [0 - 103] µg/m³)\n\n*Neither city is projected to breach the 150 µg/m³ emergency threshold tomorrow.*`,
+        timestamp: 'Yesterday'
+      }
+    ]
+  }
+];
 
 export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   onBackToDashboard,
@@ -155,17 +124,39 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   selectedCity: _selectedCity,
   onSelectCity: _onSelectCity
 }) => {
+  // Load chat history from localStorage or fallback to defaults
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>(() => {
+    try {
+      const saved = localStorage.getItem('airlabs_chat_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      // Fallback
+    }
+    return DEFAULT_SESSIONS;
+  });
+
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [loading, setLoading] = useState(false);
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
-  const [showFolders, setShowFolders] = useState(true);
-  const [showChats, setShowChats] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [bookmarked, setBookmarked] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Sync chat history to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('airlabs_chat_history', JSON.stringify(chatHistory));
+    } catch (e) {
+      // Ignore
+    }
+  }, [chatHistory]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -189,15 +180,15 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput('');
     setLoading(true);
 
     try {
-      // 1. Evaluate with local unified grounded RAG engine
-      const evaluated = evaluateQueryGrounded(text, forecasts, quality, metrics, messages);
+      // Evaluate with grounded RAG
+      const evaluated = evaluateQueryGrounded(text, forecasts, quality, metrics, updatedMessages);
 
-      // 2. Attempt remote Gemini 2.5 Flash if available
       try {
         const apiRes = await fetch('/api/chat', {
           method: 'POST',
@@ -228,7 +219,35 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
         responseObj: evaluated
       };
 
-      setMessages(prev => [...prev, aiMsg]);
+      const finalMessages = [...updatedMessages, aiMsg];
+      setMessages(finalMessages);
+
+      // Save/update session in chat history
+      const sessionTitle = text.length > 32 ? `${text.slice(0, 32)}...` : text;
+      const previewText = evaluated.answer.slice(0, 60).replace(/\n/g, ' ') + '...';
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (activeSessionId) {
+        // Update existing session
+        setChatHistory(prev => prev.map(s => s.id === activeSessionId ? {
+          ...s,
+          preview: previewText,
+          timestamp: timeStr,
+          messages: finalMessages
+        } : s));
+      } else {
+        // Create new session
+        const newSessionId = `session-${Date.now()}`;
+        setActiveSessionId(newSessionId);
+        const newSession: ChatSession = {
+          id: newSessionId,
+          title: sessionTitle,
+          preview: previewText,
+          timestamp: timeStr,
+          messages: finalMessages
+        };
+        setChatHistory(prev => [newSession, ...prev]);
+      }
     } finally {
       setLoading(false);
     }
@@ -243,14 +262,28 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
 
   const handleNewChat = () => {
     setMessages([]);
+    setActiveSessionId(null);
     setInput('');
+  };
+
+  const handleSelectSession = (session: ChatSession) => {
+    setActiveSessionId(session.id);
+    setMessages(session.messages);
+  };
+
+  const handleDeleteSession = (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation();
+    setChatHistory(prev => prev.filter(s => s.id !== sessionId));
+    if (activeSessionId === sessionId) {
+      handleNewChat();
+    }
   };
 
   const toggleEvidence = (msgId: string) => {
     setExpandedEvidence(prev => ({ ...prev, [msgId]: !prev[msgId] }));
   };
 
-  // Helper to format text with bold (**text**), line breaks, and headers
+  // Helper to format text with bold (**text**), line breaks, and bullet items
   const renderMessageContent = (content: string) => {
     const lines = content.split('\n');
     return lines.map((line, lineIdx) => {
@@ -258,16 +291,14 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
         return <div key={lineIdx} style={{ height: '8px' }} />;
       }
 
-      // Check for bullet lines
       const isBullet = line.trim().startsWith('- ') || line.trim().startsWith('• ') || line.trim().startsWith('* ');
       const cleanLine = isBullet ? line.trim().replace(/^[-•*]\s+/, '') : line;
 
-      // Parse bold segments
       const parts = cleanLine.split(/(\*\*.*?\*\*)/g);
       const renderedParts = parts.map((part, pIdx) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return (
-            <strong key={pIdx} style={{ color: '#F8FAFC', fontWeight: 700 }}>
+            <strong key={pIdx} style={{ color: '#0F172A', fontWeight: 700 }}>
               {part.slice(2, -2)}
             </strong>
           );
@@ -278,30 +309,24 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
       if (isBullet) {
         return (
           <div key={lineIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '4px 0 4px 8px' }}>
-            <span style={{ color: '#10B981', fontWeight: 800, marginTop: '-1px' }}>•</span>
-            <span style={{ fontSize: '0.925rem', lineHeight: 1.6, color: '#E2E8F0' }}>{renderedParts}</span>
+            <span style={{ color: '#16A34A', fontWeight: 800, marginTop: '-1px' }}>•</span>
+            <span style={{ fontSize: '0.925rem', lineHeight: 1.6, color: '#334155' }}>{renderedParts}</span>
           </div>
         );
       }
 
       return (
-        <p key={lineIdx} style={{ margin: '4px 0', fontSize: '0.925rem', lineHeight: 1.6, color: '#E2E8F0' }}>
+        <p key={lineIdx} style={{ margin: '4px 0', fontSize: '0.925rem', lineHeight: 1.6, color: '#334155' }}>
           {renderedParts}
         </p>
       );
     });
   };
 
-  // Filtered chats based on search input
-  const filteredChats = PRESET_CHATS.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          c.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeFilter === 'All' || c.category === activeFilter;
-    return matchesSearch && matchesCategory;
-  });
-
-  const filteredFolders = FOLDERS.filter(f =>
-    f.name.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filter chat history based on search query
+  const filteredHistory = chatHistory.filter(s =>
+    s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.preview.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -309,14 +334,14 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
       display: 'flex',
       height: 'calc(100vh - 110px)',
       minHeight: '680px',
-      backgroundColor: '#0A0D12',
+      backgroundColor: '#FFFFFF',
       borderRadius: '24px',
       overflow: 'hidden',
-      border: '1px solid #1E2530',
-      boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6)',
+      border: '1px solid #E2E8F0',
+      boxShadow: '0 8px 30px rgba(15, 23, 42, 0.05)',
       position: 'relative'
     }}>
-      {/* 1. LEFT SIDEBAR (Matching User Template) */}
+      {/* 1. LEFT SIDEBAR (airLabs Clean Theme with Real Chat History) */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.aside
@@ -327,8 +352,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
             className="airlabs-chat-sidebar"
             style={{
               width: '280px',
-              backgroundColor: '#11161C',
-              borderRight: '1px solid #1D242E',
+              backgroundColor: '#F8FAFC',
+              borderRight: '1px solid #E2E8F0',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -338,19 +363,18 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
             }}
           >
             {/* Top Header & Search */}
-            <div style={{ padding: '16px 14px 10px 14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {/* Header: Title + Sliders Icon */}
+            <div style={{ padding: '18px 16px 12px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <AirlabsEmblem size={22} glow />
+                  <AirlabsEmblem size={24} />
                   <span style={{
                     fontSize: '0.95rem',
-                    fontWeight: 700,
-                    color: '#F8FAFC',
+                    fontWeight: 800,
+                    color: '#0F172A',
                     fontFamily: 'var(--font-display, Outfit, sans-serif)',
                     letterSpacing: '-0.01em'
                   }}>
-                    My Chats
+                    airLabs Chats
                   </span>
                 </div>
                 <button
@@ -359,7 +383,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                   style={{
                     background: 'transparent',
                     border: 'none',
-                    color: '#94A3B8',
+                    color: '#64748B',
                     cursor: 'pointer',
                     padding: '4px',
                     borderRadius: '6px',
@@ -368,8 +392,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                     justifyContent: 'center',
                     transition: 'color 0.15s ease'
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#0F172A'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
                 >
                   <SlidersHorizontal size={16} />
                 </button>
@@ -380,22 +404,23 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                backgroundColor: '#181F27',
-                border: '1px solid #242D38',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
                 borderRadius: '12px',
-                padding: '7px 12px'
+                padding: '7px 12px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
               }}>
                 <Search size={14} color="#64748B" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search"
+                  placeholder="Search chat history..."
                   style={{
                     border: 'none',
                     background: 'transparent',
                     outline: 'none',
-                    color: '#F8FAFC',
+                    color: '#0F172A',
                     fontSize: '0.8rem',
                     width: '100%',
                     fontFamily: 'inherit'
@@ -404,215 +429,135 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
               </div>
             </div>
 
-            {/* Scrollable Center: Folders & Chats */}
+            {/* Scrollable Chat History List (No Folders, Pure Chat History) */}
             <div className="airlabs-chat-sidebar-scroll" style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '0 10px 10px 10px',
+              padding: '0 12px 12px 12px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '16px'
+              gap: '6px'
             }}>
-              {/* Folders Section */}
-              <div>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '4px 6px',
-                  marginBottom: '6px'
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '4px 6px',
+                marginBottom: '4px'
+              }}>
+                <span style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  color: '#94A3B8',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
-                  <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    color: '#94A3B8',
-                    letterSpacing: '0.04em'
-                  }}>
-                    Folders
-                  </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <button
-                      onClick={handleNewChat}
-                      title="New Folder / Chat"
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#64748B',
-                        cursor: 'pointer',
-                        padding: '2px',
-                        display: 'flex'
-                      }}
-                    >
-                      <Plus size={13} />
-                    </button>
-                    <button
-                      onClick={() => setShowFolders(!showFolders)}
-                      title="Toggle Folders"
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#64748B',
-                        cursor: 'pointer',
-                        padding: '2px',
-                        display: 'flex'
-                      }}
-                    >
-                      <ChevronDown size={13} style={{ transform: showFolders ? 'none' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
-                    </button>
-                  </div>
+                  Chat History ({filteredHistory.length})
+                </span>
+              </div>
+
+              {filteredHistory.length === 0 ? (
+                <div style={{
+                  padding: '24px 12px',
+                  textAlign: 'center',
+                  color: '#94A3B8',
+                  fontSize: '0.78rem'
+                }}>
+                  No past conversations found. Ask a question to start your first inquiry!
                 </div>
-
-                {showFolders && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {filteredFolders.map(folder => (
-                      <div
-                        key={folder.id}
-                        onClick={() => handleSend(folder.query)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '7px 10px',
-                          borderRadius: '10px',
-                          backgroundColor: '#151C23',
-                          border: '1px solid #1F2733',
-                          cursor: 'pointer',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#1C2430';
-                          e.currentTarget.style.borderColor = '#2B3746';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#151C23';
-                          e.currentTarget.style.borderColor = '#1F2733';
-                        }}
-                      >
-                        {/* Colored Left Accent Strip */}
-                        <div style={{
-                          position: 'absolute',
-                          left: 0,
-                          top: 0,
-                          bottom: 0,
-                          width: '3.5px',
-                          backgroundColor: folder.color
-                        }} />
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '4px', overflow: 'hidden' }}>
-                          <Folder size={14} color="#94A3B8" />
-                          <span style={{
+              ) : (
+                filteredHistory.map(session => {
+                  const isActive = activeSessionId === session.id;
+                  return (
+                    <div
+                      key={session.id}
+                      onClick={() => handleSelectSession(session)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        padding: '9px 12px',
+                        borderRadius: '12px',
+                        backgroundColor: isActive ? '#FFFFFF' : 'transparent',
+                        border: isActive ? '1px solid #CBD5E1' : '1px solid transparent',
+                        boxShadow: isActive ? '0 2px 6px rgba(0,0,0,0.04)' : 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = '#F1F5F9';
+                          e.currentTarget.style.borderColor = '#E2E8F0';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.borderColor = 'transparent';
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '9px', overflow: 'hidden' }}>
+                        <MessageSquare
+                          size={14}
+                          color={isActive ? '#16A34A' : '#64748B'}
+                          style={{ marginTop: '3px', flexShrink: 0 }}
+                        />
+                        <div style={{ overflow: 'hidden' }}>
+                          <div style={{
                             fontSize: '0.8rem',
-                            fontWeight: 600,
-                            color: '#E2E8F0',
+                            fontWeight: isActive ? 800 : 600,
+                            color: isActive ? '#0F172A' : '#334155',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
                           }}>
-                            {folder.name}
-                          </span>
-                        </div>
-                        <MoreHorizontal size={13} color="#64748B" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Chats Section */}
-              <div>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '4px 6px',
-                  marginBottom: '6px'
-                }}>
-                  <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    color: '#94A3B8',
-                    letterSpacing: '0.04em'
-                  }}>
-                    Chats
-                  </span>
-                  <button
-                    onClick={() => setShowChats(!showChats)}
-                    title="Toggle Chats"
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#64748B',
-                      cursor: 'pointer',
-                      padding: '2px',
-                      display: 'flex'
-                    }}
-                  >
-                    <ChevronDown size={13} style={{ transform: showChats ? 'none' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
-                  </button>
-                </div>
-
-                {showChats && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {filteredChats.map(chat => (
-                      <div
-                        key={chat.id}
-                        onClick={() => handleSend(chat.query)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          justifyContent: 'space-between',
-                          padding: '8px 10px',
-                          borderRadius: '10px',
-                          backgroundColor: '#151C23',
-                          border: '1px solid #1F2733',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#1C2430';
-                          e.currentTarget.style.borderColor = '#2B3746';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#151C23';
-                          e.currentTarget.style.borderColor = '#1F2733';
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', overflow: 'hidden' }}>
-                          <MessageSquare size={14} color="#64748B" style={{ marginTop: '2px', flexShrink: 0 }} />
-                          <div style={{ overflow: 'hidden' }}>
-                            <div style={{
-                              fontSize: '0.78rem',
-                              fontWeight: 600,
-                              color: '#F1F5F9',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis'
-                            }}>
-                              {chat.title}
-                            </div>
-                            <div style={{
-                              fontSize: '0.68rem',
-                              color: '#64748B',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis'
-                            }}>
-                              {chat.subtitle}
-                            </div>
+                            {session.title}
+                          </div>
+                          <div style={{
+                            fontSize: '0.7rem',
+                            color: '#94A3B8',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            marginTop: '2px'
+                          }}>
+                            {session.preview}
+                          </div>
+                          <div style={{ fontSize: '0.65rem', color: '#CBD5E1', marginTop: '2px' }}>
+                            {session.timestamp}
                           </div>
                         </div>
-                        <MoreHorizontal size={13} color="#64748B" style={{ flexShrink: 0, marginTop: '2px' }} />
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+
+                      <button
+                        onClick={(e) => handleDeleteSession(e, session.id)}
+                        title="Delete chat"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#CBD5E1',
+                          cursor: 'pointer',
+                          padding: '3px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          flexShrink: 0,
+                          transition: 'color 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = '#CBD5E1'; }}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  );
+                })
+              )}
             </div>
 
-            {/* Bottom Bright Emerald "New chat" Button (Exact Screenshot Match) */}
-            <div style={{ padding: '12px 14px', borderTop: '1px solid #1D242E' }}>
+            {/* Bottom Vibrant Green "New chat" Button */}
+            <div style={{ padding: '14px 16px', borderTop: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}>
               <button
                 onClick={handleNewChat}
                 style={{
@@ -621,14 +566,14 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   backgroundColor: '#10B981',
-                  color: '#042F2E',
+                  color: '#FFFFFF',
                   border: 'none',
                   borderRadius: '12px',
-                  padding: '9px 12px 9px 16px',
+                  padding: '10px 14px',
                   cursor: 'pointer',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+                  fontWeight: 800,
+                  fontSize: '0.875rem',
+                  boxShadow: '0 2px 10px rgba(16, 185, 129, 0.25)',
                   transition: 'background-color 0.15s ease, transform 0.1s ease'
                 }}
                 onMouseEnter={(e) => {
@@ -640,18 +585,18 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                   e.currentTarget.style.transform = 'none';
                 }}
               >
-                <span style={{ color: '#042F2E', fontWeight: 800 }}>New chat</span>
+                <span>New chat</span>
                 <div style={{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '7px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#059669'
+                  color: '#FFFFFF'
                 }}>
-                  <Plus size={16} strokeWidth={2.5} />
+                  <Plus size={15} strokeWidth={2.8} />
                 </div>
               </button>
             </div>
@@ -659,25 +604,23 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
         )}
       </AnimatePresence>
 
-      {/* 2. MAIN WORKSPACE AREA */}
+      {/* 2. MAIN WORKSPACE AREA (airLabs Clean Light Canvas) */}
       <section style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#0A0D12',
-        backgroundImage: 'radial-gradient(circle at 85% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 55%)',
+        backgroundColor: '#F8FAFC',
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Workspace Top Navigation Bar */}
+        {/* Workspace Top Header Bar */}
         <div style={{
-          padding: '14px 20px',
+          padding: '14px 24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-          backgroundColor: 'rgba(10, 13, 18, 0.85)',
-          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #E2E8F0',
+          backgroundColor: '#FFFFFF',
           zIndex: 20
         }}>
           {/* Left: Back button + Model pill badge */}
@@ -689,7 +632,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: '#94A3B8',
+                  color: '#64748B',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -708,42 +651,40 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 gap: '6px',
                 border: 'none',
                 background: 'transparent',
-                color: '#94A3B8',
+                color: '#64748B',
                 fontSize: '0.85rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: 'pointer',
                 padding: '0',
                 transition: 'color 0.15s ease'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#0F172A'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
             >
               <ArrowLeft size={16} />
               <span>Back to Dashboard</span>
             </button>
 
-            {/* Model Badge Pill (Screenshot GPT-4.0 replica with airLabs theme) */}
+            {/* airLabs Model Pill Badge */}
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              backgroundColor: '#064E3B',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
+              backgroundColor: '#F0FDF4',
+              border: '1px solid #BBF7D0',
               borderRadius: '9999px',
               padding: '3px 10px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              color: '#34D399',
-              boxShadow: '0 0 10px rgba(16, 185, 129, 0.2)'
+              fontSize: '0.725rem',
+              fontWeight: 800,
+              color: '#15803D'
             }}>
               <span style={{
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
-                backgroundColor: '#10B981',
-                boxShadow: '0 0 6px #10B981'
+                backgroundColor: '#16A34A'
               }} />
-              <span>airLabs AI • RAG</span>
+              <span>airLabs AI • Grounded RAG</span>
             </div>
           </div>
 
@@ -751,11 +692,11 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               onClick={() => setBookmarked(!bookmarked)}
-              title={bookmarked ? 'Remove Bookmark' : 'Bookmark Inquiry'}
+              title={bookmarked ? 'Bookmarked' : 'Bookmark Inquiry'}
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: bookmarked ? '#10B981' : '#94A3B8',
+                color: bookmarked ? '#16A34A' : '#64748B',
                 cursor: 'pointer',
                 padding: '6px',
                 borderRadius: '8px',
@@ -764,10 +705,10 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 justifyContent: 'center',
                 transition: 'color 0.15s ease'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#10B981'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = bookmarked ? '#10B981' : '#94A3B8'; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#16A34A'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = bookmarked ? '#16A34A' : '#64748B'; }}
             >
-              <Bookmark size={17} fill={bookmarked ? '#10B981' : 'none'} />
+              <Bookmark size={17} fill={bookmarked ? '#16A34A' : 'none'} />
             </button>
             <button
               onClick={() => {
@@ -779,7 +720,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#94A3B8',
+                color: '#64748B',
                 cursor: 'pointer',
                 padding: '6px',
                 borderRadius: '8px',
@@ -788,8 +729,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 justifyContent: 'center',
                 transition: 'color 0.15s ease'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#0F172A'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
             >
               <Share2 size={17} />
             </button>
@@ -799,7 +740,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
         {/* 3. CENTER CONTENT WORKSPACE */}
         {messages.length === 0 ? (
           /* ========================================================
-             EMPTY / WELCOME STATE: FLOATING HERO CARD (Screenshot Replica)
+             EMPTY / WELCOME STATE: FLOATING HERO CARD (airLabs Theme)
              ======================================================== */
           <div style={{
             flex: 1,
@@ -807,39 +748,39 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '20px',
+            padding: '24px',
             overflowY: 'auto'
           }}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.97, y: 14 }}
+              initial={{ opacity: 0, scale: 0.98, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               className="airlabs-chat-hero-card"
               style={{
                 width: '100%',
                 maxWidth: '740px',
-                backgroundColor: '#141A23',
-                border: '1px solid #232C3A',
-                borderRadius: '26px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '24px',
                 padding: '36px 36px 30px 36px',
-                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6)',
+                boxShadow: '0 8px 32px rgba(15, 23, 42, 0.05)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 textAlign: 'center'
               }}
             >
-              {/* Centered Glowing Logo */}
-              <div style={{ marginBottom: '18px' }}>
-                <AirlabsEmblem size={44} glow />
+              {/* Centered airLabs Emblem */}
+              <div style={{ marginBottom: '16px' }}>
+                <AirlabsEmblem size={46} />
               </div>
 
-              {/* Headline */}
+              {/* Headline in Outfit */}
               <h1 className="airlabs-chat-hero-title" style={{
                 fontFamily: 'var(--font-display, Outfit, sans-serif)',
                 fontSize: '2.1rem',
-                fontWeight: 600,
-                color: '#FFFFFF',
+                fontWeight: 800,
+                color: '#0F172A',
                 margin: '0 0 10px 0',
                 letterSpacing: '-0.02em'
               }}>
@@ -848,16 +789,16 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
 
               {/* Subtitle */}
               <p style={{
-                fontSize: '0.875rem',
-                color: '#94A3B8',
+                fontSize: '0.9rem',
+                color: '#64748B',
                 maxWidth: '520px',
                 margin: '0 auto 28px auto',
-                lineHeight: 1.5
+                lineHeight: 1.55
               }}>
                 Real-time atmospheric intelligence, 24-hour predictive PM2.5 trajectories, and statutory health guidance for Pakistan.
               </p>
 
-              {/* 3 Action Cards (Horizontal Row) */}
+              {/* 3 Specific airLabs Action Cards */}
               <div className="airlabs-hero-actions-grid" style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
@@ -865,51 +806,15 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 width: '100%',
                 marginBottom: '26px'
               }}>
-                {/* Action Card 1: Saved Prompt Templates */}
-                <div
-                  className="airlabs-chat-action-card"
-                  onClick={() => handleSend('Compare Lahore and Karachi air quality right now. Which city is worse and why?')}
-                  style={{
-                    backgroundColor: '#19212C',
-                    border: '1px solid #242E3C',
-                    borderRadius: '16px',
-                    padding: '18px 14px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#10B981',
-                    marginBottom: '10px'
-                  }}>
-                    <BookOpen size={20} />
-                  </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '4px' }}>
-                    Saved Prompt Templates
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: '#94A3B8', lineHeight: 1.4 }}>
-                    Users save and reuse prompt templates for faster responses.
-                  </div>
-                </div>
-
-                {/* Action Card 2: Live Telemetry */}
+                {/* Action Card 1: 24h Forecast Trajectory */}
                 <div
                   className="airlabs-chat-action-card"
                   onClick={() => handleSend('What is the 24-hour PM2.5 forecast for Lahore and Karachi? Will air improve tomorrow?')}
                   style={{
-                    backgroundColor: '#19212C',
-                    border: '1px solid #242E3C',
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
                     borderRadius: '16px',
-                    padding: '18px 14px',
+                    padding: '20px 14px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -918,34 +823,35 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                   }}
                 >
                   <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: '#F0FDF4',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#10B981',
+                    color: '#16A34A',
                     marginBottom: '10px'
                   }}>
-                    <SlidersHorizontal size={20} />
+                    <TrendingUp size={20} />
                   </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '4px' }}>
-                    Media & Trajectory Selection
+                  <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+                    24h Forecast Trajectory
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: '#94A3B8', lineHeight: 1.4 }}>
-                    Users select media type for tailored interactions.
+                  <div style={{ fontSize: '0.725rem', color: '#64748B', lineHeight: 1.45 }}>
+                    Predictive ML trajectory with 80% conformal uncertainty intervals.
                   </div>
                 </div>
 
-                {/* Action Card 3: Multilingual & Health Support */}
+                {/* Action Card 2: Health & Outdoor Safety */}
                 <div
                   className="airlabs-chat-action-card"
-                  onClick={() => handleSend('What are the government school rules and mask requirements for smog in Punjab and Sindh?')}
+                  onClick={() => handleSend('Is it safe to go jogging or exercise outdoors today? What precautions should I take?')}
                   style={{
-                    backgroundColor: '#19212C',
-                    border: '1px solid #242E3C',
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
                     borderRadius: '16px',
-                    padding: '18px 14px',
+                    padding: '20px 14px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -954,33 +860,71 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                   }}
                 >
                   <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: '#F0FDF4',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#10B981',
+                    color: '#16A34A',
                     marginBottom: '10px'
                   }}>
                     <ShieldCheck size={20} />
                   </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '4px' }}>
-                    Multilingual Support
+                  <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+                    Health & Outdoor Safety
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: '#94A3B8', lineHeight: 1.4 }}>
-                    Choose language for better interaction and health rules.
+                  <div style={{ fontSize: '0.725rem', color: '#64748B', lineHeight: 1.45 }}>
+                    Actionable N95 masking advisories and safe jogger workout windows.
+                  </div>
+                </div>
+
+                {/* Action Card 3: School & Smog Regulations */}
+                <div
+                  className="airlabs-chat-action-card"
+                  onClick={() => handleSend('What are the government school rules and mask requirements for smog in Punjab and Sindh?')}
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '16px',
+                    padding: '20px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: '#F0FDF4',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#16A34A',
+                    marginBottom: '10px'
+                  }}>
+                    <School size={20} />
+                  </div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+                    School & Smog Protocols
+                  </div>
+                  <div style={{ fontSize: '0.725rem', color: '#64748B', lineHeight: 1.45 }}>
+                    Official Clean Air emergency action triggers and assembly rules.
                   </div>
                 </div>
               </div>
 
-              {/* Filter Tabs Row (Matching Screenshot: All Text Image Video Music Analytics) */}
+              {/* Filter Tabs Row */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '18px',
-                marginBottom: '20px',
+                gap: '8px',
+                marginBottom: '22px',
                 flexWrap: 'wrap'
               }}>
                 {FILTER_TAGS.map(tag => {
@@ -990,14 +934,14 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                       key={tag}
                       onClick={() => setActiveFilter(tag)}
                       style={{
-                        background: 'transparent',
+                        background: isActive ? '#10B981' : '#F1F5F9',
+                        color: isActive ? '#FFFFFF' : '#475569',
                         border: 'none',
-                        color: isActive ? '#10B981' : '#94A3B8',
-                        fontSize: '0.825rem',
-                        fontWeight: isActive ? 700 : 500,
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
                         cursor: 'pointer',
-                        padding: '4px 2px',
-                        borderBottom: isActive ? '2px solid #10B981' : '2px solid transparent',
+                        padding: '5px 14px',
                         transition: 'all 0.15s ease'
                       }}
                     >
@@ -1012,39 +956,39 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                backgroundColor: '#1A232E',
-                border: '1px solid #283444',
+                backgroundColor: '#FFFFFF',
+                border: '1.5px solid #CBD5E1',
                 borderRadius: '16px',
-                padding: '7px 8px 7px 16px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+                padding: '6px 8px 6px 16px',
+                boxShadow: '0 2px 12px rgba(15, 23, 42, 0.04)',
                 transition: 'border-color 0.2s ease'
               }}>
                 <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>
-                  <AirlabsEmblem size={22} glow />
+                  <AirlabsEmblem size={22} />
                 </div>
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type your prompt here..."
+                  placeholder="Ask about air quality, 24h smog forecasts, or outdoor safety..."
                   style={{
                     flex: 1,
                     border: 'none',
                     background: 'transparent',
                     outline: 'none',
                     fontSize: '0.925rem',
-                    color: '#F8FAFC',
+                    color: '#0F172A',
                     fontFamily: 'inherit'
                   }}
                 />
                 <button
                   type="button"
-                  title="Voice input (mock)"
+                  title="Voice input"
                   style={{
                     background: 'transparent',
                     border: 'none',
-                    color: '#94A3B8',
+                    color: '#64748B',
                     cursor: 'pointer',
                     padding: '8px',
                     display: 'flex',
@@ -1061,8 +1005,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: input.trim() && !loading ? '#10B981' : '#2A3646',
-                    color: input.trim() && !loading ? '#042F2E' : '#64748B',
+                    backgroundColor: input.trim() && !loading ? '#10B981' : '#E2E8F0',
+                    color: input.trim() && !loading ? '#FFFFFF' : '#94A3B8',
                     border: 'none',
                     cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
                     display: 'flex',
@@ -1080,16 +1024,16 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
             {/* Bottom Disclaimer */}
             <p style={{
               fontSize: '0.72rem',
-              color: '#64748B',
+              color: '#94A3B8',
               marginTop: '16px',
               textAlign: 'center'
             }}>
-              airLabs AI can make mistakes. Consider checking important information.
+              airLabs AI verifies telemetry against live PAQI ground stations and official Pak-EPA NEQS standards.
             </p>
           </div>
         ) : (
           /* ========================================================
-             ACTIVE CONVERSATION STATE: DISCLUTTERED DARK CHAT STREAM
+             ACTIVE CONVERSATION STATE: CLEAN AIRLABS CHAT STREAM
              ======================================================== */
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             {/* Messages Scroll Area */}
@@ -1124,15 +1068,15 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                           width: '32px',
                           height: '32px',
                           borderRadius: '10px',
-                          backgroundColor: '#122421',
-                          border: '1px solid rgba(16, 185, 129, 0.3)',
+                          backgroundColor: '#F0FDF4',
+                          border: '1px solid #BBF7D0',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
                           marginTop: '2px'
                         }}>
-                          <AirlabsEmblem size={18} glow />
+                          <AirlabsEmblem size={20} />
                         </div>
                       )}
 
@@ -1144,15 +1088,15 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                       }}>
                         {/* Bubble Container */}
                         <div style={{
-                          backgroundColor: isUser ? '#1C2430' : '#141A23',
-                          border: isUser ? '1px solid #2B3746' : '1px solid #232C3A',
-                          color: '#F8FAFC',
+                          backgroundColor: isUser ? '#0F172A' : '#FFFFFF',
+                          border: isUser ? 'none' : '1px solid #E2E8F0',
+                          color: isUser ? '#FFFFFF' : '#1E293B',
                           padding: isUser ? '12px 18px' : '18px 22px',
                           borderRadius: isUser ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
-                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)'
+                          boxShadow: isUser ? '0 4px 12px rgba(15, 23, 42, 0.12)' : '0 2px 8px rgba(0, 0, 0, 0.03)'
                         }}>
                           {isUser ? (
-                            <p style={{ margin: 0, fontSize: '0.925rem', lineHeight: 1.5, color: '#F8FAFC' }}>
+                            <p style={{ margin: 0, fontSize: '0.925rem', lineHeight: 1.5, color: '#FFFFFF' }}>
                               {msg.text}
                             </p>
                           ) : (
@@ -1186,12 +1130,12 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                                       fontWeight: 700,
                                       padding: '2px 8px',
                                       borderRadius: '6px',
-                                      backgroundColor: '#064E3B',
-                                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                                      color: '#34D399'
+                                      backgroundColor: '#EFF6FF',
+                                      border: '1px solid #DBEAFE',
+                                      color: '#1E40AF'
                                     }}
                                   >
-                                    <BookOpen size={11} color="#10B981" />
+                                    <BookOpen size={11} color="#2563EB" />
                                     {c.title}
                                   </span>
                                 ))}
@@ -1209,7 +1153,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                                     gap: '6px',
                                     border: 'none',
                                     background: 'transparent',
-                                    color: '#94A3B8',
+                                    color: '#64748B',
                                     fontSize: '0.725rem',
                                     fontWeight: 700,
                                     cursor: 'pointer',
@@ -1229,8 +1173,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                                       margin: '6px 0 0 0',
                                       padding: '10px 14px',
                                       borderRadius: '10px',
-                                      backgroundColor: '#0F141C',
-                                      border: '1px solid #1E2734',
+                                      backgroundColor: '#0F172A',
                                       color: '#34D399',
                                       fontSize: '0.7rem',
                                       fontFamily: 'var(--font-mono, monospace)',
@@ -1249,7 +1192,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                         {/* Timestamp */}
                         <span style={{
                           fontSize: '0.675rem',
-                          color: '#64748B',
+                          color: '#94A3B8',
                           alignSelf: isUser ? 'flex-end' : 'flex-start',
                           paddingLeft: isUser ? '0' : '4px'
                         }}>
@@ -1262,12 +1205,11 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                           width: '32px',
                           height: '32px',
                           borderRadius: '10px',
-                          backgroundColor: '#1E2530',
-                          border: '1px solid #2F3946',
+                          backgroundColor: '#0F172A',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#F8FAFC',
+                          color: '#FFFFFF',
                           fontWeight: 800,
                           fontSize: '0.75rem',
                           flexShrink: 0
@@ -1280,17 +1222,17 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 })}
 
                 {loading && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94A3B8', fontSize: '0.825rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748B', fontSize: '0.825rem' }}>
                     <div style={{
                       width: '30px',
                       height: '30px',
                       borderRadius: '8px',
-                      backgroundColor: '#122421',
-                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      backgroundColor: '#F0FDF4',
+                      border: '1px solid #BBF7D0',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#10B981'
+                      color: '#16A34A'
                     }}>
                       <Sparkles size={16} />
                     </div>
@@ -1307,23 +1249,22 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
             {/* Bottom Docked Input Bar in Active Chat */}
             <div style={{
               padding: '14px 24px 18px 24px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-              backgroundColor: 'rgba(10, 13, 18, 0.95)',
-              backdropFilter: 'blur(12px)'
+              borderTop: '1px solid #E2E8F0',
+              backgroundColor: '#FFFFFF'
             }}>
               <div style={{ maxWidth: '820px', width: '100%', margin: '0 auto' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  backgroundColor: '#1A232E',
-                  border: '1px solid #283444',
+                  backgroundColor: '#F8FAFC',
+                  border: '1.5px solid #CBD5E1',
                   borderRadius: '16px',
-                  padding: '7px 8px 7px 16px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+                  padding: '6px 8px 6px 16px',
+                  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
                   transition: 'border-color 0.2s ease'
                 }}>
                   <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>
-                    <AirlabsEmblem size={22} glow />
+                    <AirlabsEmblem size={22} />
                   </div>
                   <input
                     type="text"
@@ -1337,7 +1278,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                       background: 'transparent',
                       outline: 'none',
                       fontSize: '0.925rem',
-                      color: '#F8FAFC',
+                      color: '#0F172A',
                       fontFamily: 'inherit'
                     }}
                   />
@@ -1347,7 +1288,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: '#94A3B8',
+                      color: '#64748B',
                       cursor: 'pointer',
                       padding: '8px',
                       display: 'flex',
@@ -1364,8 +1305,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                       width: '36px',
                       height: '36px',
                       borderRadius: '10px',
-                      backgroundColor: input.trim() && !loading ? '#10B981' : '#2A3646',
-                      color: input.trim() && !loading ? '#042F2E' : '#64748B',
+                      backgroundColor: input.trim() && !loading ? '#10B981' : '#E2E8F0',
+                      color: input.trim() && !loading ? '#FFFFFF' : '#94A3B8',
                       border: 'none',
                       cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
                       display: 'flex',
@@ -1385,7 +1326,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                   alignItems: 'center',
                   marginTop: '8px',
                   fontSize: '0.675rem',
-                  color: '#64748B'
+                  color: '#94A3B8'
                 }}>
                   <span>Grounded in PAQI ground telemetry & official Pak-EPA NEQS standards.</span>
                   <span>airLabs AI can make mistakes. Consider checking important information.</span>
