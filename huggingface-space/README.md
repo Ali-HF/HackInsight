@@ -15,7 +15,7 @@ short_description: Operational telemetry and execution monitoring for HackInsigh
 
 This Hugging Face Space serves as the official **Operational Telemetry & Observability Dashboard** for the **Pakistan PM2.5 Forecasting and Decision-Support System (HackInsight 2026)**.
 
-The primary citizen and user-facing frontend is built in React 19 / TypeScript and deployed on Vercel at [web-three-psi-46.vercel.app](https://web-three-psi-46.vercel.app). 
+The primary citizen and user-facing frontend is built in React 19 / TypeScript and deployed on Vercel at [web-livid-eight-rcllafnbqq.vercel.app](https://web-livid-eight-rcllafnbqq.vercel.app). 
 
 This Space complements the main frontend by providing real-time verification that our data ingestion pipeline, Data Quality Agent, ML forecasting engine ($t+24$ curve), and automated Prefect orchestration are active, reliable, and grounded.
 
@@ -90,7 +90,7 @@ Configure these optional settings under **Space Settings > Variables and Secrets
 | :--- | :--- | :--- | :--- |
 | `FRESHNESS_THRESHOLD_HOURS` | Variable | `24.0` | Maximum acceptable age (in hours) before marking telemetry stale. |
 | `BACKEND_API_URL` | Variable | *(Empty)* | URL of remote backend API providing `/api/status`. If omitted, uses local artifacts or bundled operational snapshot. |
-| `VERCEL_APP_URL` | Variable | `https://web-three-psi-46.vercel.app` | URL to the main TypeScript/Vercel application. |
+| `VERCEL_APP_URL` | Variable | `https://web-livid-eight-rcllafnbqq.vercel.app` | URL to the main TypeScript/Vercel application. |
 | `GITHUB_REPO_URL` | Variable | `https://github.com/Ali-HF/HackInsight` | Link to the open-source code repository. |
 | `PORT` | Variable | `7860` | Server listening port (default for Hugging Face Spaces). |
 

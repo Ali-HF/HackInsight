@@ -22,7 +22,7 @@ logger = logging.getLogger("hackinsight_telemetry")
 # Configurable settings via Environment / Space Secrets
 DEFAULT_FRESHNESS_THRESHOLD_HOURS = float(os.getenv("FRESHNESS_THRESHOLD_HOURS", "24.0"))
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "").strip()
-VERCEL_APP_URL = os.getenv("VERCEL_APP_URL", "https://web-three-psi-46.vercel.app").strip()
+VERCEL_APP_URL = os.getenv("VERCEL_APP_URL", "https://web-livid-eight-rcllafnbqq.vercel.app").strip()
 GITHUB_REPO_URL = os.getenv("GITHUB_REPO_URL", "https://github.com/Ali-HF/HackInsight").strip()
 
 # Secret pattern scrubber to ensure zero credential leakage
