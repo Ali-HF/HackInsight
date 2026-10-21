@@ -343,18 +343,21 @@ def task_publish_outputs(
     temp_h.close()
     shutil.move(temp_h.name, history_file)
 
-    # Also append to run_log.csv
-    csv_file = RUN_HISTORY_DIR / "run_log.csv"
-    csv_exists = csv_file.is_file()
-    csv_row = pd.DataFrame([{
-        "run_id": run_id,
-        "timestamp_utc": now_utc,
-        "status": "SUCCESS",
-        "duration_seconds": duration_sec,
-        "records_checked": validation_data.get("total_records"),
-        "error": ""
-    }])
-    csv_row.to_csv(csv_file, mode="a", header=not csv_exists, index=False)
+    # Also append to run_log.csv and prefect_runs.csv
+    for target_path in [RUN_HISTORY_DIR / "run_log.csv", RUN_HISTORY_DIR / "prefect_runs.csv", BASE_DIR / "prefect_runs.csv"]:
+        csv_exists = target_path.is_file()
+        csv_row = pd.DataFrame([{
+            "run_id": run_id,
+            "timestamp_utc": now_utc,
+            "status": "SUCCESS",
+            "duration_seconds": duration_sec,
+            "forecast_output": str(FORECASTS_DIR / "latest_forecast.json"),
+            "quality_output": str(QUALITY_DIR / "latest_quality.json"),
+            "records_checked": validation_data.get("total_records"),
+            "agent_grounding_passed": True,
+            "error": ""
+        }])
+        csv_row.to_csv(target_path, mode="a", header=not csv_exists, index=False)
 
     # 4. Generate/Update dynamic timeseries trajectory from dataset and latest forecasts
     timeseries_file = FORECASTS_DIR / "forecast_timeseries.json"
@@ -463,18 +466,21 @@ def record_failed_run(run_id: str, error_msg: str, start_time: float):
     except Exception as e:
         print(f"Warning: Failed to update run_history.json: {e}")
 
-    # Append to run_log.csv
-    csv_file = RUN_HISTORY_DIR / "run_log.csv"
-    csv_exists = csv_file.is_file()
-    csv_row = pd.DataFrame([{
-        "run_id": run_id,
-        "timestamp_utc": now_utc,
-        "status": "FAILED",
-        "duration_seconds": duration_sec,
-        "records_checked": 0,
-        "error": error_msg[:200]
-    }])
-    csv_row.to_csv(csv_file, mode="a", header=not csv_exists, index=False)
+    # Append to run_log.csv and prefect_runs.csv
+    for target_path in [RUN_HISTORY_DIR / "run_log.csv", RUN_HISTORY_DIR / "prefect_runs.csv", BASE_DIR / "prefect_runs.csv"]:
+        csv_exists = target_path.is_file()
+        csv_row = pd.DataFrame([{
+            "run_id": run_id,
+            "timestamp_utc": now_utc,
+            "status": "FAILED",
+            "duration_seconds": duration_sec,
+            "forecast_output": "",
+            "quality_output": "",
+            "records_checked": 0,
+            "agent_grounding_passed": False,
+            "error": error_msg[:200]
+        }])
+        csv_row.to_csv(target_path, mode="a", header=not csv_exists, index=False)
 
 
 @flow(name="pm25-hourly-pipeline")
