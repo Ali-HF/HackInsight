@@ -65,3 +65,9 @@ run_id,timestamp_utc,status,duration_seconds,records_checked,error
 20261021_114858,2026-10-21T12:01:05.991672+00:00,SUCCESS,727.605,176392,
 20261021_120106,2026-10-21T12:01:06.328200+00:00,FAILED,0.003,0,RuntimeError: Simulated pipeline ingestion or service failure for testing.
 20261021_154208,2026-10-21T15:42:10.599697+00:00,SUCCESS,2.263,49116,
+20261021_164112,2026-10-21T16:41:42.582755+00:00,FAILED,29.695,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261021_164116,2026-10-21T16:41:44.991031+00:00,FAILED,28.668,,,0,False,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261021_164154,2026-10-21T16:42:06.337535+00:00,SUCCESS,11.792,C:\HIS\outputs\forecasts\latest_forecast.json,C:\HIS\outputs\quality\latest_quality.json,176392,True,
+20261021_164206,2026-10-21T16:42:06.758041+00:00,FAILED,0.003,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261021_164157,2026-10-21T16:42:08.913952+00:00,SUCCESS,11.709,C:\HIS\outputs\forecasts\latest_forecast.json,C:\HIS\outputs\quality\latest_quality.json,176392,True,
+20261021_164209,2026-10-21T16:42:09.264978+00:00,FAILED,0.002,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
