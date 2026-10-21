@@ -9,6 +9,12 @@ interface WeatherSwimMapProps {
   karachiPm25: number;
   lahorePredicted: number;
   karachiPredicted: number;
+  lahoreTemp?: number;
+  karachiTemp?: number;
+  lahoreHumidity?: number;
+  karachiHumidity?: number;
+  lahoreRain?: number;
+  karachiRain?: number;
 }
 
 export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
@@ -17,7 +23,13 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
   lahorePm25,
   karachiPm25,
   lahorePredicted,
-  karachiPredicted
+  karachiPredicted,
+  lahoreTemp = 20,
+  karachiTemp = 29,
+  lahoreHumidity = 42,
+  karachiHumidity = 38,
+  lahoreRain = 0,
+  karachiRain = 0
 }) => {
   const isLahore = selectedCity === 'Lahore';
   const activePm25 = isLahore ? lahorePm25 : karachiPm25;
@@ -229,23 +241,103 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           }}>
             {selectedCity}
           </span>
+          <span style={{
+            fontSize: '0.68rem',
+            fontWeight: 700,
+            color: '#64748B',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            padding: '2px 8px',
+            borderRadius: '999px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+          }}>
+            {isLahore ? '26 Networked Ground Sensors' : '4 Networked Ground Sensors'}
+          </span>
         </motion.div>
       </AnimatePresence>
 
-      {/* 5. INTERACTIVE SECONDARY CITY STATION ON MAP */}
-      {/* Click this node directly on the map to switch telemetry to the other city! */}
-      <motion.div
-        layout
-        whileHover={{ scale: 1.05, y: -2 }}
-        whileTap={{ scale: 0.98 }}
+      {/* 5A. ACTIVE GROUND STATION TELEMETRY BADGE (ALWAYS ACCURATE TO CURRENT CITY) */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedCity + '-station'}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          style={{
+            position: 'absolute',
+            left: '20px',
+            top: '20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.94)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderRadius: '16px',
+            padding: '10px 16px',
+            border: '1.5px solid rgba(255, 255, 255, 0.95)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            zIndex: 12
+          }}
+        >
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            backgroundColor: isHighRisk ? '#FEE2E2' : '#DCFCE7',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: isHighRisk ? '#DC2626' : '#15803D',
+            position: 'relative'
+          }}>
+            <Radio size={16} />
+            <span style={{
+              position: 'absolute',
+              top: '-2px',
+              right: '-2px',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: isHighRisk ? '#EF4444' : '#22C55E',
+              boxShadow: isHighRisk ? '0 0 6px #EF4444' : '0 0 6px #22C55E'
+            }} />
+          </div>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>
+                {isLahore ? 'Lahore Ground Station' : 'Karachi Coastal Station'}
+              </span>
+              <span style={{
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                padding: '1px 6px',
+                borderRadius: '999px',
+                backgroundColor: isHighRisk ? '#FEE2E2' : '#DCFCE7',
+                color: isHighRisk ? '#991B1B' : '#166534'
+              }}>
+                {isLahore ? `${lahorePm25.toFixed(1)} µg/m³` : `${karachiPm25.toFixed(1)} µg/m³`}
+              </span>
+            </div>
+            <span style={{ fontSize: '0.675rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
+              {isLahore ? 'ID: 0166919645da6ef4 • 26 sensors reporting' : 'ID: 212607b3f328c11e • 4 sensors reporting'}
+            </span>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* 5B. REGIONAL NETWORK SWITCH CONTROL (EXPLICIT NAVIGATION BUTTON) */}
+      <motion.button
+        whileHover={{ scale: 1.04, y: -2 }}
+        whileTap={{ scale: 0.97 }}
         onClick={() => onSelectCity(isLahore ? 'Karachi' : 'Lahore')}
-        title={`Click to switch station to ${isLahore ? 'Karachi' : 'Lahore'}`}
-        transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
+        title={`Click to switch monitoring network to ${isLahore ? 'Karachi' : 'Lahore'}`}
         style={{
           position: 'absolute',
-          left: isLahore ? '12%' : '78%',
-          top: isLahore ? '72%' : '18%',
-          backgroundColor: 'rgba(255, 255, 255, 0.92)',
+          right: '20px',
+          top: '20px',
+          backgroundColor: 'rgba(255, 255, 255, 0.94)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           borderRadius: '999px',
@@ -257,45 +349,35 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           gap: '10px',
           cursor: 'pointer',
           zIndex: 12,
-          transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+          outline: 'none'
         }}
       >
-        <div style={{
-          width: '26px',
-          height: '26px',
-          borderRadius: '50%',
-          backgroundColor: isLahore ? '#DCFCE7' : '#FEE2E2',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: isLahore ? '#15803D' : '#DC2626',
-          transition: 'all 0.3s ease'
+        <span style={{
+          fontSize: '0.625rem',
+          fontWeight: 800,
+          color: '#64748B',
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase'
         }}>
-          <Radio size={13} />
-        </div>
-
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>
-              {isLahore ? 'Karachi Station' : 'Lahore Station'}
-            </span>
-            <span style={{
-              fontSize: '0.65rem',
-              fontWeight: 700,
-              padding: '1px 6px',
-              borderRadius: '999px',
-              backgroundColor: isLahore ? '#DCFCE7' : '#FEE2E2',
-              color: isLahore ? '#166534' : '#991B1B',
-              transition: 'all 0.3s ease'
-            }}>
-              {isLahore ? `${karachiPm25.toFixed(0)} µg/m³` : `${lahorePm25.toFixed(0)} µg/m³`}
-            </span>
-          </div>
-          <span style={{ fontSize: '0.675rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
-            Click node to switch telemetry ↗
+          Switch Grid:
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0F172A' }}>
+            {isLahore ? 'Karachi' : 'Lahore'}
           </span>
+          <span style={{
+            fontSize: '0.65rem',
+            fontWeight: 700,
+            padding: '1px 6px',
+            borderRadius: '999px',
+            backgroundColor: '#F1F5F9',
+            color: '#334155'
+          }}>
+            {isLahore ? `${karachiPm25.toFixed(0)} µg/m³` : `${lahorePm25.toFixed(0)} µg/m³`}
+          </span>
+          <span style={{ fontSize: '0.85rem', color: '#3B82F6', fontWeight: 800 }}>↗</span>
         </div>
-      </motion.div>
+      </motion.button>
 
       {/* 6. Four Floating Frosted Glass Widgets (WeatherSwim Style) */}
 
@@ -323,7 +405,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
       >
         <CloudRain size={18} color="#22C55E" style={{ marginBottom: '4px' }} />
         <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
-          0 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>mm</span>
+          {isLahore ? lahoreRain : karachiRain} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>mm</span>
         </div>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           RAINFALL
@@ -362,7 +444,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             transition={{ duration: 0.25 }}
             style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}
           >
-            {isLahore ? '23' : '28'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
+            {isLahore ? lahoreTemp : karachiTemp} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
@@ -402,7 +484,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             transition={{ duration: 0.25 }}
             style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}
           >
-            {isLahore ? '68' : '78'} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
+            {isLahore ? lahoreHumidity : karachiHumidity} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>

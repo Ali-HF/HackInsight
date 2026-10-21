@@ -26,7 +26,6 @@ import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 import pandas as pd
 import numpy as np
 
@@ -72,8 +71,6 @@ except (ImportError, AttributeError, ModuleNotFoundError):
     _schedules_mod = types.ModuleType("prefect.schedules")
     _schedules_mod.Cron = Cron
     sys.modules["prefect.schedules"] = _schedules_mod
-
-
 
 # Local pipeline imports
 from src.ml_pipeline.inference import predict_pm25_24h

@@ -68,6 +68,38 @@
     "query_parameters": {
       "type": "object",
       "description": "Non-secret query parameters (e.g. coordinates, dates, parameters)"
+    },
+    "license_type": {
+      "type": "string",
+      "description": "Standardized license category (e.g., CC-BY-4.0, NASA-ASDC-Open, PAQI-Community-Open, Unverified-Community)"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": ["VERIFIED", "EXCLUDED_UNVERIFIED", "PROVISIONAL"],
+      "description": "Legal provenance verification status"
+    },
+    "exclusion_flag": {
+      "type": "boolean",
+      "description": "If true, sensors/sources failing legal verification are excluded from regulated ML training data"
+    },
+    "station_licensing_ledger": {
+      "type": "array",
+      "description": "Station-by-station licensing ledger records",
+      "items": {
+        "type": "object",
+        "required": ["station_id", "city", "provider", "license_type", "verification_status", "exclusion_flag"],
+        "properties": {
+          "station_id": { "type": "string" },
+          "city": { "type": "string" },
+          "location_name": { "type": "string" },
+          "latitude": { "type": "number" },
+          "longitude": { "type": "number" },
+          "provider": { "type": "string" },
+          "license_type": { "type": "string" },
+          "verification_status": { "type": "string", "enum": ["VERIFIED", "EXCLUDED_UNVERIFIED", "PROVISIONAL"] },
+          "exclusion_flag": { "type": "boolean" }
+        }
+      }
     }
   }
 }

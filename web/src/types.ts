@@ -13,6 +13,10 @@ export interface CityForecast {
   coverage: number;
   unit: string;
   message: string;
+  temperature_c?: number;
+  humidity_pct?: number;
+  wind_speed_ms?: number;
+  precipitation_mm?: number;
 }
 
 export interface LatestForecastPayload {
@@ -84,9 +88,40 @@ export interface ModelMetricsPayload {
     target_coverage_pct: number;
     mean_interval_width: number;
   };
+  test_by_city?: Record<string, {
+    n: number;
+    model_mae: number;
+    model_rmse: number;
+    base_mae: number;
+    base_rmse: number;
+    mae_pct_improvement: number;
+    rmse_pct_improvement: number;
+    beats_baseline: boolean;
+  }>;
 }
 
 export interface TimeSeriesPoint {
   timestamp_utc: string;
   pm25: number;
+}
+
+export interface TrajectoryStep {
+  step_hour: number;
+  label: string;
+  predicted_pm25: number;
+  lower_80: number;
+  upper_80: number;
+  baseline: number;
+}
+
+export interface CityForecastTrajectory {
+  history: Array<{ timestamp_utc: string; pm25: number; type: string }>;
+  trajectory_24h: TrajectoryStep[];
+  forecast_target: {
+    target_time: string;
+    predicted: number;
+    lower_80: number;
+    upper_80: number;
+    baseline: number;
+  };
 }

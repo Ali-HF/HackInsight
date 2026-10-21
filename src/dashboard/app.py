@@ -170,20 +170,23 @@ def load_latest_published_forecast() -> Optional[Dict[str, Any]]:
     return None
 
 
-def get_aqi_category(pm25: float) -> Tuple[str, str, str]:
-    """Return AQI category, badge class, and health recommendation."""
+def get_aqi_category(pm25: float, lang: str = "en") -> Tuple[str, str, str]:
+    """Return AQI category, badge class, and health recommendation in requested language."""
+    from src.insight_agent.urdu_translator import get_aqi_category_info
+    info = get_aqi_category_info(pm25, lang=lang)
     if pm25 <= 12.0:
-        return "Good", "badge-green", "Air quality is satisfactory; air pollution poses little or no risk."
+        badge = "badge-green"
     elif pm25 <= 35.4:
-        return "Moderate", "badge-yellow", "Air quality is acceptable. Sensitive individuals should consider reducing heavy exertion."
+        badge = "badge-yellow"
     elif pm25 <= 55.4:
-        return "Unhealthy for Sensitive Groups", "badge-orange", "Members of sensitive groups may experience health effects."
+        badge = "badge-orange"
     elif pm25 <= 150.0:
-        return "Unhealthy", "badge-red", "Everyone may begin to experience health effects; sensitive groups may experience serious effects."
+        badge = "badge-red"
     elif pm25 <= 250.0:
-        return "Very Unhealthy", "badge-purple", "Health alert: The risk of health effects is increased for everyone."
+        badge = "badge-purple"
     else:
-        return "Hazardous (Smog Emergency)", "badge-maroon", "Health warnings of emergency conditions. The entire population is likely to be affected."
+        badge = "badge-maroon"
+    return info["category"], badge, info["advisory"]
 
 
 # -----------------------------------------------------------------------------
@@ -195,36 +198,50 @@ with st.sidebar:
     st.caption("Pakistan PM2.5 Decision Support System")
 
     st.markdown("---")
-    st.markdown("### 📍 Location Filter")
-    selected_city = st.selectbox("Select Target City", options=["Lahore", "Karachi"], index=0)
+    st.markdown("### 🌐 Language / زبان")
+    selected_language = st.radio("Display Language", options=["English", "اردو (Urdu)"], index=0, horizontal=True)
+    lang_code = "ur" if "اردو" in selected_language else "en"
+
+    st.markdown("---")
+    st.markdown(f"### 📍 {'مقام منتخب کریں' if lang_code == 'ur' else 'Location Filter'}")
+    selected_city = st.selectbox(
+        "شہر منتخب کریں" if lang_code == "ur" else "Select Target City",
+        options=["Lahore", "Karachi"],
+        index=0
+    )
 
     # Load dataset to extract sensor options
     obs_df = load_observations_dataset()
     city_obs = obs_df[obs_df["city"].astype(str).str.strip().str.capitalize() == selected_city]
 
-    available_sensors = ["All Stations (City Centroid)"] + sorted(list(city_obs["sensor_id"].astype(str).unique()))
-    selected_sensor = st.selectbox("Select Station / Sensor", options=available_sensors, index=0)
-    sensor_id_query = None if selected_sensor.startswith("All") else selected_sensor
+    all_stations_label = "تمام اسٹیشنز (All Stations)" if lang_code == "ur" else "All Stations (City Centroid)"
+    available_sensors = [all_stations_label] + sorted(list(city_obs["sensor_id"].astype(str).unique()))
+    selected_sensor = st.selectbox(
+        "اسٹیشن / سینسر منتخب کریں" if lang_code == "ur" else "Select Station / Sensor",
+        options=available_sensors,
+        index=0
+    )
+    sensor_id_query = None if selected_sensor.startswith("All") or selected_sensor.startswith("تمام") else selected_sensor
 
     st.markdown("---")
-    st.markdown("### ⚙️ System Status")
+    st.markdown(f"### ⚙️ {'نظام کی صورتحال' if lang_code == 'ur' else 'System Status'}")
 
     history = load_system_run_history()
     last_run = history[0] if history else None
 
     if last_run and last_run.get("status") == "SUCCESS":
-        st.markdown('<span class="badge badge-green">● Orchestration: Healthy</span>', unsafe_allow_html=True)
+        st.markdown(f'<span class="badge badge-green">● {"آرکیسٹریشن: فعال" if lang_code == "ur" else "Orchestration: Healthy"}</span>', unsafe_allow_html=True)
     elif last_run and last_run.get("status") == "FAILED":
-        st.markdown('<span class="badge badge-red">● Orchestration: Failed</span>', unsafe_allow_html=True)
+        st.markdown(f'<span class="badge badge-red">● {"آرکیسٹریشن: ناکام" if lang_code == "ur" else "Orchestration: Failed"}</span>', unsafe_allow_html=True)
     else:
-        st.markdown('<span class="badge badge-yellow">● Orchestration: Ready</span>', unsafe_allow_html=True)
+        st.markdown(f'<span class="badge badge-yellow">● {"آرکیسٹریشن: تیار" if lang_code == "ur" else "Orchestration: Ready"}</span>', unsafe_allow_html=True)
 
     if last_run and last_run.get("timestamp_utc"):
         try:
             last_dt = datetime.fromisoformat(last_run["timestamp_utc"])
             now_dt = datetime.now(timezone.utc)
             age_min = int((now_dt - last_dt).total_seconds() / 60)
-            st.caption(f"Last Pipeline Update: {age_min}m ago ({last_dt.strftime('%H:%M UTC')})")
+            st.caption(f"{'آخری تجدید' if lang_code == 'ur' else 'Last Pipeline Update'}: {age_min}m {'قبل' if lang_code == 'ur' else 'ago'} ({last_dt.strftime('%H:%M UTC')})")
         except Exception:
             st.caption(f"Last Pipeline Update: {last_run.get('timestamp_utc')}")
     else:
@@ -243,11 +260,18 @@ with st.sidebar:
 # -----------------------------------------------------------------------------
 col_h1, col_h2 = st.columns([3, 1])
 with col_h1:
-    st.title("🇵🇰 Pakistan Air Quality Decision-Support System")
-    st.markdown(
-        f"Real-time observation tracking, **24-hour calibrated forecasting**, data quality governance, "
-        f"and evidence-grounded AI decision support for **{selected_city}**."
-    )
+    if lang_code == "ur":
+        st.title("🇵🇰 پاکستان ایئر کوالٹی فیصلہ ساز نظام")
+        st.markdown(
+            f"**{selected_city}** کے لیے ریئل ٹائم مانیٹرنگ، **24 گھنٹے کی کیلیبریٹڈ پیشگوئی**، "
+            f"ڈیٹا کوالٹی گورننس اور مصدقہ شواہد پر مبنی مصنوعی ذہانت ایڈوائزری۔"
+        )
+    else:
+        st.title("🇵🇰 Pakistan Air Quality Decision-Support System")
+        st.markdown(
+            f"Real-time observation tracking, **24-hour calibrated forecasting**, data quality governance, "
+            f"and evidence-grounded AI decision support for **{selected_city}**."
+        )
 with col_h2:
     st.markdown("<div style='text-align: right; padding-top: 10px;'>", unsafe_allow_html=True)
     st.markdown('<span class="badge badge-green">Prefect: Hourly (Asia/Karachi)</span>', unsafe_allow_html=True)
@@ -259,20 +283,23 @@ st.markdown("---")
 # -----------------------------------------------------------------------------
 # Tabs Architecture
 # -----------------------------------------------------------------------------
-tab_forecast, tab_agent, tab_quality, tab_metrics, tab_orchestration = st.tabs([
-    "📈 24h Forecast & Live Trends",
-    "🤖 Decision-Support Insight Agent",
-    "🛡️ Data Quality Governance",
-    "📊 Model Performance & Metrics",
-    "⚙️ Prefect Orchestration & Health"
-])
+tab_labels = [
+    "📈 24 گھنٹے کی پیشگوئی (24h Forecast)" if lang_code == "ur" else "📈 24h Forecast & Live Trends",
+    "🤖 فیصلہ ساز ایجنٹ (Insight Agent)" if lang_code == "ur" else "🤖 Decision-Support Insight Agent",
+    "🛡️ ڈیٹا کا معیار (Data Quality)" if lang_code == "ur" else "🛡️ Data Quality Governance",
+    "📊 ماڈل کی کارکردگی (Model Metrics)" if lang_code == "ur" else "📊 Model Performance & Metrics",
+    "⚙️ نظام کی صحت (System Health)" if lang_code == "ur" else "⚙️ Prefect Orchestration & Health"
+]
+tab_forecast, tab_agent, tab_quality, tab_metrics, tab_orchestration = st.tabs(tab_labels)
 
 
 # =============================================================================
 # TAB 1: 24h Forecast & Live Trends
 # =============================================================================
 with tab_forecast:
-    st.subheader(f"Current Readings & 24-Hour Horizon Forecast: {selected_city}")
+    st.subheader(
+        f"{'حالیہ ریڈنگز اور 24 گھنٹے کا افق' if lang_code == 'ur' else 'Current Readings & 24-Hour Horizon Forecast'}: {selected_city}"
+    )
 
     # Fetch live current reading and 24h forecast
     current_reading = get_current_pm25(city=selected_city, sensor_id=sensor_id_query)
@@ -289,10 +316,10 @@ with tab_forecast:
 
     with col_m1:
         if curr_val is not None:
-            cat_name, badge_class, _ = get_aqi_category(curr_val)
+            cat_name, badge_class, _ = get_aqi_category(curr_val, lang=lang_code)
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title">Current Observed PM2.5</div>
+                <div class="metric-title">{'حالیہ مشاہدہ کردہ PM2.5' if lang_code == 'ur' else 'Current Observed PM2.5'}</div>
                 <div class="metric-value">{curr_val:.1f} <span style="font-size: 1rem; color: #9CA3AF;">µg/m³</span></div>
                 <div style="margin-top: 8px;"><span class="badge {badge_class}">{cat_name}</span></div>
             </div>
@@ -302,12 +329,12 @@ with tab_forecast:
 
     with col_m2:
         if pred_val is not None:
-            pred_cat, pred_badge, _ = get_aqi_category(pred_val)
+            pred_cat, pred_badge, _ = get_aqi_category(pred_val, lang=lang_code)
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title">24-Hour Forecast (t+24h)</div>
+                <div class="metric-title">{'24 گھنٹے کی پیشگوئی (t+24h)' if lang_code == 'ur' else '24-Hour Forecast (t+24h)'}</div>
                 <div class="metric-value">{pred_val:.1f} <span style="font-size: 1rem; color: #9CA3AF;">µg/m³</span></div>
-                <div style="margin-top: 8px;"><span class="badge {pred_badge}">Predicted: {pred_cat}</span></div>
+                <div style="margin-top: 8px;"><span class="badge {pred_badge}">{'پیشگوئی' if lang_code == 'ur' else 'Predicted'}: {pred_cat}</span></div>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -318,9 +345,9 @@ with tab_forecast:
             width = upper_80 - lower_80
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title">80% Prediction Interval</div>
+                <div class="metric-title">{'80 فیصد پیشگوئی کا تخمینہ' if lang_code == 'ur' else '80% Prediction Interval'}</div>
                 <div class="metric-value" style="font-size: 1.5rem;">[{lower_80:.1f}, {upper_80:.1f}] <span style="font-size: 0.9rem; color: #9CA3AF;">µg/m³</span></div>
-                <div class="metric-subtitle">Uncertainty Width: ±{width/2:.1f} µg/m³</div>
+                <div class="metric-subtitle">{'تخمینہ کی چوڑائی' if lang_code == 'ur' else 'Uncertainty Width'}: ±{width/2:.1f} µg/m³</div>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -332,13 +359,38 @@ with tab_forecast:
             trend_label = f"{'+' if delta > 0 else ''}{delta:.1f} µg/m³ vs persistence"
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-title">Persistence Baseline</div>
+                <div class="metric-title">{'مسلسل بنیاد (Persistence)' if lang_code == 'ur' else 'Persistence Baseline'}</div>
                 <div class="metric-value">{baseline:.1f} <span style="font-size: 1rem; color: #9CA3AF;">µg/m³</span></div>
                 <div class="metric-subtitle">{trend_label}</div>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.metric("Persistence Baseline", "N/A")
+
+    # Health Advisory & Punjab Smog Action Plan Card
+    if curr_val is not None:
+        _, _, health_adv = get_aqi_category(curr_val, lang=lang_code)
+        st.markdown(f"#### 🏥 {'صحت سے متعلق ایڈوائزری اور پنجاب ایکشن پلان' if lang_code == 'ur' else 'Health Advisory & Punjab Action Plan Guidance'}")
+        st.info(health_adv)
+
+    # Embedded DuckDB Analytical Warehouse Layer Insights
+    try:
+        from src.warehouse import query_warehouse
+        wh_df = query_warehouse(
+            "SELECT count(*) as total_obs, round(avg(pm25), 1) as mean_pm25 "
+            "FROM gold_hourly WHERE city = ?",
+            [selected_city]
+        )
+        if not wh_df.empty:
+            tot_obs = int(wh_df.iloc[0]["total_obs"])
+            avg_val = wh_df.iloc[0]["mean_pm25"]
+            st.caption(
+                f"⚡ **{'ڈک ڈی بی اینالیٹکس ویئر ہاؤس' if lang_code == 'ur' else 'Embedded DuckDB Analytical Warehouse'}**: "
+                f"{tot_obs:,} {'گھنٹہ وار مشاہدات' if lang_code == 'ur' else 'zero-copy hourly observations'} ({selected_city}) | "
+                f"{'تاریخی اوسط' if lang_code == 'ur' else 'Historical Mean'}: {avg_val} µg/m³"
+            )
+    except Exception:
+        pass
 
     # Historical Time Series Chart with Prediction Interval
     st.markdown("### 📊 Historical Observations & 24h Horizon Forecast")
@@ -425,42 +477,68 @@ with tab_forecast:
 # TAB 2: Decision-Support Insight Agent (RAG)
 # =============================================================================
 with tab_agent:
-    st.subheader("🤖 Grounded Environmental Decision-Support Assistant")
+    st.subheader(
+        "🤖 فیصلہ ساز ماحول معاون ایجنٹ (RAG)" if lang_code == "ur" else "🤖 Grounded Environmental Decision-Support Assistant"
+    )
     st.markdown(
+        "موجودہ آلودگی، 24 گھنٹے کی پیشگوئی، ماڈل کی درستگی اور ڈیٹا کوالٹی کے بارے میں سوالات پوچھیں۔ ایجنٹ تمام جوابات مصدقہ شواہد پر مبنی رکھتا ہے۔"
+        if lang_code == "ur" else
         "Ask questions about current pollution, 24-hour predictions, model accuracy, or data quality warnings. "
         "The agent strictly grounds answers in authoritative evidence and states **'I don't know'** when evidence is missing."
     )
 
     # Prompt suggestions
-    st.markdown("**Suggested Questions:**")
+    st.markdown(f"**{'تجویز کردہ سوالات:' if lang_code == 'ur' else 'Suggested Questions:'}**")
     col_q1, col_q2, col_q3 = st.columns(3)
     preset_q = None
-    with col_q1:
-        if st.button("What is tomorrow's PM2.5 forecast for Lahore?", use_container_width=True):
-            preset_q = "What is tomorrow's PM2.5 forecast for Lahore?"
-        if st.button("What is tomorrow's forecast for Islamabad?", use_container_width=True):
-            preset_q = "What is tomorrow's forecast for Islamabad?"
-    with col_q2:
-        if st.button("What is the current air quality in Karachi?", use_container_width=True):
-            preset_q = "What is the current air quality in Karachi?"
-        if st.button("What is the data quality status & active warnings?", use_container_width=True):
-            preset_q = "What is the data quality status & active warnings?"
-    with col_q3:
-        if st.button("How accurate is the model compared to baseline?", use_container_width=True):
-            preset_q = "How accurate is the model compared to baseline?"
-        if st.button("Who won the 1992 cricket world cup?", use_container_width=True):
-            preset_q = "Who won the 1992 cricket world cup?"
+
+    if lang_code == "ur":
+        with col_q1:
+            if st.button("لاہور کے لیے کل کی فضائی پیشگوئی کیا ہے؟", use_container_width=True):
+                preset_q = "لاہور کے لیے کل کی فضائی پیشگوئی کیا ہے؟"
+            if st.button("اسلام آباد کی فضائی پیشگوئی کیا ہے؟", use_container_width=True):
+                preset_q = "اسلام آباد کی فضائی پیشگوئی کیا ہے؟"
+        with col_q2:
+            if st.button("کراچی میں ہوا کا موجودہ معیار کیا ہے؟", use_container_width=True):
+                preset_q = "کراچی میں ہوا کا موجودہ معیار کیا ہے؟"
+            if st.button("ڈیٹا کے معیار کی تصدیقی حالت کیا ہے؟", use_container_width=True):
+                preset_q = "ڈیٹا کے معیار کی تصدیقی حالت کیا ہے؟"
+        with col_q3:
+            if st.button("کیا ماڈل بیس لائن سے بہتر کارکردگی دکھا رہا ہے؟", use_container_width=True):
+                preset_q = "کیا ماڈل بیس لائن سے بہتر کارکردگی دکھا رہا ہے؟"
+            if st.button("1992 کا کرکٹ ورلڈ کپ کس نے جیتا؟", use_container_width=True):
+                preset_q = "1992 کا کرکٹ ورلڈ کپ کس نے جیتا؟"
+    else:
+        with col_q1:
+            if st.button("What is tomorrow's PM2.5 forecast for Lahore?", use_container_width=True):
+                preset_q = "What is tomorrow's PM2.5 forecast for Lahore?"
+            if st.button("What is tomorrow's forecast for Islamabad?", use_container_width=True):
+                preset_q = "What is tomorrow's forecast for Islamabad?"
+        with col_q2:
+            if st.button("What is the current air quality in Karachi?", use_container_width=True):
+                preset_q = "What is the current air quality in Karachi?"
+            if st.button("What is the data quality status & active warnings?", use_container_width=True):
+                preset_q = "What is the data quality status & active warnings?"
+        with col_q3:
+            if st.button("How accurate is the model compared to baseline?", use_container_width=True):
+                preset_q = "How accurate is the model compared to baseline?"
+            if st.button("Who won the 1992 cricket world cup?", use_container_width=True):
+                preset_q = "Who won the 1992 cricket world cup?"
 
     # Query input
-    user_query = st.text_input("Enter your decision question:", value=preset_q or "", placeholder="e.g. Should outdoor school activities in Lahore be restricted tomorrow?")
+    user_query = st.text_input(
+        "اپنا سوال یہاں درج کریں:" if lang_code == "ur" else "Enter your decision question:",
+        value=preset_q or "",
+        placeholder="مثلاً: کیا کل لاہور میں اسکولوں کی بیرونی سرگرمیاں معطل ہونی چاہئیں؟" if lang_code == "ur" else "e.g. Should outdoor school activities in Lahore be restricted tomorrow?"
+    )
 
     if user_query:
-        with st.spinner("Executing deterministic tools and verifying numerical grounding..."):
-            response = answer_question(user_query)
+        with st.spinner("تصدیق شدہ شواہد کی جانچ کی جا رہی ہے..." if lang_code == "ur" else "Executing deterministic tools and verifying numerical grounding..."):
+            response = answer_question(user_query, language=lang_code)
 
         st.markdown("---")
         # Response display
-        st.markdown(f"### 💬 Agent Response")
+        st.markdown(f"### 💬 {'ایجنٹ کا جواب' if lang_code == 'ur' else 'Agent Response'}")
         st.info(response.get("answer", "No answer generated."))
 
         # Grounding & Verification Card

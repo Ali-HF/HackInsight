@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { WeatherSwimHeader } from './components/WeatherSwimHeader';
 import { WeatherSwimMap } from './components/WeatherSwimMap';
-import { TrendAnalysisWidget } from './components/TrendAnalysisWidget';
-import { AirFlowWidget } from './components/AirFlowWidget';
+import { ForecastTrajectoryWidget } from './components/ForecastTrajectoryWidget';
+import { ModelPerformanceWidget } from './components/ModelPerformanceWidget';
 import { RAGChatbotWidget } from './components/RAGChatbotWidget';
 import { DataQualityView } from './components/DataQualityView';
 import { ModelMetricsView } from './components/ModelMetricsView';
-import type { LatestForecastPayload, QualityAssessmentPayload, ModelMetricsPayload, TimeSeriesPoint } from './types';
+import type {
+  LatestForecastPayload,
+  QualityAssessmentPayload,
+  ModelMetricsPayload,
+  CityForecastTrajectory
+} from './types';
 import { School, Truck, Factory, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,7 +23,7 @@ export const App: React.FC = () => {
   const [forecastData, setForecastData] = useState<LatestForecastPayload | null>(null);
   const [qualityData, setQualityData] = useState<QualityAssessmentPayload | null>(null);
   const [metricsData, setMetricsData] = useState<ModelMetricsPayload | null>(null);
-  const [timeseriesData, setTimeseriesData] = useState<Record<string, TimeSeriesPoint[]>>({});
+  const [trajectoryData, setTrajectoryData] = useState<Record<string, CityForecastTrajectory>>({});
 
   useEffect(() => {
     const saved = localStorage.getItem('airlab_theme');
@@ -56,27 +61,32 @@ export const App: React.FC = () => {
       .then(data => setMetricsData(data))
       .catch(err => console.warn('Using default metrics:', err));
 
-    fetch('/data/timeseries.json')
+    fetch('/data/forecast_timeseries.json')
       .then(res => res.json())
-      .then(data => setTimeseriesData(data))
-      .catch(err => console.warn('Using default timeseries:', err));
+      .then(data => setTrajectoryData(data))
+      .catch(err => console.warn('Using default trajectory:', err));
   }, []);
 
   const currentCityForecast = forecastData?.forecast_data?.cities?.[selectedCity];
-  const cityTimeseries = timeseriesData[selectedCity] ?? [];
 
   const lahoreForecast = forecastData?.forecast_data?.cities?.['Lahore'];
   const karachiForecast = forecastData?.forecast_data?.cities?.['Karachi'];
 
-  const lahorePm25 = lahoreForecast?.current_pm25 ?? 180.1;
-  const karachiPm25 = karachiForecast?.current_pm25 ?? 95.5;
-  const lahorePredicted = lahoreForecast?.predicted_pm25_24h ?? 153.8;
-  const karachiPredicted = karachiForecast?.predicted_pm25_24h ?? 107.9;
+  const lahorePm25 = lahoreForecast?.current_pm25 ?? 105.19;
+  const karachiPm25 = karachiForecast?.current_pm25 ?? 123.50;
+  const lahorePredicted = lahoreForecast?.predicted_pm25_24h ?? 118.26;
+  const karachiPredicted = karachiForecast?.predicted_pm25_24h ?? 114.41;
 
-  const predictedPm25 = currentCityForecast?.predicted_pm25_24h ?? (selectedCity === 'Karachi' ? 107.9 : 153.8);
-  const lower80 = currentCityForecast?.lower_80 ?? (selectedCity === 'Karachi' ? 53.0 : 75.8);
-  const upper80 = currentCityForecast?.upper_80 ?? (selectedCity === 'Karachi' ? 182.4 : 259.7);
-  const isHighRisk = predictedPm25 > 150.0;
+  const lahoreTemp = lahoreForecast?.temperature_c ?? 20.1;
+  const karachiTemp = karachiForecast?.temperature_c ?? 29.2;
+  const lahoreHumidity = lahoreForecast?.humidity_pct ?? 42.0;
+  const karachiHumidity = karachiForecast?.humidity_pct ?? 38.0;
+  const lahoreRain = lahoreForecast?.precipitation_mm ?? 0.0;
+  const karachiRain = karachiForecast?.precipitation_mm ?? 0.0;
+
+  const predictedPm25 = currentCityForecast?.predicted_pm25_24h ?? (selectedCity === 'Karachi' ? 114.41 : 118.26);
+  const lower80 = currentCityForecast?.lower_80 ?? (selectedCity === 'Karachi' ? 56.22 : 58.13);
+  const upper80 = currentCityForecast?.upper_80 ?? (selectedCity === 'Karachi' ? 193.36 : 199.83);
 
   return (
     <div style={{
@@ -118,7 +128,7 @@ export const App: React.FC = () => {
               transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
               style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
             >
-              {/* Upper Section: Atmospheric Map Canvas with Interactive On-Map City Switching */}
+              {/* Upper Section: Atmospheric Map Canvas with Verified Ground Station & Explicit Grid Switch */}
               <WeatherSwimMap
                 selectedCity={selectedCity}
                 onSelectCity={setSelectedCity}
@@ -126,21 +136,32 @@ export const App: React.FC = () => {
                 karachiPm25={karachiPm25}
                 lahorePredicted={lahorePredicted}
                 karachiPredicted={karachiPredicted}
+                lahoreTemp={lahoreTemp}
+                karachiTemp={karachiTemp}
+                lahoreHumidity={lahoreHumidity}
+                karachiHumidity={karachiHumidity}
+                lahoreRain={lahoreRain}
+                karachiRain={karachiRain}
               />
 
               {/* Lower Section: 3 Bottom Widgets matching WeatherSwim */}
               <div className="weatherswim-bottom-grid">
-                {/* Bottom Left: Pollution Trend Analysis */}
-                <TrendAnalysisWidget
-                  timeseries={cityTimeseries}
+                {/* Bottom Left: 24h PM2.5 Forecast & Conformal Uncertainty Horizon */}
+                <ForecastTrajectoryWidget
+                  city={selectedCity}
+                  trajectoryData={trajectoryData[selectedCity] ?? null}
                   predictedVal={predictedPm25}
                   lower80={lower80}
                   upper80={upper80}
-                  city={selectedCity}
+                  baselineVal={currentCityForecast?.baseline_persistence ?? (selectedCity === 'Karachi' ? 123.5 : 105.19)}
                 />
 
-                {/* Bottom Center: Air Flow Status & Wind Compass */}
-                <AirFlowWidget isHighRisk={isHighRisk} city={selectedCity} />
+                {/* Bottom Center: Model Performance & Lift Telemetry */}
+                <ModelPerformanceWidget
+                  city={selectedCity}
+                  metrics={metricsData}
+                  forecast={currentCityForecast}
+                />
 
                 {/* Bottom Right: Grounded RAG Decision Assistant Chatbot */}
                 <RAGChatbotWidget

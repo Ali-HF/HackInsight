@@ -36,6 +36,7 @@ from src.agent_tools.quality_tool import get_data_quality_status
 
 from src.insight_agent.audit import AuditTrail, AuditStep
 from src.insight_agent.grounding import EvidenceBundle, GroundingEngine, AUTHORITATIVE_STANDARDS
+from src.insight_agent.urdu_translator import translate_to_urdu
 
 
 class InsightRAGAgent:
@@ -86,10 +87,11 @@ class InsightRAGAgent:
 
         return tools
 
-    def answer_question(self, question: str) -> Dict[str, Any]:
+    def answer_question(self, question: str, language: str = "en") -> Dict[str, Any]:
         """
         Main entrypoint: Decides tools, retrieves evidence, applies grounding rules,
         and generates cited response.
+        Supports language='en' (English) or 'ur' (Urdu / اردو).
         """
         interaction_id = str(uuid.uuid4())[:8]
         steps: List[AuditStep] = []
@@ -98,6 +100,7 @@ class InsightRAGAgent:
         # 1. Scope / City validation ("I don't know" rule for unsupported cities)
         if city and city not in self.SUPPORTED_CITIES:
             answer = f"I don't know. {city} is not currently supported by the available sensor network and forecasting data. Supported cities are: {', '.join(self.SUPPORTED_CITIES)}."
+            rendered_answer = translate_to_urdu(answer, {}, city) if language == "ur" else answer
             step_unsupp = AuditStep(
                 step_id=1,
                 step_type="intent_routing",
@@ -116,8 +119,9 @@ class InsightRAGAgent:
             )
             return {
                 "status": "unsupported",
+                "language": language,
                 "question": question,
-                "answer": answer,
+                "answer": rendered_answer,
                 "city": city,
                 "evidence": {},
                 "citations": [],
@@ -137,6 +141,7 @@ class InsightRAGAgent:
         # Handle questions outside project scope
         if not tools and not city:
             answer = "I don't know. The query falls outside the scope of PM2.5 air quality monitoring, forecasting, and data quality validation."
+            rendered_answer = translate_to_urdu(answer, {}, None) if language == "ur" else answer
             self.audit.create_record(
                 interaction_id=interaction_id,
                 question=question,
@@ -150,8 +155,9 @@ class InsightRAGAgent:
             )
             return {
                 "status": "out_of_scope",
+                "language": language,
                 "question": question,
-                "answer": answer,
+                "answer": rendered_answer,
                 "city": None,
                 "evidence": {},
                 "citations": [],
@@ -218,6 +224,7 @@ class InsightRAGAgent:
         # Fallback if no valid evidence could be retrieved
         if not evidence.to_dict():
             answer = f"I don't know. Unable to retrieve verified evidence for {target_city} from the system tools."
+            rendered_answer = translate_to_urdu(answer, {}, target_city) if language == "ur" else answer
             self.audit.create_record(
                 interaction_id=interaction_id,
                 question=question,
@@ -231,8 +238,9 @@ class InsightRAGAgent:
             )
             return {
                 "status": "missing_evidence",
+                "language": language,
                 "question": question,
-                "answer": answer,
+                "answer": rendered_answer,
                 "city": target_city,
                 "evidence": {},
                 "citations": [],
@@ -278,11 +286,14 @@ class InsightRAGAgent:
 
         final_answer = " ".join(answer_parts) if answer_parts else f"Observations retrieved for {target_city}."
 
-        # 5. Verify Grounding
+        # 5. Verify Grounding (verified against English factual sentence)
         grounding_ok = GroundingEngine.verify_numbers(final_answer, evidence)
 
-        # 6. Audit Trail Recording
+        # 6. Translate to Urdu if requested
         evidence_dict = evidence.to_dict()
+        rendered_answer = translate_to_urdu(final_answer, evidence_dict, target_city) if language == "ur" else final_answer
+
+        # 7. Audit Trail Recording
         self.audit.create_record(
             interaction_id=interaction_id,
             question=question,
@@ -291,14 +302,16 @@ class InsightRAGAgent:
             evidence_retrieved=evidence_dict,
             warnings_flags=warnings,
             grounding_passed=grounding_ok,
-            final_answer=final_answer,
+            final_answer=rendered_answer,
             steps=steps
         )
 
         return {
             "status": "success",
+            "language": language,
             "question": question,
-            "answer": final_answer,
+            "answer": rendered_answer,
+            "answer_en": final_answer,
             "city": target_city,
             "evidence": evidence_dict,
             "citations": citations,

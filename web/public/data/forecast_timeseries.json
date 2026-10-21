@@ -1,0 +1,652 @@
+{
+  "Lahore": {
+    "history": [
+      {
+        "timestamp_utc": "2024-12-30 00:00:00+00:00",
+        "pm25": 65.85,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 01:00:00+00:00",
+        "pm25": 64.67,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 02:00:00+00:00",
+        "pm25": 72.43,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 03:00:00+00:00",
+        "pm25": 75.49,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 04:00:00+00:00",
+        "pm25": 88.79,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 05:00:00+00:00",
+        "pm25": 92.74,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 06:00:00+00:00",
+        "pm25": 104.89,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 07:00:00+00:00",
+        "pm25": 95.89,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 08:00:00+00:00",
+        "pm25": 105.21,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 09:00:00+00:00",
+        "pm25": 148.23,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 10:00:00+00:00",
+        "pm25": 153.99,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 11:00:00+00:00",
+        "pm25": 131.93,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 12:00:00+00:00",
+        "pm25": 110.7,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 13:00:00+00:00",
+        "pm25": 140.31,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 14:00:00+00:00",
+        "pm25": 135.9,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 15:00:00+00:00",
+        "pm25": 125.45,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 16:00:00+00:00",
+        "pm25": 109.24,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 17:00:00+00:00",
+        "pm25": 107.11,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 18:00:00+00:00",
+        "pm25": 108.91,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 19:00:00+00:00",
+        "pm25": 118.68,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 20:00:00+00:00",
+        "pm25": 112.47,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 21:00:00+00:00",
+        "pm25": 108.07,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 22:00:00+00:00",
+        "pm25": 106.29,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 23:00:00+00:00",
+        "pm25": 103.88,
+        "type": "observed"
+      }
+    ],
+    "trajectory_24h": [
+      {
+        "step_hour": 1,
+        "label": "+1h",
+        "predicted_pm25": 104.48,
+        "lower_80": 92.21,
+        "upper_80": 121.13,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 2,
+        "label": "+2h",
+        "predicted_pm25": 105.08,
+        "lower_80": 87.72,
+        "upper_80": 128.63,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 3,
+        "label": "+3h",
+        "predicted_pm25": 105.68,
+        "lower_80": 84.42,
+        "upper_80": 134.52,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 4,
+        "label": "+4h",
+        "predicted_pm25": 106.28,
+        "lower_80": 81.73,
+        "upper_80": 139.58,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 5,
+        "label": "+5h",
+        "predicted_pm25": 106.88,
+        "lower_80": 79.43,
+        "upper_80": 144.11,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 6,
+        "label": "+6h",
+        "predicted_pm25": 107.47,
+        "lower_80": 77.4,
+        "upper_80": 148.26,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 7,
+        "label": "+7h",
+        "predicted_pm25": 108.07,
+        "lower_80": 75.6,
+        "upper_80": 152.12,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 8,
+        "label": "+8h",
+        "predicted_pm25": 108.67,
+        "lower_80": 73.95,
+        "upper_80": 155.76,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 9,
+        "label": "+9h",
+        "predicted_pm25": 109.27,
+        "lower_80": 72.45,
+        "upper_80": 159.22,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 10,
+        "label": "+10h",
+        "predicted_pm25": 109.87,
+        "lower_80": 71.06,
+        "upper_80": 162.52,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 11,
+        "label": "+11h",
+        "predicted_pm25": 110.47,
+        "lower_80": 69.76,
+        "upper_80": 165.69,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 12,
+        "label": "+12h",
+        "predicted_pm25": 111.07,
+        "lower_80": 68.55,
+        "upper_80": 168.75,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 13,
+        "label": "+13h",
+        "predicted_pm25": 111.67,
+        "lower_80": 67.42,
+        "upper_80": 171.7,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 14,
+        "label": "+14h",
+        "predicted_pm25": 112.27,
+        "lower_80": 66.34,
+        "upper_80": 174.57,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 15,
+        "label": "+15h",
+        "predicted_pm25": 112.87,
+        "lower_80": 65.33,
+        "upper_80": 177.36,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 16,
+        "label": "+16h",
+        "predicted_pm25": 113.47,
+        "lower_80": 64.37,
+        "upper_80": 180.07,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 17,
+        "label": "+17h",
+        "predicted_pm25": 114.07,
+        "lower_80": 63.46,
+        "upper_80": 182.72,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 18,
+        "label": "+18h",
+        "predicted_pm25": 114.67,
+        "lower_80": 62.6,
+        "upper_80": 185.31,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 19,
+        "label": "+19h",
+        "predicted_pm25": 115.26,
+        "lower_80": 61.76,
+        "upper_80": 187.84,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 20,
+        "label": "+20h",
+        "predicted_pm25": 115.86,
+        "lower_80": 60.97,
+        "upper_80": 190.32,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 21,
+        "label": "+21h",
+        "predicted_pm25": 116.46,
+        "lower_80": 60.21,
+        "upper_80": 192.76,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 22,
+        "label": "+22h",
+        "predicted_pm25": 117.06,
+        "lower_80": 59.49,
+        "upper_80": 195.16,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 23,
+        "label": "+23h",
+        "predicted_pm25": 117.66,
+        "lower_80": 58.8,
+        "upper_80": 197.51,
+        "baseline": 105.19
+      },
+      {
+        "step_hour": 24,
+        "label": "+24h",
+        "predicted_pm25": 118.26,
+        "lower_80": 58.13,
+        "upper_80": 199.83,
+        "baseline": 105.19
+      }
+    ],
+    "forecast_target": {
+      "target_time": "2024-12-31 23:00:00",
+      "predicted": 118.26,
+      "lower_80": 58.13,
+      "upper_80": 199.83,
+      "baseline": 105.19
+    }
+  },
+  "Karachi": {
+    "history": [
+      {
+        "timestamp_utc": "2024-12-30 00:00:00+00:00",
+        "pm25": 62.0,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 01:00:00+00:00",
+        "pm25": 72.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 02:00:00+00:00",
+        "pm25": 99.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 03:00:00+00:00",
+        "pm25": 128.0,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 04:00:00+00:00",
+        "pm25": 129.0,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 05:00:00+00:00",
+        "pm25": 104.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 06:00:00+00:00",
+        "pm25": 86.5,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 07:00:00+00:00",
+        "pm25": 82.5,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 08:00:00+00:00",
+        "pm25": 67.0,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 09:00:00+00:00",
+        "pm25": 64.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 10:00:00+00:00",
+        "pm25": 61.0,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 11:00:00+00:00",
+        "pm25": 70.75,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 12:00:00+00:00",
+        "pm25": 80.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 13:00:00+00:00",
+        "pm25": 101.5,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 14:00:00+00:00",
+        "pm25": 111.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 15:00:00+00:00",
+        "pm25": 118.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 16:00:00+00:00",
+        "pm25": 131.75,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 17:00:00+00:00",
+        "pm25": 146.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 18:00:00+00:00",
+        "pm25": 163.25,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 19:00:00+00:00",
+        "pm25": 143.67,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 20:00:00+00:00",
+        "pm25": 114.5,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 21:00:00+00:00",
+        "pm25": 118.0,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 22:00:00+00:00",
+        "pm25": 115.75,
+        "type": "observed"
+      },
+      {
+        "timestamp_utc": "2024-12-30 23:00:00+00:00",
+        "pm25": 123.5,
+        "type": "observed"
+      }
+    ],
+    "trajectory_24h": [
+      {
+        "step_hour": 1,
+        "label": "+1h",
+        "predicted_pm25": 123.12,
+        "lower_80": 111.24,
+        "upper_80": 139.24,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 2,
+        "label": "+2h",
+        "predicted_pm25": 122.74,
+        "lower_80": 105.94,
+        "upper_80": 145.53,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 3,
+        "label": "+3h",
+        "predicted_pm25": 122.36,
+        "lower_80": 101.79,
+        "upper_80": 150.27,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 4,
+        "label": "+4h",
+        "predicted_pm25": 121.98,
+        "lower_80": 98.22,
+        "upper_80": 154.21,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 5,
+        "label": "+5h",
+        "predicted_pm25": 121.61,
+        "lower_80": 95.05,
+        "upper_80": 157.65,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 6,
+        "label": "+6h",
+        "predicted_pm25": 121.23,
+        "lower_80": 92.14,
+        "upper_80": 160.71,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 7,
+        "label": "+7h",
+        "predicted_pm25": 120.85,
+        "lower_80": 89.42,
+        "upper_80": 163.49,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 8,
+        "label": "+8h",
+        "predicted_pm25": 120.47,
+        "lower_80": 86.87,
+        "upper_80": 166.05,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 9,
+        "label": "+9h",
+        "predicted_pm25": 120.09,
+        "lower_80": 84.46,
+        "upper_80": 168.44,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 10,
+        "label": "+10h",
+        "predicted_pm25": 119.71,
+        "lower_80": 82.15,
+        "upper_80": 170.67,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 11,
+        "label": "+11h",
+        "predicted_pm25": 119.33,
+        "lower_80": 79.94,
+        "upper_80": 172.78,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 12,
+        "label": "+12h",
+        "predicted_pm25": 118.95,
+        "lower_80": 77.8,
+        "upper_80": 174.78,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 13,
+        "label": "+13h",
+        "predicted_pm25": 118.58,
+        "lower_80": 75.75,
+        "upper_80": 176.69,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 14,
+        "label": "+14h",
+        "predicted_pm25": 118.2,
+        "lower_80": 73.76,
+        "upper_80": 178.5,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 15,
+        "label": "+15h",
+        "predicted_pm25": 117.82,
+        "lower_80": 71.82,
+        "upper_80": 180.24,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 16,
+        "label": "+16h",
+        "predicted_pm25": 117.44,
+        "lower_80": 69.93,
+        "upper_80": 181.9,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 17,
+        "label": "+17h",
+        "predicted_pm25": 117.06,
+        "lower_80": 68.09,
+        "upper_80": 183.51,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 18,
+        "label": "+18h",
+        "predicted_pm25": 116.68,
+        "lower_80": 66.29,
+        "upper_80": 185.05,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 19,
+        "label": "+19h",
+        "predicted_pm25": 116.3,
+        "lower_80": 64.53,
+        "upper_80": 186.55,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 20,
+        "label": "+20h",
+        "predicted_pm25": 115.92,
+        "lower_80": 62.8,
+        "upper_80": 187.99,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 21,
+        "label": "+21h",
+        "predicted_pm25": 115.55,
+        "lower_80": 61.12,
+        "upper_80": 189.4,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 22,
+        "label": "+22h",
+        "predicted_pm25": 115.17,
+        "lower_80": 59.46,
+        "upper_80": 190.76,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 23,
+        "label": "+23h",
+        "predicted_pm25": 114.79,
+        "lower_80": 57.83,
+        "upper_80": 192.08,
+        "baseline": 123.5
+      },
+      {
+        "step_hour": 24,
+        "label": "+24h",
+        "predicted_pm25": 114.41,
+        "lower_80": 56.22,
+        "upper_80": 193.36,
+        "baseline": 123.5
+      }
+    ],
+    "forecast_target": {
+      "target_time": "2024-12-31 23:00:00",
+      "predicted": 114.41,
+      "lower_80": 56.22,
+      "upper_80": 193.36,
+      "baseline": 123.5
+    }
+  }
+}

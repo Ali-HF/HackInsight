@@ -21,17 +21,19 @@ def get_agent() -> InsightRAGAgent:
     return _AGENT_INSTANCE
 
 
-def answer_question(question: str) -> Dict[str, Any]:
+def answer_question(question: str, language: str = "en") -> Dict[str, Any]:
     """
     Clean primary interface for Member 4 (Dashboard & Prefect flow).
 
     Args:
         question: Natural language question regarding PM2.5, forecasts, air quality, or data quality.
+        language: Language code ('en' for English, 'ur' for Urdu / اردو). Default: 'en'.
 
     Returns:
         Dict formatted for dashboard consumption:
             - answer: Grounded natural-language response.
             - status: 'success' | 'unsupported' | 'missing_evidence' | 'out_of_scope'
+            - language: Language of the response ('en' or 'ur').
             - evidence: Structured dictionary of verified numerical claims.
             - citations: List of authoritative sources / guidelines.
             - warnings: Quality warnings or alerts.
@@ -40,4 +42,4 @@ def answer_question(question: str) -> Dict[str, Any]:
             - interaction_id: Unique audit trace identifier.
     """
     agent = get_agent()
-    return agent.answer_question(question)
+    return agent.answer_question(question, language=language)
