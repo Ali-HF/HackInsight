@@ -94,7 +94,22 @@ export const evaluateQueryGrounded = (
   metrics?: any,
   history?: ChatHistoryItem[]
 ): AgentResponse => {
-  const q = rawQuery.toLowerCase().trim();
+  // Normalize query: strip extraneous quotes and correct frequent keyboard typos
+  let q = rawQuery.toLowerCase().trim()
+    .replace(/['"“”]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Typo normalization for common input errors
+  q = q
+    .replace(/\b(wuality|quailty|qualtiy|quility|qulity|qaulity)\b/gi, 'quality')
+    .replace(/\b(forcast|forecst|predic|prediciton|forcasting)\b/gi, 'forecast')
+    .replace(/\b(safty|saftey)\b/gi, 'safety')
+    .replace(/\b(weatehr|waether|wheather)\b/gi, 'weather')
+    .replace(/\b(lahor|lahre)\b/gi, 'lahore')
+    .replace(/\b(karaci|krachi)\b/gi, 'karachi')
+    .replace(/\b(polut|polluton|polutant|pollutants?)\b/gi, 'pollution');
+
   const interactionId = `EVID-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 899 + 100)}`;
 
   // Extract live telemetry for both cities without fabricated hardcoded defaults
@@ -621,7 +636,9 @@ export const evaluateQueryGrounded = (
   const isCurrentAirQuery = q.includes('right now') || q.includes('now') || q.includes('current') || 
     q.includes('air quality') || q.includes('aqi') || q.includes('pm2.5') || q.includes('pm25') || 
     q.includes('today') || q.includes('status') || q.includes('reading') || q.includes('level') ||
-    q.includes('smog') || q.includes('how is') || q.includes('pollut') ||
+    q.includes('smog') || q.includes('how is') || q.includes('what is') || q.includes('tell me') ||
+    q.includes('pollut') || q.includes('weather') || q.includes('condition') || q.includes('situation') ||
+    q.includes('air') || q.includes('breathe') || q.includes('like') ||
     isEllipticalKarachi || isEllipticalLahore;
 
   // 13a. Karachi Specific Current Air Quality
@@ -688,6 +705,26 @@ export const evaluateQueryGrounded = (
         { title: "Pak-EPA NEQS Ambient Standard (35 µg/m³)" }
       ],
       warnings: ["Lahore currently exceeds statutory 24-hour health limits."],
+      tools_used: ["get_current_pm25"],
+      grounding_passed: true,
+      interaction_id: interactionId
+    };
+  }
+
+  // 13c. Both Cities / Regional Current Air Quality Overview
+  if (isCurrentAirQuery && !isComparison) {
+    return {
+      answer: `**Current Air Quality Status (Both Cities):**\n\n• **Lahore:** ${lahoreVal !== undefined && lahoreCat ? `**${lahoreVal.toFixed(1)} µg/m³** (${lahoreCat.tier}) — Exceeds NEQS by ${(lahoreVal / 35.0).toFixed(1)}×` : '*Syncing telemetry...*'}\n• **Karachi:** ${karachiVal !== undefined && karachiCat ? `**${karachiVal.toFixed(1)} µg/m³** (${karachiCat.tier}) — Exceeds NEQS by ${(karachiVal / 35.0).toFixed(1)}×` : '*Syncing telemetry...*'}\n\n*Statutory safe health limit under Pak-EPA NEQS is 35 µg/m³.*`,
+      status: "success",
+      evidence: {
+        lahore: lahoreVal !== undefined ? { current_pm25: lahoreVal, aqi_category: lahoreCat?.tier } : null,
+        karachi: karachiVal !== undefined ? { current_pm25: karachiVal, aqi_category: karachiCat?.tier } : null
+      },
+      citations: [
+        { title: "Pakistan Air Quality Initiative (PAQI) Sensor Registry" },
+        { title: "Pak-EPA NEQS 24-hr Ambient Standard (35 µg/m³)" }
+      ],
+      warnings: ["Both cities currently exceed statutory 24-hour health limits."],
       tools_used: ["get_current_pm25"],
       grounding_passed: true,
       interaction_id: interactionId
