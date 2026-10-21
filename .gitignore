@@ -28,16 +28,11 @@ htmlcov/
 *.lock
 *.tmp
 
-# Prompts, internal context & guides
-hackathonguide.pdf
-HACKATHON_GUIDE.md
-MEMBER_1_DATA_ENGINEERING_WORKFLOW.md
-air_quality_project_agent_context.md
-rules.md
-
-# Inspection scripts & reports
-inspect_paqi.py
-paqi_inspection_report.md
+# Temporary media and third-party vendor clones
+brag-output/
+ecc/
 
 .vercel
 .env*
+!.env.example
+
