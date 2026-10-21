@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, SlidersHorizontal, Bell, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface WeatherSwimHeaderProps {
   activeTab: string;
@@ -14,7 +15,7 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
   activeTab,
   setActiveTab,
   selectedCity,
-  setSelectedCity: _setSelectedCity,
+  setSelectedCity,
   isDark,
   toggleDark
 }) => {
@@ -58,7 +59,7 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
           </span>
         </div>
 
-        {/* 2. Center Pill Tabs (WeatherSwim Style: Active dark pill) */}
+        {/* 2. Center Pill Tabs with Smooth Sliding Pill */}
         <nav style={{
           display: 'flex',
           alignItems: 'center',
@@ -76,17 +77,33 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
                 style={{
+                  position: 'relative',
                   border: 'none',
-                  background: isActive ? '#0F172A' : 'transparent',
+                  background: 'transparent',
                   color: isActive ? '#FFFFFF' : '#64748B',
                   fontWeight: isActive ? 700 : 500,
                   fontSize: '0.8rem',
                   padding: '7px 16px',
                   borderRadius: '999px',
                   cursor: 'pointer',
-                  transition: 'all 0.18s ease'
+                  zIndex: 1,
+                  transition: 'color 0.2s ease',
+                  outline: 'none'
                 }}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabPill"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundColor: '#0F172A',
+                      borderRadius: '999px',
+                      zIndex: -1
+                    }}
+                  />
+                )}
                 {t.label}
               </button>
             );
@@ -173,17 +190,26 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
           {isDark ? <Sun size={14} color="#F59E0B" /> : <Moon size={14} />}
         </button>
 
-        {/* Agency Profile Card (WeatherSwim style) */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          backgroundColor: '#FFFFFF',
-          padding: '5px 14px 5px 6px',
-          borderRadius: '999px',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-        }}>
+        {/* Agency Profile Card with Smooth City Switcher */}
+        <motion.div
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => setSelectedCity && setSelectedCity(selectedCity === 'Lahore' ? 'Karachi' : 'Lahore')}
+          title={`Click to switch station to ${selectedCity === 'Lahore' ? 'Karachi' : 'Lahore'}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            backgroundColor: '#FFFFFF',
+            padding: '5px 14px 5px 6px',
+            borderRadius: '999px',
+            border: '1px solid rgba(226, 232, 240, 0.8)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+            cursor: 'pointer',
+            userSelect: 'none',
+            transition: 'border-color 0.2s ease'
+          }}
+        >
           <div style={{
             width: '28px',
             height: '28px',
@@ -197,14 +223,23 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
             <ShieldCheck size={16} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
-              PAQI • {selectedCity}
-            </span>
-            <span style={{ fontSize: '0.65rem', color: '#94A3B8' }}>
-              epd.gov.pk
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={selectedCity}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.2 }}
+                style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}
+              >
+                PAQI • {selectedCity}
+              </motion.span>
+            </AnimatePresence>
+            <span style={{ fontSize: '0.65rem', color: '#15803D', fontWeight: 600 }}>
+              Switch ⇄
             </span>
           </div>
-        </div>
+        </motion.div>
       </div>
     </header>
   );

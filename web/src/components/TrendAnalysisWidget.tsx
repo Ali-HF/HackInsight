@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { TimeSeriesPoint } from '../types';
 
 interface TrendAnalysisWidgetProps {
@@ -13,7 +14,8 @@ export const TrendAnalysisWidget: React.FC<TrendAnalysisWidgetProps> = ({
   timeseries,
   predictedVal,
   lower80: _lower80,
-  upper80
+  upper80,
+  city
 }) => {
   const [activeFilter, setActiveFilter] = useState<'REAL TIME' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>('REAL TIME');
 
@@ -89,8 +91,16 @@ export const TrendAnalysisWidget: React.FC<TrendAnalysisWidgetProps> = ({
         </div>
       </div>
 
-      {/* SVG Smooth Curve Area */}
-      <div style={{ position: 'relative', width: '100%', height: '140px' }}>
+      {/* SVG Smooth Curve Area with smooth transition */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={city}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.32, ease: [0.25, 1, 0.5, 1] }}
+          style={{ position: 'relative', width: '100%', height: '140px' }}
+        >
         {/* Floating Tooltip Card (Matching WeatherSwim's floating pill) */}
         <div style={{
           position: 'absolute',
@@ -170,7 +180,8 @@ export const TrendAnalysisWidget: React.FC<TrendAnalysisWidgetProps> = ({
           />
           <circle cx={forecastX} cy={forecastY} r="4" fill="#F59E0B" stroke="#FFFFFF" strokeWidth="2" />
         </svg>
-      </div>
+      </motion.div>
+    </AnimatePresence>
 
       {/* Clean X-Axis Time Labels */}
       <div style={{

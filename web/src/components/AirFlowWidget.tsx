@@ -1,12 +1,13 @@
 import React from 'react';
 import { Wind, Compass, Leaf, AlertTriangle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AirFlowWidgetProps {
   isHighRisk: boolean;
+  city?: 'Lahore' | 'Karachi';
 }
 
-export const AirFlowWidget: React.FC<AirFlowWidgetProps> = ({ isHighRisk }) => {
+export const AirFlowWidget: React.FC<AirFlowWidgetProps> = ({ isHighRisk, city }) => {
   return (
     <div className="airlab-card" style={{
       padding: '20px 22px',
@@ -30,14 +31,22 @@ export const AirFlowWidget: React.FC<AirFlowWidgetProps> = ({ isHighRisk }) => {
 
       {/* Middle Body: Large Speed Number + Circular Compass Dial */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '14px 0' }}>
-        <div>
-          <div style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0F172A', lineHeight: 1, letterSpacing: '-0.03em' }}>
-            {isHighRisk ? '3.8' : '7.5'}
-          </div>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748B', marginTop: '4px' }}>
-            km/hours (1.0 m/s)
-          </div>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={city || (isHighRisk ? 'high' : 'low')}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0F172A', lineHeight: 1, letterSpacing: '-0.03em' }}>
+              {isHighRisk ? '3.8' : '7.5'}
+            </div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748B', marginTop: '4px' }}>
+              km/hours ({isHighRisk ? '1.0' : '2.1'} m/s)
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
         {/* Circular Compass Radar Graphic (Matching WeatherSwim) */}
         <div style={{
@@ -110,21 +119,31 @@ export const AirFlowWidget: React.FC<AirFlowWidgetProps> = ({ isHighRisk }) => {
         padding: '8px 12px',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px'
+        gap: '8px',
+        transition: 'background-color 0.35s ease, border-color 0.35s ease'
       }}>
         {isHighRisk ? (
           <AlertTriangle size={15} color="#DC2626" style={{ flexShrink: 0 }} />
         ) : (
           <Leaf size={15} color="#16A34A" style={{ flexShrink: 0 }} />
         )}
-        <div style={{ fontSize: '0.725rem', lineHeight: 1.3, color: isHighRisk ? '#991B1B' : '#166534' }}>
-          <strong>{isHighRisk ? 'Inversion Alert!' : 'Fresh Air Movement!'}</strong>
-          <span style={{ display: 'block', fontSize: '0.675rem', opacity: 0.9 }}>
-            {isHighRisk
-              ? 'Low boundary layer trapping surface particulate smog.'
-              : 'Wind circulation is helping disperse urban pollutants.'}
-          </span>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isHighRisk ? 'inversion' : 'fresh'}
+            initial={{ opacity: 0, x: -3 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 3 }}
+            transition={{ duration: 0.2 }}
+            style={{ fontSize: '0.725rem', lineHeight: 1.3, color: isHighRisk ? '#991B1B' : '#166534' }}
+          >
+            <strong>{isHighRisk ? 'Inversion Alert!' : 'Fresh Air Movement!'}</strong>
+            <span style={{ display: 'block', fontSize: '0.675rem', opacity: 0.9 }}>
+              {isHighRisk
+                ? 'Low boundary layer trapping surface particulate smog.'
+                : 'Wind circulation is helping disperse urban pollutants.'}
+            </span>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

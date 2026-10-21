@@ -112,10 +112,10 @@ export const App: React.FC = () => {
           {activeTab === 'overview' && (
             <motion.div
               key="overview"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 14, filter: 'blur(3px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, filter: 'blur(3px)' }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
               style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
             >
               {/* Upper Section: Atmospheric Map Canvas with Interactive On-Map City Switching */}
@@ -140,7 +140,7 @@ export const App: React.FC = () => {
                 />
 
                 {/* Bottom Center: Air Flow Status & Wind Compass */}
-                <AirFlowWidget isHighRisk={isHighRisk} />
+                <AirFlowWidget isHighRisk={isHighRisk} city={selectedCity} />
 
                 {/* Bottom Right: Grounded RAG Decision Assistant Chatbot */}
                 <RAGChatbotWidget
@@ -155,10 +155,10 @@ export const App: React.FC = () => {
           {activeTab === 'quality' && (
             <motion.div
               key="quality"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 14, filter: 'blur(3px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, filter: 'blur(3px)' }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
             >
               <DataQualityView quality={qualityData ?? undefined} />
             </motion.div>
@@ -167,10 +167,10 @@ export const App: React.FC = () => {
           {activeTab === 'protocols' && (
             <motion.div
               key="protocols"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 14, filter: 'blur(3px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, filter: 'blur(3px)' }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
               style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
             >
               <div style={{ maxWidth: '800px', marginBottom: '8px' }}>
@@ -238,10 +238,10 @@ export const App: React.FC = () => {
           {activeTab === 'model' && (
             <motion.div
               key="model"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 14, filter: 'blur(3px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, filter: 'blur(3px)' }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
             >
               <ModelMetricsView metrics={metricsData ?? undefined} />
             </motion.div>

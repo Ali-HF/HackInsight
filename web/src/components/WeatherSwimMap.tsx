@@ -1,6 +1,6 @@
 import React from 'react';
 import { CloudRain, Wind, Droplets, Zap, Plus, Minus, Layers, MapPin, Radio } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface WeatherSwimMapProps {
   selectedCity: 'Lahore' | 'Karachi';
@@ -78,24 +78,34 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         <rect width="100%" height="100%" fill="url(#gridPattern2)" />
 
         {/* Dynamic Water & River paths based on active region */}
-        {isLahore ? (
-          // Ravi River meandering along North
-          <path
-            d="M -20 90 Q 240 130 480 70 T 950 115 T 1450 85"
-            fill="none"
-            stroke="rgba(186, 215, 233, 0.85)"
-            strokeWidth="32"
-            strokeLinecap="round"
-          />
-        ) : (
-          // Karachi Coastline
-          <path
-            d="M -50 330 Q 300 270 650 320 T 1400 260 L 1400 500 L -50 500 Z"
-            fill="rgba(186, 220, 240, 0.65)"
-            stroke="rgba(147, 197, 225, 0.7)"
-            strokeWidth="3"
-          />
-        )}
+        <AnimatePresence mode="wait">
+          {isLahore ? (
+            <motion.path
+              key="lahore-ravi"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: 'easeInOut' }}
+              d="M -20 90 Q 240 130 480 70 T 950 115 T 1450 85"
+              fill="none"
+              stroke="rgba(186, 215, 233, 0.85)"
+              strokeWidth="32"
+              strokeLinecap="round"
+            />
+          ) : (
+            <motion.path
+              key="karachi-coast"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: 'easeInOut' }}
+              d="M -50 330 Q 300 270 650 320 T 1400 260 L 1400 500 L -50 500 Z"
+              fill="rgba(186, 220, 240, 0.65)"
+              stroke="rgba(147, 197, 225, 0.7)"
+              strokeWidth="3"
+            />
+          )}
+        </AnimatePresence>
 
         {/* Ring Roads and Transit Grids */}
         <circle cx="50%" cy="48%" r="180" fill="none" stroke="rgba(255, 255, 255, 0.7)" strokeWidth="2.5" strokeDasharray="6 4" />
@@ -104,107 +114,136 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         <line x1="20%" y1="80%" x2="80%" y2="20%" stroke="rgba(255, 255, 255, 0.6)" strokeWidth="2" />
       </svg>
 
-      {/* 2. District Labels printed on map */}
-      {districts.map((d, i) => (
-        <span
-          key={i}
-          style={{
-            position: 'absolute',
-            left: d.x,
-            top: d.y,
-            fontSize: '0.675rem',
-            fontWeight: 700,
-            letterSpacing: '0.08em',
-            color: 'rgba(100, 116, 139, 0.75)',
-            textTransform: 'uppercase',
-            pointerEvents: 'none',
-            userSelect: 'none'
-          }}
+      {/* 2. District Labels printed on map with smooth cross-fade */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedCity}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35, ease: 'easeInOut' }}
+          style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
         >
-          {d.name}
-        </span>
-      ))}
+          {districts.map((d, i) => (
+            <span
+              key={i}
+              style={{
+                position: 'absolute',
+                left: d.x,
+                top: d.y,
+                fontSize: '0.675rem',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                color: 'rgba(100, 116, 139, 0.75)',
+                textTransform: 'uppercase',
+                userSelect: 'none'
+              }}
+            >
+              {d.name}
+            </span>
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
       {/* 3. The Atmospheric Aerosol Plume for Active City */}
-      <motion.div
-        key={selectedCity}
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: [1, 1.03, 1], opacity: [0.92, 1, 0.92] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute',
-          width: '540px',
-          height: '380px',
-          borderRadius: '50%',
-          background: plumeGradient,
-          filter: 'blur(34px)',
-          pointerEvents: 'none',
-          transform: 'translate(-50%, -50%)',
-          left: '50%',
-          top: '48%'
-        }}
-      />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedCity}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: [1, 1.03, 1] }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{
+            opacity: { duration: 0.45, ease: 'easeInOut' },
+            scale: { duration: 6, repeat: Infinity, ease: 'easeInOut' }
+          }}
+          style={{
+            position: 'absolute',
+            width: '540px',
+            height: '380px',
+            borderRadius: '50%',
+            background: plumeGradient,
+            filter: 'blur(34px)',
+            pointerEvents: 'none',
+            transform: 'translate(-50%, -50%)',
+            left: '50%',
+            top: '48%'
+          }}
+        />
+      </AnimatePresence>
 
       {/* 4. Center Primary City Epicenter (Active Node) */}
-      <div style={{
-        position: 'absolute',
-        left: '50%',
-        top: '48%',
-        transform: 'translate(-50%, -50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '4px',
-        zIndex: 10
-      }}>
+      <AnimatePresence mode="wait">
         <motion.div
-          whileHover={{ scale: 1.1 }}
+          key={selectedCity}
+          initial={{ opacity: 0, scale: 0.85, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.85, y: -8 }}
+          transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
           style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            backgroundColor: '#FFFFFF',
+            position: 'absolute',
+            left: '50%',
+            top: '48%',
+            transform: 'translate(-50%, -50%)',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 6px 16px rgba(0,0,0,0.18)',
-            border: '2.5px solid #FFFFFF'
+            gap: '4px',
+            zIndex: 10
           }}
         >
-          <div style={{
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            backgroundColor: isHighRisk ? '#EF4444' : '#22C55E',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <MapPin size={9} color="#FFFFFF" />
-          </div>
-        </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.18)',
+              border: '2.5px solid #FFFFFF'
+            }}
+          >
+            <div style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              backgroundColor: isHighRisk ? '#EF4444' : '#22C55E',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background-color 0.3s ease'
+            }}>
+              <MapPin size={9} color="#FFFFFF" />
+            </div>
+          </motion.div>
 
-        <span style={{
-          fontSize: '1.5rem',
-          fontWeight: 800,
-          color: isHighRisk ? '#991B1B' : '#15803D',
-          letterSpacing: '-0.02em',
-          textShadow: '0 1px 10px rgba(255,255,255,0.95)'
-        }}>
-          {selectedCity}
-        </span>
-      </div>
+          <span style={{
+            fontSize: '1.5rem',
+            fontWeight: 800,
+            color: isHighRisk ? '#991B1B' : '#15803D',
+            letterSpacing: '-0.02em',
+            textShadow: '0 1px 10px rgba(255,255,255,0.95)',
+            transition: 'color 0.3s ease'
+          }}>
+            {selectedCity}
+          </span>
+        </motion.div>
+      </AnimatePresence>
 
       {/* 5. INTERACTIVE SECONDARY CITY STATION ON MAP */}
       {/* Click this node directly on the map to switch telemetry to the other city! */}
       <motion.div
+        layout
         whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => onSelectCity(isLahore ? 'Karachi' : 'Lahore')}
-        title={`Click to view ${isLahore ? 'Karachi' : 'Lahore'} ground station`}
+        title={`Click to switch station to ${isLahore ? 'Karachi' : 'Lahore'}`}
+        transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
         style={{
           position: 'absolute',
-          left: isLahore ? '12%' : '80%',
+          left: isLahore ? '12%' : '78%',
           top: isLahore ? '72%' : '18%',
           backgroundColor: 'rgba(255, 255, 255, 0.92)',
           backdropFilter: 'blur(12px)',
@@ -229,7 +268,8 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: isLahore ? '#15803D' : '#DC2626'
+          color: isLahore ? '#15803D' : '#DC2626',
+          transition: 'all 0.3s ease'
         }}>
           <Radio size={13} />
         </div>
@@ -245,7 +285,8 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
               padding: '1px 6px',
               borderRadius: '999px',
               backgroundColor: isLahore ? '#DCFCE7' : '#FEE2E2',
-              color: isLahore ? '#166534' : '#991B1B'
+              color: isLahore ? '#166534' : '#991B1B',
+              transition: 'all 0.3s ease'
             }}>
               {isLahore ? `${karachiPm25.toFixed(0)} µg/m³` : `${lahorePm25.toFixed(0)} µg/m³`}
             </span>
@@ -312,9 +353,18 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         }}
       >
         <Wind size={18} color="#F97316" style={{ marginBottom: '4px' }} />
-        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
-          {isLahore ? '23' : '28'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedCity}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.25 }}
+            style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}
+          >
+            {isLahore ? '23' : '28'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
+          </motion.div>
+        </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           TEMPERATURE
         </span>
@@ -343,9 +393,18 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         }}
       >
         <Droplets size={20} color="#0EA5E9" style={{ marginBottom: '4px' }} />
-        <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
-          {isLahore ? '68' : '78'} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedCity}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.25 }}
+            style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}
+          >
+            {isLahore ? '68' : '78'} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
+          </motion.div>
+        </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           HUMIDITY
         </span>
@@ -370,13 +429,29 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 8
+          zIndex: 8,
+          transition: 'border-color 0.35s ease'
         }}
       >
-        <Zap size={20} color={isHighRisk ? '#EF4444' : '#22C55E'} style={{ marginBottom: '4px' }} />
-        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: isHighRisk ? '#DC2626' : '#16A34A', lineHeight: 1 }}>
-          {activePm25.toFixed(0)} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
-        </div>
+        <Zap size={20} color={isHighRisk ? '#EF4444' : '#22C55E'} style={{ marginBottom: '4px', transition: 'color 0.3s ease' }} />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedCity}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              fontSize: '1.4rem',
+              fontWeight: 800,
+              color: isHighRisk ? '#DC2626' : '#16A34A',
+              lineHeight: 1,
+              transition: 'color 0.3s ease'
+            }}
+          >
+            {activePm25.toFixed(0)} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
+          </motion.div>
+        </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           PM2.5 / AIR
         </span>
