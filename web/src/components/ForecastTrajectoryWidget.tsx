@@ -198,17 +198,6 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
 
   const timeLabels = ['-12h', '-6h', 't₀ (Now)', '+6h', '+12h', '+18h', '+24h'];
 
-  // Tooltip pill positioning within SVG
-  const tooltipX = hoveredPoint ? Math.max(paddingLeft + 38, Math.min(width - paddingRight - 38, hoveredPoint.x)) : 0;
-  const tooltipY = hoveredPoint ? (hoveredPoint.y < 42 ? hoveredPoint.y + 22 : hoveredPoint.y - 14) : 0;
-
-  // Active display data (either hovered point or default +24h target)
-  const displayLabel = hoveredPoint ? hoveredPoint.label : '+24h Horizon Forecast';
-  const displayVal = hoveredPoint ? hoveredPoint.value : finalPredicted;
-  const displayLower = hoveredPoint?.lower80 ?? finalLower80;
-  const displayUpper = hoveredPoint?.upper80 ?? finalUpper80;
-  const isHoveredForecast = hoveredPoint ? hoveredPoint.isForecast : true;
-
   return (
     <div
       className="airlab-card"
@@ -224,8 +213,8 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
         position: 'relative'
       }}
     >
-      {/* 1. Header with Title & Feature Toggles */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+      {/* 1. Header with Title, Summary Metric & Feature Toggles */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{
             width: '28px',
@@ -235,7 +224,8 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#16A34A'
+            color: '#16A34A',
+            flexShrink: 0
           }}>
             <TrendingUp size={16} />
           </div>
@@ -249,8 +239,24 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
           </div>
         </div>
 
-        {/* Toggle Badges */}
-        <div style={{ display: 'flex', gap: '6px' }}>
+        {/* Header Right: +24h Target Badge & Controls (No overlapping card on the chart!) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{
+            fontSize: '0.675rem',
+            fontWeight: 700,
+            color: '#0F172A',
+            backgroundColor: '#FFFBEB',
+            border: '1px solid #FDE68A',
+            padding: '3px 8px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <span style={{ color: '#92400E', fontWeight: 600 }}>+24h:</span>
+            <span style={{ color: '#D97706' }}>{finalPredicted.toFixed(1)} µg/m³</span>
+          </div>
+
           <button
             onClick={() => setShowConfidenceBand(!showConfidenceBand)}
             style={{
@@ -297,7 +303,7 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
         </div>
       </div>
 
-      {/* 2. SVG Chart Area with Interactive Hover */}
+      {/* 2. SVG Chart Area with Clean, Non-Obstructing Hover Tooltip */}
       <AnimatePresence mode="wait">
         <motion.div
           key={city}
@@ -307,50 +313,47 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
           transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
           style={{ position: 'relative', width: '100%', height: '142px' }}
         >
-          {/* Dynamic Prediction / Hover Tooltip Card */}
-          <div
-            style={{
-              position: 'absolute',
-              right: '16px',
-              top: '4px',
-              backgroundColor: '#FFFFFF',
-              borderRadius: '12px',
-              padding: '6px 12px',
-              boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
-              border: '1px solid #E2E8F0',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
-              zIndex: 10,
-              pointerEvents: 'none',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.675rem', color: '#64748B' }}>
-              <span style={{ fontWeight: 700, color: isHoveredForecast ? '#D97706' : '#10B981' }}>
-                {displayLabel}
-              </span>
-              {isHoveredForecast ? (
-                <span style={{ fontSize: '0.625rem' }}>80% CI: [{displayLower.toFixed(0)} - {displayUpper.toFixed(0)}]</span>
-              ) : (
-                <span style={{ fontSize: '0.625rem' }}>Observed Ground Station</span>
-              )}
+          {/* Smart Floating Tooltip: Follows the cursor safely to the side/top so it NEVER hides the point or curve */}
+          {hoveredPoint && (
+            <div
+              style={{
+                position: 'absolute',
+                left: `${(hoveredPoint.x / width) * 100}%`,
+                top: `${(hoveredPoint.y / height) * 100}%`,
+                transform: `translate(${hoveredPoint.x > width * 0.55 ? '-112%' : '14%'}, ${hoveredPoint.y < 46 ? '12px' : '-108%'})`,
+                backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                backdropFilter: 'blur(6px)',
+                color: '#FFFFFF',
+                borderRadius: '10px',
+                padding: '6px 10px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.22)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                pointerEvents: 'none',
+                zIndex: 30,
+                whiteSpace: 'nowrap',
+                transition: 'transform 0.08s ease-out'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.65rem', color: '#94A3B8', fontWeight: 600 }}>
+                <span style={{ color: hoveredPoint.isForecast ? '#FBBF24' : '#34D399', fontWeight: 700 }}>
+                  {hoveredPoint.label}
+                </span>
+                {hoveredPoint.isForecast && hoveredPoint.lower80 !== undefined && hoveredPoint.upper80 !== undefined && (
+                  <span>80% CI: [{hoveredPoint.lower80.toFixed(0)} - {hoveredPoint.upper80.toFixed(0)}]</span>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', fontWeight: 800, fontSize: '0.8rem', marginTop: '2px' }}>
+                <span style={{ color: '#E2E8F0' }}>PM2.5:</span>
+                <span style={{ color: '#FFFFFF', fontSize: '0.95rem' }}>{hoveredPoint.value.toFixed(1)}</span>
+                <span style={{ fontSize: '0.675rem', fontWeight: 500, color: '#94A3B8' }}>µg/m³</span>
+                {finalBaseline !== undefined && (
+                  <span style={{ fontSize: '0.625rem', fontWeight: 500, color: '#64748B', marginLeft: '4px' }}>
+                    (Base: {finalBaseline.toFixed(1)})
+                  </span>
+                )}
+              </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 800, color: '#1E293B' }}>
-              <span
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: displayVal > 150 ? '#EF4444' : (displayVal > 100 ? '#F59E0B' : '#10B981')
-                }}
-              />
-              PM2.5: {displayVal.toFixed(1)} µg/m³
-              <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#64748B', marginLeft: '4px' }}>
-                (Base: {finalBaseline.toFixed(1)})
-              </span>
-            </div>
-          </div>
+          )}
 
           <svg
             ref={svgRef}
@@ -455,28 +458,26 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
               pointerEvents="none"
             />
 
-            {/* 7. Final t+24 Target Point with Golden Glow (when not hovering) */}
-            {!hoveredPoint && (
-              <g pointerEvents="none">
-                <circle
-                  cx={t24Point.x}
-                  cy={t24Point.y}
-                  r="5.5"
-                  fill="#D97706"
-                  stroke="#FFFFFF"
-                  strokeWidth="2"
-                />
-                <circle
-                  cx={t24Point.x}
-                  cy={t24Point.y}
-                  r="9"
-                  fill="none"
-                  stroke="#F59E0B"
-                  strokeWidth="1"
-                  strokeOpacity="0.4"
-                />
-              </g>
-            )}
+            {/* 7. Final t+24 Target Point with Golden Glow */}
+            <circle
+              cx={t24Point.x}
+              cy={t24Point.y}
+              r="5.5"
+              fill="#D97706"
+              stroke="#FFFFFF"
+              strokeWidth="2"
+              pointerEvents="none"
+            />
+            <circle
+              cx={t24Point.x}
+              cy={t24Point.y}
+              r="9"
+              fill="none"
+              stroke="#F59E0B"
+              strokeWidth="1"
+              strokeOpacity="0.4"
+              pointerEvents="none"
+            />
 
             {/* 8. Interactive Hover Indicator on the Line */}
             {hoveredPoint && (
@@ -497,41 +498,18 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
                 <circle
                   cx={hoveredPoint.x}
                   cy={hoveredPoint.y}
-                  r="10"
+                  r="9"
                   fill={hoveredPoint.isForecast ? '#F59E0B' : '#10B981'}
                   opacity="0.25"
                 />
                 <circle
                   cx={hoveredPoint.x}
                   cy={hoveredPoint.y}
-                  r="5.5"
+                  r="5"
                   fill={hoveredPoint.isForecast ? '#D97706' : '#10B981'}
                   stroke="#FFFFFF"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                 />
-
-                {/* Direct Value Pill floating on the line */}
-                <rect
-                  x={tooltipX - 42}
-                  y={tooltipY - 11}
-                  width="84"
-                  height="22"
-                  rx="6"
-                  fill="#0F172A"
-                  opacity="0.94"
-                  filter="drop-shadow(0 2px 6px rgba(0,0,0,0.25))"
-                />
-                <text
-                  x={tooltipX}
-                  y={tooltipY + 4}
-                  fill="#FFFFFF"
-                  fontSize="10.5"
-                  fontWeight="700"
-                  textAnchor="middle"
-                  fontFamily="'Plus Jakarta Sans', sans-serif"
-                >
-                  {hoveredPoint.value.toFixed(1)} µg/m³
-                </text>
               </g>
             )}
           </svg>
