@@ -1,7 +1,7 @@
 # HACKINSIGHT 2026: SUBMISSION DEFENSE, BUSINESS MODEL & OPTIMIZATION DOSSIER
 
 **Team:** DataMinors  
-**Members:** Laiba Akram, Ali Hasan Farooqui, Areeba, Bushra Abid  
+**Members:** Ali Hasan Farooqui, Laiba Akram, Areeba, Bushra Abid  
 **Track:** Air Quality (Lahore & Karachi PM2.5 24h Hourly Forecasting)  
 **Repository:** [Ali-HF/HackInsight](https://github.com/Ali-HF/HackInsight)  
 **Submission Tag:** `v1.0-final`  
@@ -62,7 +62,7 @@ Below is the chronological optimization register tracking changes and their meas
 
 Every team member must be present and fluent in their assigned tier. Below is the member-by-member defense matrix:
 
-### Member 1: Laiba Akram — Data Acquisition, Warehouse & Quality Agent
+### Member 1: Ali Hasan Farooqui — Data Acquisition, Warehouse & Quality Agent
 - **Key Responsibilities:** Raw data ingestion, manifest cryptographic verification (`manifest.csv`), DuckDB warehouse architecture, and `DataQualityAgent` deterministic logic.
 - **Key Files Owned:** `src/data_pipeline/`, `data/manifests/manifest.csv`, `src/data_pipeline/validation/data_quality_agent.py`, `reports/data_quality/quality_log.csv`.
 - **Top Viva Questions & Answers:**
@@ -71,7 +71,7 @@ Every team member must be present and fluent in their assigned tier. Below is th
   - *Q: How does your Data Quality Agent avoid data fabrication?*  
     **A:** The agent strictly classifies actions into `FIX` (safe formatting), `FILL` (bounded forward-fill strictly capped at 2 hours for weather only), and `FLAG` (isolates flatlines $\ge 6h$ and extreme values $>800 µg/m³$). Target PM2.5 is **never** imputed. Every decision is logged in `quality_log.csv`.
 
-### Member 2: Ali Hasan Farooqui — ML Modeling, Causal Features & Rigorous Evaluation
+### Member 2: Laiba Akram — ML Modeling, Causal Features & Rigorous Evaluation
 - **Key Responsibilities:** Feature engineering, chronological data partitioning, baseline declaration, HistGradientBoosting training, conformal uncertainty bounds, and sub-group error analysis.
 - **Key Files Owned:** `src/ml_pipeline/`, `artifacts/models/`, `artifacts/reports/metrics_summary.json`, `artifacts/reports/error_analysis.json`.
 - **Top Viva Questions & Answers:**

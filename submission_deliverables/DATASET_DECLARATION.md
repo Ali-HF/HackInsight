@@ -1,7 +1,7 @@
 # Dataset Declaration: HackInsight 2026 (TECHFEST '26)
 
 **Team:** DataMinors
-**Members:** Laiba Akram, Ali Hasan Farooqui, Areeba, Bushra Abid
+**Members:** Ali Hasan Farooqui, Laiba Akram, Areeba, Bushra Abid
 **Track:** Air quality
 **Declared:** Mon 19 Oct 2026, before 12:00 PM PKT
 

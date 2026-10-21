@@ -22,7 +22,7 @@ license: mit
 An end-to-end, reproducible air-quality operational pipeline and decision-support system built for **HackInsight 2026 (TECHFEST '26)**. The system forecasts ground-level hourly PM2.5 concentrations **24 hours ahead ($t+24$)** for **Lahore** and **Karachi**, provides calibrated 80% & 90% uncertainty intervals, enforces deterministic data-quality governance, and powers an anti-hallucination decision-support agent grounded in statutory environmental standards.
 
 **Team:** DataMinors  
-**Members:** Laiba Akram, Ali Hasan Farooqui, Areeba, Bushra Abid  
+**Members:** Ali Hasan Farooqui, Laiba Akram, Areeba, Bushra Abid  
 **Repository:** [Ali-HF/HackInsight](https://github.com/Ali-HF/HackInsight)  
 **Release Tag:** [`v1.0-final`](https://github.com/Ali-HF/HackInsight/tree/v1.0-final)  
 **Live Citizen Web App:** [https://web-livid-eight-rcllafnbqq.vercel.app](https://web-livid-eight-rcllafnbqq.vercel.app)  
@@ -153,10 +153,10 @@ To predict ground-level PM2.5 concentration (µg/m³) **24 hours ahead ($t+24$)*
 
 | Member | Primary Ownership | Core Deliverables |
 | :--- | :--- | :--- |
-| **Member 1** (Data Engineering) | Data Acquisition, Processing & Provenance | PAQI ICARTT parser, NASA POWER weather alignment, Gold Parquet dataset builder, metadata manifest (`manifest.csv`), schema validation. |
-| **Member 2** (Machine Learning) | Forecasting Models & Evaluation | Causal feature engineering (lags, rolling stats), chronological train/val/test splitting, `HistGradientBoostingRegressor` model, uncertainty calibration, evaluation against persistence baseline. |
-| **Member 3** (Agents & Governance) | Quality Governance & Decision Support | `DataQualityAgent` deterministic policy engine, `InsightRAGAgent` natural-language interface, regulatory standards integration, anti-hallucination grounding audit. |
-| **Member 4** (Integration & Systems) | Orchestration, Dashboard, App & Space | End-to-end integration, Prefect hourly orchestration flow (`flows.py`), local scheduler daemon (`scheduler.py`), Streamlit interactive dashboard (`src/dashboard/app.py`), root entrypoint (`app.py`), 29-test acceptance suite, Hugging Face Space deployment. |
+| **Ali Hasan Farooqui** (Member 1 - Data Engineering) | Data Acquisition, Processing & Provenance | PAQI ICARTT parser, NASA POWER weather alignment, OpenAQ delta fetcher, Gold Parquet dataset builder, cryptographic metadata manifest (`manifest.csv`), schema validation, `make data` automation. |
+| **Laiba Akram** (Member 2 - Machine Learning) | Forecasting Models & Evaluation | Causal feature engineering (40 lags, rolling stats), chronological train/val/test splitting, `HistGradientBoostingRegressor` model, uncertainty calibration (80% conformal bounds), evaluation against declared persistence baseline, subgroup fairness. |
+| **Areeba** (Member 3 - Agents & Governance) | Quality Governance & Decision Support | `DataQualityAgent` deterministic policy engine (`FIX`, `FILL`, `FLAG`, `NO_ACTION`), `InsightRAGAgent` natural-language interface, Pak-EPA 2010 & WHO 2021 regulatory standards integration, anti-hallucination grounding audit, bilingual Urdu support. |
+| **Bushra Abid** (Member 4 - Integration & Systems) | Orchestration, Dashboards & Deployment | End-to-end integration, Prefect hourly orchestration flow (`flows.py`), local scheduler daemon (`scheduler.py`), Streamlit interactive dashboard (`src/dashboard/app.py`), root entrypoint (`app.py`), 101-test automated suite, Hugging Face Space telemetry & Vercel React 19 UI deployment. |
 
 ---
 

@@ -1,7 +1,7 @@
 # 📦 HACKINSIGHT 2026: MASTER SUBMISSION DELIVERABLES DOSSIER
 
 **Team:** DataMinors  
-**Members:** Laiba Akram, Ali Hasan Farooqui, Areeba, Bushra Abid  
+**Members:** Ali Hasan Farooqui, Laiba Akram, Areeba, Bushra Abid  
 **Track:** Air Quality (Lahore & Karachi PM2.5 24h Hourly Forecasting)  
 **Repository:** [Ali-HF/HackInsight](https://github.com/Ali-HF/HackInsight)  
 **Release Tag:** [`v1.0-final`](https://github.com/Ali-HF/HackInsight/tree/v1.0-final)  
