@@ -17,6 +17,8 @@ from src.data_pipeline.ingestion.paqi_ingestion import PAQIIngestionManager
 from src.data_pipeline.ingestion.nasa_power_ingestion import NASAPowerIngestionManager
 from src.data_pipeline.cleaning.cleaner import DataCleaner
 from src.data_pipeline.processing.gold_builder import GoldDatasetBuilder
+from src.data_pipeline.processing.daily_aggregator import build_and_save_daily_summary
+from src.data_pipeline.warehouse.duckdb_manager import build_duckdb_warehouse
 from src.data_pipeline.validation.quality_engine import ValidationEngine
 from src.data_pipeline.validation.data_quality_agent import DataQualityAgent
 
@@ -123,8 +125,14 @@ def run_make_data(base_dir: Path):
 
     gold_df = gold_builder.construct_forecasting_target(merged_df, horizon_hours=24)
     gold_path = gold_builder.export_gold_parquet(gold_df, "gold_pm25_forecasting.parquet")
+    gold_canonical = gold_builder.export_gold_parquet(gold_df, "gold.parquet")
     print(f"  Built canonical Gold table: {len(gold_df):,} rows.")
-    print(f"  Exported Gold dataset to: {gold_path}")
+    print(f"  Exported Gold datasets to: {gold_path} and {gold_canonical}")
+
+    # Build Daily Station Summary (EPA 18-of-24 rule)
+    daily_path = processed_dir / "daily_station_summary.parquet"
+    build_and_save_daily_summary(gold_path=gold_path, output_path=daily_path)
+    print(f"  Exported Daily Station Summary to: {daily_path}")
 
     # 7. Validation Engine & Quality Reporting
     print("\n[Step 6/6] Executing Deterministic Validation Engine & Generating Report...")
@@ -140,10 +148,17 @@ def run_make_data(base_dir: Path):
     print(f"  Validation Report: {val_report_path}")
     print(f"  Quality Log: {quality_log_path}")
 
+    # 8. Refresh Embedded DuckDB Analytical Warehouse
+    warehouse_path = base_dir / "data" / "warehouse.duckdb"
+    build_duckdb_warehouse(warehouse_path)
+    print(f"  Refreshed Analytical DuckDB Warehouse: {warehouse_path}")
+
     print("\n" + "=" * 80)
     print("SUCCESS: ALL MEMBER 1 DATA ENGINEERING DELIVERABLES GENERATED!")
     print(f"  - Gold Parquet: {gold_path} ({gold_df.shape[0]:,} rows, {gold_df.shape[1]} columns)")
+    print(f"  - Daily Summary: {daily_path}")
     print(f"  - Manifest CSV: {manifest_path}")
+    print(f"  - DuckDB Warehouse: {warehouse_path}")
     print(f"  - Quality Report: {val_report_path}")
     print("=" * 80)
 
