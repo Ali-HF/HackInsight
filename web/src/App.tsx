@@ -88,17 +88,15 @@ export const App: React.FC = () => {
               transition={{ duration: 0.2 }}
               style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}
             >
-              {/* 1. Main Telemetry & 24h Predictive Horizon */}
-              <ForecastHero
-                city={selectedCity}
-                forecast={currentCityForecast}
-                timeseries={cityTimeseries}
-              />
-
-              {/* 2. Grounded Decision Assistant (Featured Prominently on Front Page) */}
-              <section id="agent-insight">
+              {/* 1. Executive Grid: Forecast Telemetry (Left) + Grounded Decision Assistant (Right) */}
+              <div className="grid-hero">
+                <ForecastHero
+                  city={selectedCity}
+                  forecast={currentCityForecast}
+                  timeseries={cityTimeseries}
+                />
                 <AgentAssistant />
-              </section>
+              </div>
 
               {/* 3. Provincial Action Triggers - Clean, Non-bloated Summary Strip */}
               <section id="decision-protocol" style={{ marginTop: '4px' }}>

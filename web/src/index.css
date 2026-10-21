@@ -255,8 +255,18 @@ code, pre {
   gap: 24px;
 }
 
+.grid-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
 /* Tablet & Mobile Breakpoints */
 @media (max-width: 1024px) {
+  .grid-hero {
+    grid-template-columns: 1fr;
+  }
   .grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }

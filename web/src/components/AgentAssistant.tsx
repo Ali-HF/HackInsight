@@ -14,11 +14,11 @@ interface AgentResponse {
 }
 
 const PRESET_QUERIES = [
-  "What is the 24h PM2.5 forecast for Lahore?",
-  "Is the air safe in Karachi right now?",
-  "What are the statutory guidelines for schools?",
-  "Is the sensor data clean and reliable?",
-  "How does the ML model compare to persistence baseline?"
+  "Lahore 24h PM2.5 forecast",
+  "Is air safe in Karachi right now?",
+  "School & mask rules",
+  "Sensor data reliability",
+  "ML vs persistence baseline"
 ];
 
 interface ForecastCityData {
@@ -351,7 +351,7 @@ export const AgentAssistant: React.FC = () => {
   };
 
   return (
-    <div className="airlab-card" style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="airlab-card" style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Sleek, Non-Bloated Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
         <div>
