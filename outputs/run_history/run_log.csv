@@ -72,3 +72,4 @@ run_id,timestamp_utc,status,duration_seconds,records_checked,error
 20261021_164157,2026-10-21T16:42:08.913952+00:00,SUCCESS,11.709,C:\HIS\outputs\forecasts\latest_forecast.json,C:\HIS\outputs\quality\latest_quality.json,176392,True,
 20261021_164209,2026-10-21T16:42:09.264978+00:00,FAILED,0.002,,,0,False,RuntimeError: Simulated pipeline ingestion or service failure for testing.
 20261021_194326,2026-10-21T19:43:28.555219+00:00,SUCCESS,2.183,/home/runner/work/HackInsight/HackInsight/outputs/forecasts/latest_forecast.json,/home/runner/work/HackInsight/HackInsight/outputs/quality/latest_quality.json,49116,True,
+20261021_225019,2026-10-21T22:50:20.508544+00:00,SUCCESS,1.122,/home/runner/work/HackInsight/HackInsight/outputs/forecasts/latest_forecast.json,/home/runner/work/HackInsight/HackInsight/outputs/quality/latest_quality.json,49116,True,
