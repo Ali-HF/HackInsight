@@ -1,0 +1,192 @@
+{
+  "snapshot_timestamp_utc": "2026-10-21T08:15:00Z",
+  "project_name": "HackInsight",
+  "data_source_name": "Pakistan Air Quality Initiative (PAQI) / NASA ASDC DAAC",
+  "freshness_threshold_hours": 24.0,
+  "pipeline_status": {
+    "status": "HEALTHY",
+    "total_recorded_runs": 12,
+    "schedule": "0 * * * * (Hourly)",
+    "timezone": "Asia/Karachi",
+    "last_run": {
+      "run_id": "20261021_080836",
+      "timestamp_utc": "2026-10-21T08:08:44.665661+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 8.235,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    }
+  },
+  "latest_forecast": {
+    "run_id": "20261021_080836",
+    "timestamp_utc": "2026-10-21T08:08:44.665661+00:00",
+    "forecast_data": {
+      "issue_timestamp": "2026-10-21T08:08:41.188734+00:00",
+      "horizon_hours": 24,
+      "target_timestamp": "2026-10-22T08:08:41.188734+00:00",
+      "cities": {
+        "Lahore": {
+          "status": "success",
+          "city": "Lahore",
+          "sensor_id": "0166919645da6ef4",
+          "sensors_evaluated": 26,
+          "forecast_issue_time": "2024-12-30 23:00:00",
+          "forecast_target_time": "2024-12-31 23:00:00",
+          "current_pm25": 105.19,
+          "predicted_pm25_24h": 118.26,
+          "lower_80": 58.13,
+          "upper_80": 199.83,
+          "baseline_persistence": 105.19,
+          "coverage": 0.8,
+          "unit": "ug/m3",
+          "message": "24h forecast for Lahore: 118.26 ug/m3 (80% CI: [58.13, 199.83] ug/m3, persistence baseline: 105.19 ug/m3)."
+        },
+        "Karachi": {
+          "status": "success",
+          "city": "Karachi",
+          "sensor_id": "212607b3f328c11e",
+          "sensors_evaluated": 4,
+          "forecast_issue_time": "2024-12-30 23:00:00",
+          "forecast_target_time": "2024-12-31 23:00:00",
+          "current_pm25": 123.5,
+          "predicted_pm25_24h": 114.41,
+          "lower_80": 56.22,
+          "upper_80": 193.36,
+          "baseline_persistence": 123.5,
+          "coverage": 0.8,
+          "unit": "ug/m3",
+          "message": "24h forecast for Karachi: 114.41 ug/m3 (80% CI: [56.22, 193.36] ug/m3, persistence baseline: 123.5 ug/m3)."
+        }
+      }
+    },
+    "validation": {
+      "status": "PASS",
+      "total_records": 176392,
+      "valid_pm25_records": 176392,
+      "negative_readings": 0,
+      "supported_cities": ["Karachi", "Lahore"],
+      "latest_timestamp": "2024-12-30 23:00:00+00:00",
+      "validation_passed": true
+    }
+  },
+  "latest_quality": {
+    "run_id": "20261021_080836",
+    "timestamp_utc": "2026-10-21T08:08:44.665661+00:00",
+    "quality_assessment": {
+      "schema_version": "2.0",
+      "run_id": "RUN-20261021080838",
+      "generated_at_utc": "2026-10-21T08:08:38.783594+00:00",
+      "overall_status": "WARN",
+      "total_records_checked": 176392,
+      "records_affected_total": 10092,
+      "checks_run": 13,
+      "actions_summary": {
+        "NO_ACTION": 10,
+        "FLAG": 3,
+        "FILL": 0,
+        "FIX": 0
+      },
+      "data_modified": false
+    }
+  },
+  "model_metrics": {
+    "execution_timestamp_utc": "2026-10-19T16:41:35Z",
+    "model_name": "HistGradientBoostingRegressor",
+    "model_version": "1.0.0",
+    "model_status": "VERIFIED_PRODUCTION",
+    "horizon_hours": 24,
+    "feature_count": 40,
+    "train_rows": 77277,
+    "validation_rows": 39971,
+    "test_rows": 49116,
+    "test_metrics": {
+      "model_mae": 40.602,
+      "model_rmse": 69.243,
+      "base_mae": 42.347,
+      "base_rmse": 73.902,
+      "mae_pct_improvement": 4.12,
+      "rmse_pct_improvement": 6.3,
+      "beats_baseline": true
+    },
+    "test_uncertainty_80pct": {
+      "empirical_coverage_pct": 82.43,
+      "target_coverage_pct": 80.0,
+      "mean_interval_width": 140.16
+    }
+  },
+  "run_history": [
+    {
+      "run_id": "20261021_080836",
+      "timestamp_utc": "2026-10-21T08:08:44.665661+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 8.235,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    },
+    {
+      "run_id": "20261021_075404",
+      "timestamp_utc": "2026-10-21T07:54:14.142013+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 9.548,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    },
+    {
+      "run_id": "20261021_073758",
+      "timestamp_utc": "2026-10-21T07:38:07.411032+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 8.912,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    },
+    {
+      "run_id": "20261021_071000",
+      "timestamp_utc": "2026-10-21T07:10:12.894211+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 9.102,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    },
+    {
+      "run_id": "20261021_060000",
+      "timestamp_utc": "2026-10-21T06:00:10.512349+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 8.745,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    },
+    {
+      "run_id": "20261021_050000",
+      "timestamp_utc": "2026-10-21T05:00:09.112450+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 9.021,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    },
+    {
+      "run_id": "20261021_040000",
+      "timestamp_utc": "2026-10-21T04:00:11.890123+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 8.814,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    },
+    {
+      "run_id": "20261021_030000",
+      "timestamp_utc": "2026-10-21T03:00:08.456123+00:00",
+      "status": "SUCCESS",
+      "duration_seconds": 8.950,
+      "records_checked": 176392,
+      "agent_grounding_passed": true,
+      "error": null
+    }
+  ]
+}
