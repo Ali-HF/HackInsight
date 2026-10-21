@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Layers, Activity } from 'lucide-react';
 import type { CityForecastTrajectory } from '../types';
@@ -12,6 +12,17 @@ interface ForecastTrajectoryWidgetProps {
   baselineVal?: number;
 }
 
+interface HoveredPointData {
+  x: number;
+  y: number;
+  label: string;
+  value: number;
+  isForecast: boolean;
+  lower80?: number;
+  upper80?: number;
+  baseline?: number;
+}
+
 export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> = ({
   city,
   trajectoryData,
@@ -22,6 +33,9 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
 }) => {
   const [showConfidenceBand, setShowConfidenceBand] = useState<boolean>(true);
   const [showBaseline, setShowBaseline] = useState<boolean>(true);
+  const [hoveredPoint, setHoveredPoint] = useState<HoveredPointData | null>(null);
+
+  const svgRef = useRef<SVGSVGElement>(null);
 
   // Extract history (last 12 hours) and 24h trajectory
   const rawHistory = trajectoryData?.history?.slice(-12) ?? [];
@@ -60,14 +74,16 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
     return height - paddingBottom - ((clamped - minVal) / (maxVal - minVal)) * (height - paddingTop - paddingBottom);
   };
 
-  // Divide width into: 40% History (-12h to t0), 60% Forecast (t0 to +24h)
+  // Divide width into: 38% History (-12h to t0), 62% Forecast (t0 to +24h)
   const dividerX = paddingLeft + (width - paddingLeft - paddingRight) * 0.38;
 
   // Map history points
   const historyPoints = rawHistory.map((pt, i) => {
     const x = paddingLeft + (i / Math.max(rawHistory.length - 1, 1)) * (dividerX - paddingLeft);
     const y = scaleY(pt.pm25);
-    return { x, y, pt };
+    const hoursAgo = Math.round(12 - (i / Math.max(rawHistory.length - 1, 1)) * 12);
+    const label = hoursAgo === 0 ? 't₀ (Now)' : `-${hoursAgo}h (Observed)`;
+    return { x, y, pt, label };
   });
 
   const t0_Y = historyPoints.length > 0 ? historyPoints[historyPoints.length - 1].y : scaleY(finalBaseline);
@@ -79,7 +95,8 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
         const y = scaleY(step.predicted_pm25);
         const yUpper = scaleY(step.upper_80);
         const yLower = scaleY(step.lower_80);
-        return { x, y, yUpper, yLower, step };
+        const label = step.label || `+${step.step_hour}h Forecast`;
+        return { x, y, yUpper, yLower, step, label };
       })
     : [
         {
@@ -87,11 +104,77 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
           y: scaleY(finalPredicted),
           yUpper: scaleY(finalUpper80),
           yLower: scaleY(finalLower80),
-          step: { step_hour: 24, label: '+24h', predicted_pm25: finalPredicted, lower_80: finalLower80, upper_80: finalUpper80, baseline: finalBaseline }
+          step: { step_hour: 24, label: '+24h Forecast', predicted_pm25: finalPredicted, lower_80: finalLower80, upper_80: finalUpper80, baseline: finalBaseline },
+          label: '+24h Forecast'
         }
       ];
 
   const t24Point = forecastPoints[forecastPoints.length - 1];
+
+  // Combined interactive points for hover tracking
+  const allInteractivePoints = useMemo(() => {
+    const pts: HoveredPointData[] = [];
+
+    // History points
+    historyPoints.forEach((hp) => {
+      pts.push({
+        x: hp.x,
+        y: hp.y,
+        label: hp.label,
+        value: hp.pt.pm25,
+        isForecast: false,
+        baseline: finalBaseline
+      });
+    });
+
+    // t0 now point
+    if (pts.length === 0 || Math.abs(pts[pts.length - 1].x - dividerX) > 2) {
+      pts.push({
+        x: dividerX,
+        y: t0_Y,
+        label: 't₀ (Now)',
+        value: historyPoints.length > 0 ? historyPoints[historyPoints.length - 1].pt.pm25 : finalBaseline,
+        isForecast: false,
+        baseline: finalBaseline
+      });
+    }
+
+    // Forecast points
+    forecastPoints.forEach((fp) => {
+      pts.push({
+        x: fp.x,
+        y: fp.y,
+        label: fp.label,
+        value: fp.step.predicted_pm25,
+        isForecast: true,
+        lower80: fp.step.lower_80,
+        upper80: fp.step.upper_80,
+        baseline: fp.step.baseline || finalBaseline
+      });
+    });
+
+    return pts.sort((a, b) => a.x - b.x);
+  }, [historyPoints, forecastPoints, dividerX, t0_Y, finalBaseline]);
+
+  // Handle pointer tracking
+  const handlePointerMove = (clientX: number) => {
+    if (!svgRef.current || allInteractivePoints.length === 0) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const svgX = ((clientX - rect.left) / rect.width) * width;
+
+    let nearest = allInteractivePoints[0];
+    let minDist = Math.abs(nearest.x - svgX);
+
+    for (let i = 1; i < allInteractivePoints.length; i++) {
+      const dist = Math.abs(allInteractivePoints[i].x - svgX);
+      if (dist < minDist) {
+        minDist = dist;
+        nearest = allInteractivePoints[i];
+      }
+    }
+
+    setHoveredPoint(nearest);
+  };
 
   // SVG Paths
   const historyPath = historyPoints.length > 0
@@ -114,6 +197,17 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
   const baselineY = scaleY(finalBaseline);
 
   const timeLabels = ['-12h', '-6h', 't₀ (Now)', '+6h', '+12h', '+18h', '+24h'];
+
+  // Tooltip pill positioning within SVG
+  const tooltipX = hoveredPoint ? Math.max(paddingLeft + 38, Math.min(width - paddingRight - 38, hoveredPoint.x)) : 0;
+  const tooltipY = hoveredPoint ? (hoveredPoint.y < 42 ? hoveredPoint.y + 22 : hoveredPoint.y - 14) : 0;
+
+  // Active display data (either hovered point or default +24h target)
+  const displayLabel = hoveredPoint ? hoveredPoint.label : '+24h Horizon Forecast';
+  const displayVal = hoveredPoint ? hoveredPoint.value : finalPredicted;
+  const displayLower = hoveredPoint?.lower80 ?? finalLower80;
+  const displayUpper = hoveredPoint?.upper80 ?? finalUpper80;
+  const isHoveredForecast = hoveredPoint ? hoveredPoint.isForecast : true;
 
   return (
     <div
@@ -203,7 +297,7 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
         </div>
       </div>
 
-      {/* 2. SVG Chart Area */}
+      {/* 2. SVG Chart Area with Interactive Hover */}
       <AnimatePresence mode="wait">
         <motion.div
           key={city}
@@ -213,7 +307,7 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
           transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
           style={{ position: 'relative', width: '100%', height: '142px' }}
         >
-          {/* Floating Target Prediction Tooltip Card */}
+          {/* Dynamic Prediction / Hover Tooltip Card */}
           <div
             style={{
               position: 'absolute',
@@ -228,12 +322,19 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
               flexDirection: 'column',
               gap: '2px',
               zIndex: 10,
-              pointerEvents: 'none'
+              pointerEvents: 'none',
+              transition: 'all 0.15s ease'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.675rem', color: '#64748B' }}>
-              <span style={{ fontWeight: 700, color: '#D97706' }}>+24h Horizon Forecast</span>
-              <span style={{ fontSize: '0.625rem' }}>80% CI: [{finalLower80.toFixed(0)} - {finalUpper80.toFixed(0)}]</span>
+              <span style={{ fontWeight: 700, color: isHoveredForecast ? '#D97706' : '#10B981' }}>
+                {displayLabel}
+              </span>
+              {isHoveredForecast ? (
+                <span style={{ fontSize: '0.625rem' }}>80% CI: [{displayLower.toFixed(0)} - {displayUpper.toFixed(0)}]</span>
+              ) : (
+                <span style={{ fontSize: '0.625rem' }}>Observed Ground Station</span>
+              )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 800, color: '#1E293B' }}>
               <span
@@ -241,17 +342,27 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  backgroundColor: finalPredicted > 150 ? '#EF4444' : (finalPredicted > 100 ? '#F59E0B' : '#10B981')
+                  backgroundColor: displayVal > 150 ? '#EF4444' : (displayVal > 100 ? '#F59E0B' : '#10B981')
                 }}
               />
-              PM2.5: {finalPredicted.toFixed(1)} µg/m³
+              PM2.5: {displayVal.toFixed(1)} µg/m³
               <span style={{ fontSize: '0.65rem', fontWeight: 600, color: '#64748B', marginLeft: '4px' }}>
                 (Base: {finalBaseline.toFixed(1)})
               </span>
             </div>
           </div>
 
-          <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${width} ${height}`}
+            style={{ width: '100%', height: '100%', overflow: 'visible', cursor: 'crosshair' }}
+            onMouseMove={(e) => handlePointerMove(e.clientX)}
+            onMouseLeave={() => setHoveredPoint(null)}
+            onTouchMove={(e) => {
+              if (e.touches.length > 0) handlePointerMove(e.touches[0].clientX);
+            }}
+            onTouchEnd={() => setHoveredPoint(null)}
+          >
             <defs>
               {/* History gradient */}
               <linearGradient id="historyGradient" x1="0" y1="0" x2="0" y2="1">
@@ -265,19 +376,28 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
               </linearGradient>
             </defs>
 
+            {/* Invisible background hit-area for smooth hover across entire chart */}
+            <rect
+              x={0}
+              y={0}
+              width={width}
+              height={height}
+              fill="transparent"
+            />
+
             {/* 1. Shaded 80% Conformal Uncertainty Band */}
             {showConfidenceBand && (
-              <path d={bandPath} fill="url(#bandGradient)" />
+              <path d={bandPath} fill="url(#bandGradient)" pointerEvents="none" />
             )}
 
             {/* 2. Area fill under historical observation curve */}
             {historyAreaPath && (
-              <path d={historyAreaPath} fill="url(#historyGradient)" />
+              <path d={historyAreaPath} fill="url(#historyGradient)" pointerEvents="none" />
             )}
 
             {/* 3. Persistence Baseline Reference Line */}
             {showBaseline && (
-              <g>
+              <g pointerEvents="none">
                 <line
                   x1={paddingLeft}
                   y1={baselineY}
@@ -307,6 +427,7 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
                 stroke="#10B981"
                 strokeWidth="2.4"
                 strokeLinecap="round"
+                pointerEvents="none"
               />
             )}
 
@@ -319,8 +440,9 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
               stroke="#F59E0B"
               strokeWidth="1.8"
               strokeDasharray="4 3"
+              pointerEvents="none"
             />
-            <circle cx={dividerX} cy={t0_Y} r="4.5" fill="#F59E0B" stroke="#FFFFFF" strokeWidth="2" />
+            <circle cx={dividerX} cy={t0_Y} r="4.5" fill="#F59E0B" stroke="#FFFFFF" strokeWidth="2" pointerEvents="none" />
 
             {/* 6. Forecast Trajectory Curve (Amber/Orange) */}
             <path
@@ -330,26 +452,88 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
               strokeWidth="2.5"
               strokeDasharray="5 3"
               strokeLinecap="round"
+              pointerEvents="none"
             />
 
-            {/* 7. Final t+24 Target Point with Golden Glow */}
-            <circle
-              cx={t24Point.x}
-              cy={t24Point.y}
-              r="5.5"
-              fill="#D97706"
-              stroke="#FFFFFF"
-              strokeWidth="2"
-            />
-            <circle
-              cx={t24Point.x}
-              cy={t24Point.y}
-              r="9"
-              fill="none"
-              stroke="#F59E0B"
-              strokeWidth="1"
-              strokeOpacity="0.4"
-            />
+            {/* 7. Final t+24 Target Point with Golden Glow (when not hovering) */}
+            {!hoveredPoint && (
+              <g pointerEvents="none">
+                <circle
+                  cx={t24Point.x}
+                  cy={t24Point.y}
+                  r="5.5"
+                  fill="#D97706"
+                  stroke="#FFFFFF"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx={t24Point.x}
+                  cy={t24Point.y}
+                  r="9"
+                  fill="none"
+                  stroke="#F59E0B"
+                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                />
+              </g>
+            )}
+
+            {/* 8. Interactive Hover Indicator on the Line */}
+            {hoveredPoint && (
+              <g pointerEvents="none">
+                {/* Vertical cursor guide line */}
+                <line
+                  x1={hoveredPoint.x}
+                  y1={paddingTop - 6}
+                  x2={hoveredPoint.x}
+                  y2={height - paddingBottom}
+                  stroke={hoveredPoint.isForecast ? '#D97706' : '#10B981'}
+                  strokeWidth="1.5"
+                  strokeDasharray="3 3"
+                  opacity="0.8"
+                />
+
+                {/* Glowing highlighted point on the line */}
+                <circle
+                  cx={hoveredPoint.x}
+                  cy={hoveredPoint.y}
+                  r="10"
+                  fill={hoveredPoint.isForecast ? '#F59E0B' : '#10B981'}
+                  opacity="0.25"
+                />
+                <circle
+                  cx={hoveredPoint.x}
+                  cy={hoveredPoint.y}
+                  r="5.5"
+                  fill={hoveredPoint.isForecast ? '#D97706' : '#10B981'}
+                  stroke="#FFFFFF"
+                  strokeWidth="2.5"
+                />
+
+                {/* Direct Value Pill floating on the line */}
+                <rect
+                  x={tooltipX - 42}
+                  y={tooltipY - 11}
+                  width="84"
+                  height="22"
+                  rx="6"
+                  fill="#0F172A"
+                  opacity="0.94"
+                  filter="drop-shadow(0 2px 6px rgba(0,0,0,0.25))"
+                />
+                <text
+                  x={tooltipX}
+                  y={tooltipY + 4}
+                  fill="#FFFFFF"
+                  fontSize="10.5"
+                  fontWeight="700"
+                  textAnchor="middle"
+                  fontFamily="'Plus Jakarta Sans', sans-serif"
+                >
+                  {hoveredPoint.value.toFixed(1)} µg/m³
+                </text>
+              </g>
+            )}
           </svg>
         </motion.div>
       </AnimatePresence>
