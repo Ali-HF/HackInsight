@@ -137,6 +137,7 @@ export const evaluateQueryGrounded = (
         else if (/\b(safe|safety|run|jog|exercise|walk|outside|mask)\b/i.test(msgText)) previousTopic = 'safety';
         else if (/\b(school|student|holiday|closure)\b/i.test(msgText)) previousTopic = 'school';
         else if (/\b(accuracy|accurate|mae|rmse)\b/i.test(msgText)) previousTopic = 'accuracy';
+        else if (/\b(why|cause|reason|inversion|boundary layer|stagnation)\b/i.test(msgText)) previousTopic = 'smog_physics';
         else if (/\b(air quality|pm2\.5|level|reading|now|current)\b/i.test(msgText)) previousTopic = 'current';
       }
     }
@@ -208,43 +209,27 @@ export const evaluateQueryGrounded = (
   // -------------------------------------------------------------
   // 3. GEOGRAPHIC SCOPE: CITIES OUTSIDE LAHORE & KARACHI
   // -------------------------------------------------------------
-  const unsupportedCities = [
-    'islamabad', 'rawalpindi', 'peshawar', 'quetta', 'multan', 'faisalabad', 
-    'sialkot', 'gujranwala', 'hyderabad', 'sukkur', 'bahawalpur', 'delhi', 
-    'mumbai', 'beijing', 'london', 'new york', 'paris', 'tokyo', 'dubai', 'cairo'
-  ];
-  for (const c of unsupportedCities) {
-    if (q.includes(c)) {
-      const capCity = c.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      return {
-        answer: `I apologize, but I do not have access to live sensor or weather feeds for **${capCity}**.\n\nOur ground monitoring stations and ML models are deployed exclusively for **Lahore** and **Karachi** in Pakistan. Please let me know if you would like information for either of those cities!`,
-        status: "unsupported_scope",
-        evidence: { query: rawQuery, requested_city: capCity, supported: false },
-        citations: [{ title: "Pakistan Air Quality Initiative (PAQI) Network Scope" }],
-        warnings: [`Sensors are unavailable for ${capCity}.`],
-        tools_used: ["scope_guardrail_check"],
-        grounding_passed: true,
-        interaction_id: interactionId
-      };
-    }
-  }
-
-  // Detect general query asking for weather/air "in <some other city>"
-  const otherCityMatch = q.match(/\b(?:in|at|for|around)\s+([a-zA-Z]{3,15})\b/i);
-  if (otherCityMatch) {
-    const candidateCity = otherCityMatch[1].toLowerCase();
-    if (!['lahore', 'karachi', 'pakistan', 'punjab', 'sindh', 'today', 'tomorrow', 'winter'].includes(candidateCity)) {
-      const capCity = candidateCity.charAt(0).toUpperCase() + candidateCity.slice(1);
-      return {
-        answer: `I apologize, but I do not have live sensor feeds for **${capCity}**.\n\nOur monitoring pipelines are specifically deployed for **Lahore** and **Karachi**. Please feel free to ask about air quality or smog forecasts for those cities!`,
-        status: "unsupported_scope",
-        evidence: { query: rawQuery, requested_city: capCity, supported: false },
-        citations: [{ title: "Pakistan Air Quality Initiative (PAQI) Network Scope" }],
-        warnings: [`Sensors are not deployed in ${capCity}.`],
-        tools_used: ["scope_guardrail_check"],
-        grounding_passed: true,
-        interaction_id: interactionId
-      };
+  if (!mentionsLahore && !mentionsKarachi) {
+    const unsupportedCities = [
+      'islamabad', 'rawalpindi', 'peshawar', 'quetta', 'multan', 'faisalabad', 
+      'sialkot', 'gujranwala', 'hyderabad', 'sukkur', 'bahawalpur', 'delhi', 
+      'mumbai', 'beijing', 'london', 'new york', 'paris', 'tokyo', 'dubai', 'cairo',
+      'bangalore', 'chennai', 'dhaka', 'kabul', 'tehran'
+    ];
+    for (const c of unsupportedCities) {
+      if (q.includes(c)) {
+        const capCity = c.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        return {
+          answer: `I apologize, but I do not have access to live sensor or weather feeds for **${capCity}**.\n\nOur ground monitoring stations and ML models are deployed exclusively for **Lahore** and **Karachi** in Pakistan. Please let me know if you would like information for either of those cities!`,
+          status: "unsupported_scope",
+          evidence: { query: rawQuery, requested_city: capCity, supported: false },
+          citations: [{ title: "Pakistan Air Quality Initiative (PAQI) Network Scope" }],
+          warnings: [`Sensors are unavailable for ${capCity}.`],
+          tools_used: ["scope_guardrail_check"],
+          grounding_passed: true,
+          interaction_id: interactionId
+        };
+      }
     }
   }
 
@@ -507,8 +492,9 @@ export const evaluateQueryGrounded = (
   // -------------------------------------------------------------
   // 11. WHY IS THE AIR AT THIS LEVEL (Causal / Meteorological Query)
   // -------------------------------------------------------------
-  const isWhyAirQuery = (q.includes('why') || q.includes('cause') || q.includes('reason') || q.includes('how come')) &&
-    (q.includes('air') || q.includes('smog') || q.includes('pollut') || q.includes('level') || q.includes('trapped') || q.includes('unhealthy'));
+  const isWhyAirQuery = ((q.includes('why') || q.includes('cause') || q.includes('reason') || q.includes('how come')) &&
+    (q.includes('air') || q.includes('smog') || q.includes('pollut') || q.includes('level') || q.includes('trapped') || q.includes('unhealthy') || q.includes('like that') || q.includes('like this') || q.includes('so bad') || q.includes('so high') || q.includes('this way') || previousTopic === 'current')) ||
+    (previousTopic === 'smog_physics' && (isEllipticalKarachi || isEllipticalLahore));
 
   if (isWhyAirQuery) {
     if (mentionsKarachi && !mentionsLahore) {
@@ -536,6 +522,20 @@ export const evaluateQueryGrounded = (
         interaction_id: interactionId
       };
     }
+
+    return {
+      answer: `**Why Air Quality Reaches These Levels:**\n\n• **Lahore (Inland Stagnation):** Surface temperature inversions create an atmospheric "lid" that traps vehicular exhaust, brick kiln emissions, and regional crop-stubble smoke near the ground.\n• **Karachi (Coastal Humidity & Freight):** Dense marine boundary layers trap fine dust and heavy port transit emissions, though sea breezes maintain higher horizontal ventilation than northern inland cities.`,
+      status: "success",
+      evidence: { lahore: "temperature_inversion", karachi: "marine_boundary_layer" },
+      citations: [
+        { title: "Punjab Clean Air Policy Framework" },
+        { title: "Sindh EPA Air Quality Profile" }
+      ],
+      warnings: [],
+      tools_used: ["meteorological_analysis"],
+      grounding_passed: true,
+      interaction_id: interactionId
+    };
   }
 
   // -------------------------------------------------------------
