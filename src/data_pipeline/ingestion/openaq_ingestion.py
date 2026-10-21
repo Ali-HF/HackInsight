@@ -23,6 +23,12 @@ import requests
 
 from src.data_pipeline.ingestion.paqi_ingestion import PAQIIngestionManager
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 logger = logging.getLogger(__name__)
 if not logger.handlers:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
