@@ -19,6 +19,7 @@ interface WeatherSwimMapProps {
   karachiSensors?: number;
   lahoreSensorId?: string;
   karachiSensorId?: string;
+  isLiveOutdoor?: boolean;
 }
 
 export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
@@ -37,7 +38,8 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
   lahoreSensors,
   karachiSensors,
   lahoreSensorId,
-  karachiSensorId
+  karachiSensorId,
+  isLiveOutdoor = true
 }) => {
   const isLahore = selectedCity === 'Lahore';
   const activePm25 = isLahore ? lahorePm25 : karachiPm25;
@@ -332,6 +334,23 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
               }}>
                 {activePm25 !== undefined ? `${activePm25.toFixed(1)} µg/m³` : 'Syncing...'}
               </span>
+              {isLiveOutdoor && (
+                <span style={{
+                  fontSize: '0.625rem',
+                  fontWeight: 800,
+                  padding: '1px 7px',
+                  borderRadius: '999px',
+                  backgroundColor: '#DCFCE7',
+                  color: '#15803D',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  border: '1px solid rgba(34, 197, 94, 0.3)'
+                }}>
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#22C55E' }} />
+                  LIVE OUTDOOR
+                </span>
+              )}
             </div>
             <span style={{ fontSize: '0.675rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
               {`ID: ${activeSensorId} • ${activeSensors} sensors reporting`}
@@ -462,8 +481,8 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             {activeTemp !== undefined ? activeTemp.toFixed(1) : '—'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
           </motion.div>
         </AnimatePresence>
-        <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
-          TEMPERATURE
+        <span style={{ fontSize: '0.625rem', fontWeight: 700, color: isLiveOutdoor ? '#15803D' : '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
+          {isLiveOutdoor ? 'OUTDOOR TEMP' : 'TEMPERATURE'}
         </span>
       </motion.div>
 
@@ -550,7 +569,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
-          PM2.5 / AIR
+          {isLiveOutdoor ? 'PM2.5 NOWCAST' : 'PM2.5 / AIR'}
         </span>
       </motion.div>
 

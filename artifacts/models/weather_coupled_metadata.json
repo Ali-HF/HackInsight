@@ -1,0 +1,22 @@
+{
+  "trained_at_utc": "2026-10-21T15:39:02.227681+00:00",
+  "samples_trained": 176392,
+  "features": [
+    "T2M",
+    "RH2M",
+    "WS10M",
+    "PS",
+    "dew_point_depression",
+    "hour_sin",
+    "hour_cos",
+    "month_sin",
+    "month_cos",
+    "is_lahore"
+  ],
+  "intervals": {
+    "nowcast_p10": -96.71295098877482,
+    "nowcast_p90": 42.04053004347332,
+    "target24h_p10": -97.90216439654395,
+    "target24h_p90": 46.19528779830252
+  }
+}

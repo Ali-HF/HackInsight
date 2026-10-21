@@ -46,6 +46,11 @@ export const App: React.FC = () => {
     }
   };
 
+  const [liveWeather, setLiveWeather] = useState<{
+    Lahore?: { temp: number; humidity: number; rain: number; wind: number };
+    Karachi?: { temp: number; humidity: number; rain: number; wind: number };
+  }>({});
+
   useEffect(() => {
     fetch('/data/latest_forecast.json')
       .then(res => res.json())
@@ -66,6 +71,41 @@ export const App: React.FC = () => {
       .then(res => res.json())
       .then(data => setTrajectoryData(data))
       .catch(err => console.warn('Using default trajectory:', err));
+
+    // Live Open-Meteo real-time outdoor weather queries
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=31.5204&longitude=74.3587&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.current) {
+          setLiveWeather(prev => ({
+            ...prev,
+            Lahore: {
+              temp: data.current.temperature_2m,
+              humidity: data.current.relative_humidity_2m,
+              rain: data.current.precipitation,
+              wind: data.current.wind_speed_10m
+            }
+          }));
+        }
+      })
+      .catch(err => console.warn('Lahore live weather offline, using cached snapshot:', err));
+
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=24.8607&longitude=67.0011&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.current) {
+          setLiveWeather(prev => ({
+            ...prev,
+            Karachi: {
+              temp: data.current.temperature_2m,
+              humidity: data.current.relative_humidity_2m,
+              rain: data.current.precipitation,
+              wind: data.current.wind_speed_10m
+            }
+          }));
+        }
+      })
+      .catch(err => console.warn('Karachi live weather offline, using cached snapshot:', err));
   }, []);
 
   const currentCityForecast = forecastData?.forecast_data?.cities?.[selectedCity];
@@ -78,12 +118,12 @@ export const App: React.FC = () => {
   const lahorePredicted = lahoreForecast?.predicted_pm25_24h;
   const karachiPredicted = karachiForecast?.predicted_pm25_24h;
 
-  const lahoreTemp = lahoreForecast?.temperature_c;
-  const karachiTemp = karachiForecast?.temperature_c;
-  const lahoreHumidity = lahoreForecast?.humidity_pct;
-  const karachiHumidity = karachiForecast?.humidity_pct;
-  const lahoreRain = lahoreForecast?.precipitation_mm;
-  const karachiRain = karachiForecast?.precipitation_mm;
+  const lahoreTemp = liveWeather.Lahore?.temp ?? lahoreForecast?.temperature_c;
+  const karachiTemp = liveWeather.Karachi?.temp ?? karachiForecast?.temperature_c;
+  const lahoreHumidity = liveWeather.Lahore?.humidity ?? lahoreForecast?.humidity_pct;
+  const karachiHumidity = liveWeather.Karachi?.humidity ?? karachiForecast?.humidity_pct;
+  const lahoreRain = liveWeather.Lahore?.rain ?? lahoreForecast?.precipitation_mm;
+  const karachiRain = liveWeather.Karachi?.rain ?? karachiForecast?.precipitation_mm;
 
   const predictedPm25 = currentCityForecast?.predicted_pm25_24h ?? 0;
   const lower80 = currentCityForecast?.lower_80 ?? 0;
@@ -148,6 +188,7 @@ export const App: React.FC = () => {
                 karachiSensors={karachiForecast?.sensors_evaluated}
                 lahoreSensorId={lahoreForecast?.sensor_id}
                 karachiSensorId={karachiForecast?.sensor_id}
+                isLiveOutdoor={Boolean(liveWeather.Lahore || liveWeather.Karachi || lahoreForecast?.source?.includes('live'))}
               />
 
               {/* Lower Section: 3 Bottom Widgets matching WeatherSwim */}

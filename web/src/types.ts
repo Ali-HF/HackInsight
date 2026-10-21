@@ -17,6 +17,7 @@ export interface CityForecast {
   humidity_pct?: number;
   wind_speed_ms?: number;
   precipitation_mm?: number;
+  source?: string;
 }
 
 export interface LatestForecastPayload {
