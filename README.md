@@ -38,6 +38,7 @@ An end-to-end, reproducible air-quality operational pipeline and decision-suppor
 **Members:** Ali Hasan Farooqui, Laiba Akram, Areeba, Bushra Abid  
 **Repository:** [Ali-HF/HackInsight](https://github.com/Ali-HF/HackInsight)  
 **Release Tag:** [`v1.0-final`](https://github.com/Ali-HF/HackInsight/tree/v1.0-final)  
+**3-Minute Demo Video:** [https://youtu.be/9Zq4rCNXnho?si=mkJ-F9WoXuDmKBGC](https://youtu.be/9Zq4rCNXnho?si=mkJ-F9WoXuDmKBGC)  
 **Live Citizen Web App:** [https://web-livid-eight-rcllafnbqq.vercel.app](https://web-livid-eight-rcllafnbqq.vercel.app)  
 **Hugging Face Telemetry Space:** [huggingface.co/spaces](https://huggingface.co/spaces)  
 
