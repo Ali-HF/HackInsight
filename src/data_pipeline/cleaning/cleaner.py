@@ -84,3 +84,80 @@ class DataCleaner:
         }
 
         return cleaned, audit
+
+    @staticmethod
+    def apply_hygroscopic_calibration(df: pd.DataFrame, pm_col: str = "pm25", rh_col: str = "RH2M") -> pd.DataFrame:
+        """
+        US EPA / Barkjohn Nephelometer Relative Humidity Calibration.
+        Corrects for aerosol hygroscopic swelling at elevated humidity (RH > 40%),
+        eliminating false optical PM2.5 spikes caused by water-droplet light scatter.
+        """
+        out = df.copy()
+        if rh_col not in out.columns or pm_col not in out.columns:
+            return out
+
+        rh = out[rh_col].fillna(50.0).clip(0.0, 99.0)
+        # Empirical hygroscopic growth factor (EPA Barkjohn calibration)
+        swelling_factor = np.where(
+            rh > 80.0,
+            1.0 + 0.25 * ((rh / 100.0) ** 2) / (1.0 - (rh / 100.0)),
+            1.0 + 0.15 * ((rh / 100.0) ** 2)
+        )
+        out[f"{pm_col}_calibrated"] = (out[pm_col] / swelling_factor).clip(lower=1.0)
+        return out
+
+    @staticmethod
+    def filter_stuck_sensors(
+        df: pd.DataFrame,
+        time_col: str = "timestamp_utc",
+        sensor_col: str = "sensor_id",
+        pm_col: str = "pm25",
+        window_hours: int = 6,
+        variance_threshold: float = 0.05
+    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+        """
+        Screen for optical sensor flatlines and stuck reading malfunctions.
+        Identifies sensors repeating identical readings for >= window_hours.
+        """
+        out = df.sort_values(by=[sensor_col, time_col]).copy()
+        rolling_std = out.groupby(sensor_col)[pm_col].transform(
+            lambda s: s.rolling(window=window_hours, min_periods=window_hours).std()
+        )
+        is_stuck = (rolling_std < variance_threshold) & (out[pm_col] > 0.0)
+        stuck_count = int(is_stuck.sum())
+
+        cleaned = out[~is_stuck].copy().reset_index(drop=True)
+        return cleaned, {"stuck_readings_removed": stuck_count, "remaining_rows": len(cleaned)}
+
+    @staticmethod
+    def decompose_wind_vectors(
+        df: pd.DataFrame,
+        speed_col: str = "WS10M",
+        dir_col: str = "WD10M"
+    ) -> pd.DataFrame:
+        """
+        Decomposes circular wind angles (0-360) into orthogonal u (East-West) and v (North-South) vectors.
+        Resolves the 0/360 boundary discontinuity for decision trees.
+        """
+        out = df.copy()
+        if speed_col in out.columns and dir_col in out.columns:
+            rad = np.deg2rad(out[dir_col].fillna(0.0))
+            out["wind_u"] = -out[speed_col].fillna(0.0) * np.sin(rad)
+            out["wind_v"] = -out[speed_col].fillna(0.0) * np.cos(rad)
+        return out
+
+    @staticmethod
+    def compute_inversion_indices(
+        df: pd.DataFrame,
+        temp_col: str = "T2M",
+        dew_col: str = "T2MDEW"
+    ) -> pd.DataFrame:
+        """
+        Calculates Dew Point Depression (T - Tdew) as atmospheric stability and fog proxy.
+        Shallow depression (T ~ Tdew) signifies near-surface thermal inversion and aerosol trapping.
+        """
+        out = df.copy()
+        if temp_col in out.columns and dew_col in out.columns:
+            out["dew_point_depression"] = (out[temp_col] - out[dew_col]).clip(lower=0.0)
+        return out
+

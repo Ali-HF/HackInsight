@@ -1,5 +1,38 @@
 [
   {
+    "run_id": "20261021_100942",
+    "timestamp_utc": "2026-10-21T10:09:42.341086+00:00",
+    "status": "FAILED",
+    "duration_seconds": 0.001,
+    "forecast_output": null,
+    "quality_output": null,
+    "records_checked": 0,
+    "agent_grounding_passed": false,
+    "error": "RuntimeError: Simulated pipeline ingestion or service failure for testing."
+  },
+  {
+    "run_id": "20261021_100931",
+    "timestamp_utc": "2026-10-21T10:09:42.268575+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 10.289,
+    "forecast_output": "outputs\\forecasts\\latest_forecast.json",
+    "quality_output": "outputs\\quality\\latest_quality.json",
+    "records_checked": 176392,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
+    "run_id": "20261021_100846",
+    "timestamp_utc": "2026-10-21T10:09:16.602503+00:00",
+    "status": "FAILED",
+    "duration_seconds": 30.498,
+    "forecast_output": null,
+    "quality_output": null,
+    "records_checked": 0,
+    "agent_grounding_passed": false,
+    "error": "FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'"
+  },
+  {
     "run_id": "20261021_091218",
     "timestamp_utc": "2026-10-21T09:12:18.974417+00:00",
     "status": "FAILED",

@@ -111,7 +111,7 @@ class GoldDatasetBuilder:
 
         # To find exact ground target at t + 24 hours, create a lookup of (city, sensor_id, timestamp_utc)
         target_lookup = df[["city", "sensor_id", "timestamp_utc", "pm25"]].copy()
-        target_lookup["lookup_time"] = target_lookup["timestamp_utc"] - pd.Timedelta(hours=horizon_hours)
+        target_lookup["lookup_time"] = target_lookup["timestamp_utc"] - pd.to_timedelta(horizon_hours, unit="h")
         target_lookup = target_lookup.rename(columns={"pm25": "pm25_target_24h"})
 
         # Join so that row at time t matches target from time t + 24h
@@ -122,6 +122,25 @@ class GoldDatasetBuilder:
             right_on=["city", "sensor_id", "lookup_time"],
             how="inner"
         ).drop(columns=["lookup_time"])
+
+        # Additive atmospheric feature engineering (backward-compatible)
+        if "RH2M" in gold_df.columns:
+            rh = gold_df["RH2M"].fillna(50.0).clip(0.0, 99.0)
+            swelling_factor = np.where(
+                rh > 80.0,
+                1.0 + 0.25 * ((rh / 100.0) ** 2) / (1.0 - (rh / 100.0)),
+                1.0 + 0.15 * ((rh / 100.0) ** 2)
+            )
+            gold_df["pm25_calibrated"] = (gold_df["pm25"] / swelling_factor).clip(lower=1.0)
+            gold_df["pm25_target_24h_calibrated"] = (gold_df["pm25_target_24h"] / swelling_factor).clip(lower=1.0)
+
+        if "WS10M" in gold_df.columns and "WD10M" in gold_df.columns:
+            rad = np.deg2rad(gold_df["WD10M"].fillna(0.0))
+            gold_df["wind_u"] = -gold_df["WS10M"].fillna(0.0) * np.sin(rad)
+            gold_df["wind_v"] = -gold_df["WS10M"].fillna(0.0) * np.cos(rad)
+
+        if "T2M" in gold_df.columns and "T2MDEW" in gold_df.columns:
+            gold_df["dew_point_depression"] = (gold_df["T2M"] - gold_df["T2MDEW"]).clip(lower=0.0)
 
         # Stable unique observation identifier: SHA256(city_sensor_timestamp)[:16]
         def make_record_id(row):
