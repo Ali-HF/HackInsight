@@ -1,0 +1,132 @@
+{
+  "execution_timestamp_utc": "2026-10-21T10:51:50Z",
+  "model_type": "HistGradientBoostingRegressor",
+  "target_transform": "log1p",
+  "sample_weighting": {
+    "strategy": "training_set_q75_tier_boost",
+    "threshold_quantile": 0.75,
+    "threshold_value_ugm3": 138.0,
+    "multiplier": 1.5
+  },
+  "feature_count": 40,
+  "train_rows": 77277,
+  "validation_rows": 39971,
+  "test_rows": 49116,
+  "validation_metrics": {
+    "n": 39971,
+    "model_mae": 23.757,
+    "model_rmse": 37.612,
+    "base_mae": 27.68,
+    "base_rmse": 44.988,
+    "mae_absolute_improvement": 3.923,
+    "mae_pct_improvement": 14.17,
+    "rmse_absolute_improvement": 7.376,
+    "rmse_pct_improvement": 16.4,
+    "beats_baseline": true
+  },
+  "test_metrics": {
+    "n": 49116,
+    "model_mae": 40.809,
+    "model_rmse": 69.626,
+    "base_mae": 42.347,
+    "base_rmse": 73.902,
+    "mae_absolute_improvement": 1.538,
+    "mae_pct_improvement": 3.63,
+    "rmse_absolute_improvement": 4.276,
+    "rmse_pct_improvement": 5.79,
+    "beats_baseline": true
+  },
+  "test_uncertainty_80pct": {
+    "empirical_coverage_pct": 82.42,
+    "target_coverage_pct": 80.0,
+    "mean_interval_width": 141.06
+  },
+  "test_seen_sensors": {
+    "n": 32003,
+    "model_mae": 37.831,
+    "model_rmse": 68.414,
+    "base_mae": 39.118,
+    "base_rmse": 71.633,
+    "mae_absolute_improvement": 1.287,
+    "mae_pct_improvement": 3.29,
+    "rmse_absolute_improvement": 3.219,
+    "rmse_pct_improvement": 4.49,
+    "beats_baseline": true
+  },
+  "test_unseen_sensors": {
+    "n": 17113,
+    "model_mae": 46.378,
+    "model_rmse": 71.837,
+    "base_mae": 48.386,
+    "base_rmse": 77.967,
+    "mae_absolute_improvement": 2.008,
+    "mae_pct_improvement": 4.15,
+    "rmse_absolute_improvement": 6.13,
+    "rmse_pct_improvement": 7.86,
+    "beats_baseline": true
+  },
+  "test_by_city": {
+    "Karachi": {
+      "n": 12168,
+      "model_mae": 14.03,
+      "model_rmse": 21.266,
+      "base_mae": 14.583,
+      "base_rmse": 23.93,
+      "mae_absolute_improvement": 0.553,
+      "mae_pct_improvement": 3.79,
+      "rmse_absolute_improvement": 2.664,
+      "rmse_pct_improvement": 11.13,
+      "beats_baseline": true
+    },
+    "Lahore": {
+      "n": 36948,
+      "model_mae": 49.628,
+      "model_rmse": 79.343,
+      "base_mae": 51.491,
+      "base_rmse": 84.092,
+      "mae_absolute_improvement": 1.863,
+      "mae_pct_improvement": 3.62,
+      "rmse_absolute_improvement": 4.749,
+      "rmse_pct_improvement": 5.65,
+      "beats_baseline": true
+    }
+  },
+  "test_by_season": {
+    "DJF (Winter/Smog)": {
+      "n": 15024,
+      "model_mae": 46.07,
+      "model_rmse": 62.762,
+      "base_mae": 48.099,
+      "base_rmse": 69.644,
+      "mae_absolute_improvement": 2.029,
+      "mae_pct_improvement": 4.22,
+      "rmse_absolute_improvement": 6.882,
+      "rmse_pct_improvement": 9.88,
+      "beats_baseline": true
+    },
+    "JJA (Monsoon)": {
+      "n": 9496,
+      "model_mae": 15.85,
+      "model_rmse": 22.358,
+      "base_mae": 19.112,
+      "base_rmse": 28.651,
+      "mae_absolute_improvement": 3.262,
+      "mae_pct_improvement": 17.07,
+      "rmse_absolute_improvement": 6.293,
+      "rmse_pct_improvement": 21.96,
+      "beats_baseline": true
+    },
+    "SON (Autumn)": {
+      "n": 24596,
+      "model_mae": 47.231,
+      "model_rmse": 84.151,
+      "base_mae": 47.805,
+      "base_rmse": 87.329,
+      "mae_absolute_improvement": 0.574,
+      "mae_pct_improvement": 1.2,
+      "rmse_absolute_improvement": 3.178,
+      "rmse_pct_improvement": 3.64,
+      "beats_baseline": true
+    }
+  }
+}

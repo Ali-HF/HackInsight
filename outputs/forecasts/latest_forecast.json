@@ -1,50 +1,50 @@
 {
-  "run_id": "20261021_164157",
-  "timestamp_utc": "2026-10-21T16:42:08.913952+00:00",
+  "run_id": "20261021_154901",
+  "timestamp_utc": "2026-10-21T15:49:01.522317+00:00",
   "forecast_data": {
-    "issue_timestamp": "2026-10-21T16:42:05.046948+00:00",
+    "issue_timestamp": "2026-10-21T15:49:01.522317+00:00",
     "horizon_hours": 24,
-    "target_timestamp": "2026-10-22T16:42:05.046948+00:00",
+    "target_timestamp": "2026-10-22T15:49:01.522317+00:00",
     "cities": {
       "Lahore": {
-        "status": "success",
         "city": "Lahore",
         "sensor_id": "0166919645da6ef4",
         "sensors_evaluated": 26,
-        "forecast_issue_time": "2024-12-30 23:00:00",
-        "forecast_target_time": "2024-12-31 23:00:00",
-        "current_pm25": 105.19,
-        "predicted_pm25_24h": 124.12,
-        "lower_80": 61.14,
-        "upper_80": 210.35,
-        "baseline_persistence": 105.19,
+        "current_pm25": 94.49,
+        "predicted_pm25_24h": 119.25,
+        "lower_80": 21.35,
+        "upper_80": 165.44,
+        "baseline_persistence": 94.49,
         "coverage": 0.8,
         "unit": "ug/m3",
-        "temperature_c": 8.7,
-        "humidity_pct": 48.8,
+        "temperature_c": 23.9,
+        "humidity_pct": 76.0,
         "precipitation_mm": 0.0,
-        "wind_speed_ms": 2.7,
-        "message": "24h forecast for Lahore: 124.12 ug/m3 (80% CI: [61.14, 210.35] ug/m3, persistence baseline: 105.19 ug/m3)."
+        "wind_speed_ms": 1.5,
+        "source": "live_open_meteo_coupled_model",
+        "forecast_issue_time": "2026-10-21 15:49:02",
+        "forecast_target_time": "2026-10-22 15:49:02",
+        "message": "Live 24h weather-coupled forecast for Lahore: 119.25 ug/m3 (80% CI: [21.35, 165.44] ug/m3). Outdoor T: 23.9\u00b0C, RH: 76%, WS: 1.5 m/s."
       },
       "Karachi": {
-        "status": "success",
         "city": "Karachi",
         "sensor_id": "212607b3f328c11e",
         "sensors_evaluated": 4,
-        "forecast_issue_time": "2024-12-30 23:00:00",
-        "forecast_target_time": "2024-12-31 23:00:00",
-        "current_pm25": 123.5,
-        "predicted_pm25_24h": 113.56,
-        "lower_80": 55.9,
-        "upper_80": 192.51,
-        "baseline_persistence": 123.5,
+        "current_pm25": 31.9,
+        "predicted_pm25_24h": 57.28,
+        "lower_80": 0.0,
+        "upper_80": 103.48,
+        "baseline_persistence": 31.9,
         "coverage": 0.8,
         "unit": "ug/m3",
-        "temperature_c": 16.9,
-        "humidity_pct": 40.4,
+        "temperature_c": 27.8,
+        "humidity_pct": 81.0,
         "precipitation_mm": 0.0,
-        "wind_speed_ms": 3.4,
-        "message": "24h forecast for Karachi: 113.56 ug/m3 (80% CI: [55.9, 192.51] ug/m3, persistence baseline: 123.5 ug/m3)."
+        "wind_speed_ms": 2.1,
+        "source": "live_open_meteo_coupled_model",
+        "forecast_issue_time": "2026-10-21 15:49:03",
+        "forecast_target_time": "2026-10-22 15:49:03",
+        "message": "Live 24h weather-coupled forecast for Karachi: 57.28 ug/m3 (80% CI: [0.0, 103.48] ug/m3). Outdoor T: 27.8\u00b0C, RH: 81%, WS: 2.1 m/s."
       }
     }
   },
@@ -57,7 +57,7 @@
       "Karachi",
       "Lahore"
     ],
-    "latest_timestamp": "2024-12-30 23:00:00+00:00",
-    "validation_passed": true
+    "latest_timestamp": "2026-10-21T15:49:01.522317+00:00",
+    "mode": "live_meteorology_coupled_forecasting"
   }
 }
