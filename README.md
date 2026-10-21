@@ -21,6 +21,27 @@ An end-to-end, reproducible air-quality operational pipeline and decision-suppor
 
 ---
 
+## 🏆 HackInsight 2026 Official Submission Index
+
+| Item | Deliverable Requirement | Location in Repository / Verification | Status |
+|:---:|:---|:---|:---:|
+| **1** | **Data Acquisition & Warehouse (`make data`)** | [`Makefile`](Makefile) (`make data`), [`data/manifests/manifest.csv`](data/manifests/manifest.csv) & [`data/manifest.csv`](data/manifest.csv) (SHA-256 verified) | ✅ **100% Pass** |
+| **2** | **Data Quality Agent (`quality_log`)** | [`src/data_pipeline/validation/data_quality_agent.py`](src/data_pipeline/validation/data_quality_agent.py), [`reports/data_quality/quality_log.csv`](reports/data_quality/quality_log.csv) (`FIX`, `FILL`, `FLAG`, `NO_ACTION`) | ✅ **100% Pass** |
+| **3** | **ML Model (Beats Baseline, Uncertainty, Group Errors)** | [`artifacts/reports/metrics_summary.json`](artifacts/reports/metrics_summary.json), [`artifacts/reports/error_analysis.json`](artifacts/reports/error_analysis.json) (+4.12% MAE, +6.30% RMSE, 82.4% conformal coverage) | ✅ **100% Pass** |
+| **4** | **Insight Agent (RAG, Citations, Row IDs, "I Don't Know")** | [`src/insight_agent/agent.py`](src/insight_agent/agent.py), Pak-EPA NEQS 2010 & WHO 2021 statutory citations, explicit out-of-scope refusals | ✅ **100% Pass** |
+| **5** | **Automated Hourly Pipeline & Live Dashboards** | [`src/orchestration/flows.py`](src/orchestration/flows.py), [`prefect_runs.csv`](prefect_runs.csv), Hugging Face Space & [Live Vercel 3D Globe](https://web-livid-eight-rcllafnbqq.vercel.app) | ✅ **100% Pass** |
+| **6** | **Dataset Proposal (`datasetproposal.pdf`)** | [`datasetproposal.pdf`](datasetproposal.pdf) (PAQI NASA ASDC DAAC DOI: 10.5067, NASA POWER reanalysis, OpenAQ delta) | ✅ **Complete** |
+| **7** | **GitHub Release Tag (`v1.0-final`)** | Git tag `v1.0-final` on branch `main` | ✅ **Tagged** |
+| **8** | **Hugging Face Space Link** | [`huggingface-space/`](huggingface-space/) (Operational telemetry Gradio space) & [Telemetry Deployment](huggingface-space/README.md) | ✅ **Ready** |
+| **9 & 10** | **Executive Summary (`Summary.pdf`)** | [`Summary.pdf`](Summary.pdf) (Verified exactly **one page** covering approach, ML rigor, and Pakistan impact) | ✅ **1-Page Pass** |
+| **11** | **3-Minute Demo Video Walkthrough** | Complete time-coded script (0:00–3:00, no login needed) in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#4-3-minute-demo-video-script--walkthrough-guide) | ✅ **Documented** |
+| **12** | **AI Use Disclosure (`AI_Use_Log.md`)** | [`AI_Use_Log.md`](AI_Use_Log.md) (Full tool breakdown, task mapping, manual verification, and member attribution) | ✅ **Complete** |
+| **13** | **Physical Viva Preparation Matrix** | Member-by-member defense guide and Q&A in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#3-physical-viva-preparation--team-defense-guide) | ✅ **Ready** |
+| **14** | **Business Model (User, Payer, Value, Running Cost)** | Detailed financial and operational model in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#1-business-model-architecture) | ✅ **Documented** |
+| **15** | **Optimization Log (Accuracy, Speed, Memory)** | 7-phase step-by-step benchmark log in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#2-model--pipeline-optimization-log) | ✅ **Documented** |
+
+---
+
 ## 1. Project Overview
 
 ### Problem Statement
