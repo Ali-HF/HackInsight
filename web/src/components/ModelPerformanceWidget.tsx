@@ -110,13 +110,13 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
                   padding: '2px 6px',
                   borderRadius: '8px'
                 }}>
-                  +{liftPct.toFixed(1)}% lift
+                  -{liftPct.toFixed(1)}% error vs base
                 </span>
               </div>
             </div>
 
             <div style={{ fontSize: '0.725rem', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>
-              Beats persistence baseline ({baseMae.toFixed(1)} µg/m³) on {city} test split
+              {liftPct.toFixed(1)}% lower MAE than persistence baseline ({baseMae.toFixed(1)} µg/m³) on {city} test partition
             </div>
           </motion.div>
         </AnimatePresence>
@@ -169,7 +169,9 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
         <div style={{ fontSize: '0.725rem', lineHeight: 1.35, color: '#166534' }}>
           <strong>Statistically Grounded ML Pipeline</strong>
           <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.9 }}>
-            49,116 hourly test rows evaluated with zero lookahead leakage.
+            {city === 'Karachi'
+              ? '12,168 hourly test observations evaluated for Karachi (49,116 combined network total across 30 stations with zero lookahead).'
+              : '36,948 hourly test observations evaluated for Lahore (49,116 combined network total across 30 stations with zero lookahead).'}
           </span>
         </div>
       </div>

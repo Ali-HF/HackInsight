@@ -116,7 +116,7 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
               {metrics?.test_rows?.toLocaleString() ?? '49,116'}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-              Unbiased final test evaluation
+              36,948 Lahore • 12,168 Karachi
             </div>
           </div>
         </div>

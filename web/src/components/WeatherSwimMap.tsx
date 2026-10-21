@@ -373,7 +373,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             backgroundColor: '#F1F5F9',
             color: '#334155'
           }}>
-            {isLahore ? `${karachiPm25.toFixed(0)} µg/m³` : `${lahorePm25.toFixed(0)} µg/m³`}
+            {isLahore ? `${karachiPm25.toFixed(1)} µg/m³` : `${lahorePm25.toFixed(1)} µg/m³`}
           </span>
           <span style={{ fontSize: '0.85rem', color: '#3B82F6', fontWeight: 800 }}>↗</span>
         </div>
@@ -531,7 +531,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
               transition: 'color 0.3s ease'
             }}
           >
-            {activePm25.toFixed(0)} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
+            {activePm25.toFixed(1)} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>

@@ -48,3 +48,6 @@ run_id,timestamp_utc,status,duration_seconds,records_checked,error
 20261021_100846,2026-10-21T10:09:16.602503+00:00,FAILED,30.498,0,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
 20261021_100931,2026-10-21T10:09:42.268575+00:00,SUCCESS,10.289,176392,
 20261021_100942,2026-10-21T10:09:42.341086+00:00,FAILED,0.001,0,RuntimeError: Simulated pipeline ingestion or service failure for testing.
+20261021_102120,2026-10-21T10:21:48.194702+00:00,FAILED,27.645,0,FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'
+20261021_102157,2026-10-21T10:22:08.866565+00:00,SUCCESS,11.588,176392,
+20261021_102208,2026-10-21T10:22:08.957804+00:00,FAILED,0.003,0,RuntimeError: Simulated pipeline ingestion or service failure for testing.

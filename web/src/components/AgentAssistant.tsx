@@ -33,6 +33,47 @@ interface ForecastCityData {
   forecast_target_time: string;
 }
 
+// Standard US EPA & Pak-EPA Air Quality Index (AQI) categories for PM2.5
+function getAqiCategory(pm25: number): { tier: string; aqiDesc: string; advice: string } {
+  if (pm25 <= 12.0) {
+    return {
+      tier: "Good",
+      aqiDesc: "AQI 0–50",
+      advice: "Air quality is satisfactory and poses little or no health risk."
+    };
+  } else if (pm25 <= 35.4) {
+    return {
+      tier: "Moderate",
+      aqiDesc: "AQI 51–100",
+      advice: "Acceptable quality; complies with Pakistan 24-hr NEQS standard (35 µg/m³)."
+    };
+  } else if (pm25 <= 55.4) {
+    return {
+      tier: "Unhealthy for Sensitive Groups",
+      aqiDesc: "AQI 101–150",
+      advice: "Sensitive groups (children, elderly, asthmatics) should limit prolonged outdoor exertion."
+    };
+  } else if (pm25 <= 150.4) {
+    return {
+      tier: "Unhealthy",
+      aqiDesc: "AQI 151–200",
+      advice: "Unhealthy air. Everyone may begin to experience health effects; wear an N95 mask outdoors."
+    };
+  } else if (pm25 <= 250.4) {
+    return {
+      tier: "Very Unhealthy",
+      aqiDesc: "AQI 201–300",
+      advice: "Health alert: high risk of respiratory irritation. Avoid outdoor physical activity."
+    };
+  } else {
+    return {
+      tier: "Hazardous",
+      aqiDesc: "AQI 301+",
+      advice: "Emergency health warning: serious risk for entire population. Stay indoors with air filtration."
+    };
+  }
+}
+
 // Intelligent, grounded local RAG evaluation engine with multi-intent semantic matching
 export const evaluateQueryGrounded = (
   rawQuery: string,
@@ -101,12 +142,13 @@ export const evaluateQueryGrounded = (
     q.includes('precaution') || q.includes('advisory') || q.includes('protect');
 
   if (isHealthSafetyQuery) {
-    const currentVal = cityData ? cityData.current_pm25 : (cityKey === 'Karachi' ? 95.5 : 180.1);
-    const isSevere = currentVal > 150.0;
+    const currentVal = cityData ? cityData.current_pm25 : (cityKey === 'Karachi' ? 123.5 : 105.2);
+    const cat = getAqiCategory(currentVal);
+    const isSevere = currentVal >= 150.0;
     
     if (q.includes('school')) {
       return {
-        answer: `🏫 Punjab Smog Protocol: When PM2.5 crosses 150 µg/m³ (currently ${currentVal.toFixed(0)} µg/m³ in ${cityKey}), schools must cancel outdoor morning assemblies, suspend sports, and mandate student N95 masks.`,
+        answer: `🏫 Punjab Smog Protocol: When PM2.5 crosses 150 µg/m³ (currently ${currentVal.toFixed(1)} µg/m³ in ${cityKey}, ${cat.tier} - ${cat.aqiDesc}), schools must cancel outdoor morning assemblies, suspend sports, and mandate student N95 masks.`,
         status: "success",
         evidence: { city: cityKey, current_pm25: currentVal, threshold: 150.0 },
         citations: [{ title: "Punjab Clean Air Action Plan 2023" }],
@@ -119,11 +161,11 @@ export const evaluateQueryGrounded = (
 
     return {
       answer: isSevere
-        ? `🚨 Not safe outside: Air in ${cityKey} is currently Hazardous at ${currentVal.toFixed(0)} µg/m³ (5× above legal limits). Avoid jogging, keep children indoors, and wear an N95 mask if you must step out.`
-        : `⚠️ Air in ${cityKey} is currently Moderate to Unhealthy at ${currentVal.toFixed(0)} µg/m³. Safe for short trips, but sensitive individuals and children should avoid heavy outdoor workouts.`,
+        ? `🚨 Not safe outside: Air in ${cityKey} is currently ${cat.tier} (${cat.aqiDesc}) at ${currentVal.toFixed(1)} µg/m³ (exceeds Pak-EPA 24-hr NEQS limit of 35 µg/m³). Avoid outdoor jogging, keep children indoors, and wear an N95 mask if stepping out.`
+        : `⚠️ Air in ${cityKey} is currently ${cat.tier} (${cat.aqiDesc}) at ${currentVal.toFixed(1)} µg/m³. ${cat.advice}`,
       status: "success",
-      evidence: { city: cityKey, current_pm25: currentVal, pak_neqs_limit: 35.0 },
-      citations: [{ title: "Pak-EPA Ambient Air Standard (35 µg/m³)" }],
+      evidence: { city: cityKey, current_pm25: currentVal, pak_neqs_limit: 35.0, aqi_category: cat.tier },
+      citations: [{ title: "Pak-EPA Ambient Air Standard (35 µg/m³ 24-hr standard)" }],
       warnings: isSevere ? ["Severe exposure warning — avoid outdoor exertion."] : [],
       tools_used: ["get_current_pm25", "regulatory_grounding_tool"],
       grounding_passed: true,
@@ -137,15 +179,19 @@ export const evaluateQueryGrounded = (
     q.includes('interval') || q.includes('conformal') || q.includes('expected');
 
   if (isForecastQuery) {
-    const predVal = cityData ? cityData.predicted_pm25_24h : (cityKey === 'Karachi' ? 107.91 : 153.84);
+    const predVal = cityData ? cityData.predicted_pm25_24h : (cityKey === 'Karachi' ? 107.9 : 153.8);
+    const cat = getAqiCategory(predVal);
     const isEmergency = predVal >= 150.0;
+    const weatherFactor = cityKey === 'Karachi'
+      ? 'Marine boundary layer stability and onshore airflow regulate coastal particulate mixing.'
+      : 'Inland winter thermal inversion and atmospheric stagnation trap particulate matter near the ground.';
 
     return {
       answer: isEmergency
-        ? `⚠️ Smog Emergency Forecast for ${cityKey}: PM2.5 is projected to reach ${predVal.toFixed(0)} µg/m³ tomorrow (hazardous level). Keep windows shut, run indoor air filtration, and prepare for municipal traffic curbs.`
-        : `🌤️ Forecast for ${cityKey}: Tomorrow's PM2.5 is expected around ${predVal.toFixed(0)} µg/m³ (moderate range). Coastal breezes will help disperse pollutants, but sensitive groups should take precautions.`,
+        ? `⚠️ Smog Alert for ${cityKey}: 24h PM2.5 is projected at ${predVal.toFixed(1)} µg/m³ (${cat.tier} - ${cat.aqiDesc}). ${weatherFactor} Keep windows shut, run indoor air filtration, and prepare for municipal traffic curbs.`
+        : `🌤️ Forecast for ${cityKey}: 24h PM2.5 is projected at ${predVal.toFixed(1)} µg/m³ (${cat.tier} - ${cat.aqiDesc}). ${weatherFactor} ${cat.advice}`,
       status: "success",
-      evidence: { city: cityKey, predicted_pm25_24h: predVal, unit: "ug/m3" },
+      evidence: { city: cityKey, predicted_pm25_24h: predVal, unit: "ug/m3", aqi_category: cat.tier },
       citations: [{ title: "HistGradientBoosting Model Forecast (t+24h)" }],
       warnings: isEmergency ? ["Expected PM2.5 crosses 150 µg/m³ emergency benchmark."] : [],
       tools_used: ["predict_pm25_24h", "get_pm25_forecast"],
@@ -211,18 +257,19 @@ export const evaluateQueryGrounded = (
   }
 
   // G. Current Air Quality / Pollution Level / Status Right Now (Catch-all)
-  const currentVal = cityData ? cityData.current_pm25 : (cityKey === 'Karachi' ? 95.5 : 180.1);
+  const currentVal = cityData ? cityData.current_pm25 : (cityKey === 'Karachi' ? 123.5 : 105.2);
+  const cat = getAqiCategory(currentVal);
   const isExceeded = currentVal > 35.0;
-  const isHazardous = currentVal > 150.0;
+  const isSevere = currentVal >= 150.0;
 
   return {
-    answer: isHazardous
-      ? `🚨 Current Air in ${cityKey}: Severe Smog at ${currentVal.toFixed(0)} µg/m³ (5× above safe national limits). Highly hazardous for outdoor activity. Please wear an N95 mask and limit outdoor exposure.`
-      : `🌤️ Current Air in ${cityKey}: ${currentVal.toFixed(0)} µg/m³ (${isExceeded ? 'Elevated above 35 µg/m³ limit' : 'Safe range'}). Wear a mask if you are sensitive to dust and smoke.`,
+    answer: isSevere
+      ? `🚨 Current Air in ${cityKey}: Severe Smog at ${currentVal.toFixed(1)} µg/m³ (${cat.tier} - ${cat.aqiDesc}). Exceeds Pak-EPA 24-hr NEQS limit (35 µg/m³) by ${(currentVal / 35.0).toFixed(1)}×. Highly hazardous for outdoor activity. Please wear an N95 mask and limit outdoor exposure.`
+      : `🌤️ Current Air in ${cityKey}: ${currentVal.toFixed(1)} µg/m³ (${cat.tier} - ${cat.aqiDesc}${isExceeded ? ', exceeds Pak-EPA 24-hr NEQS standard of 35 µg/m³' : ', complies with Pak-EPA 24-hr standard'}). ${cat.advice}`,
     status: "success",
-    evidence: { city: cityKey, current_pm25: currentVal, pak_neqs_limit: 35.0 },
-    citations: [{ title: "Pak-EPA NEQS Ambient Air Standard" }],
-    warnings: isHazardous ? ["Air exceeds 150 µg/m³ emergency threshold."] : [],
+    evidence: { city: cityKey, current_pm25: currentVal, pak_neqs_limit: 35.0, aqi_category: cat.tier },
+    citations: [{ title: "Pak-EPA NEQS Ambient Air Standard (35 µg/m³ 24-hr standard)" }],
+    warnings: isSevere ? ["Air exceeds 150 µg/m³ emergency threshold."] : [],
     tools_used: ["get_current_pm25"],
     grounding_passed: true,
     interaction_id: interactionId
