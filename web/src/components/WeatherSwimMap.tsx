@@ -569,8 +569,24 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
-          {isLiveOutdoor ? 'PM2.5 NOWCAST' : 'PM2.5 / AIR'}
+          CURRENT NOWCAST
         </span>
+        {activePredicted !== undefined && (
+          <div style={{
+            fontSize: '0.625rem',
+            fontWeight: 700,
+            color: '#D97706',
+            marginTop: '3px',
+            backgroundColor: '#FEF3C7',
+            padding: '1px 6px',
+            borderRadius: '999px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '3px'
+          }}>
+            <span>24h: {activePredicted.toFixed(0)} µg/m³</span>
+          </div>
+        )}
       </motion.div>
 
       {/* 7. Low-to-High Concentration Legend (Bottom-Left) */}
