@@ -138,6 +138,23 @@ def get_pm25_forecast(
 
     primary_row = preds_df.iloc[0]
 
+    # Latest meteorological conditions from gold dataset
+    temp_c = None
+    humidity_pct = None
+    precip_mm = 0.0
+    wind_speed = None
+    if "timestamp_utc" in df_city.columns:
+        latest_ts = df_city["timestamp_utc"].max()
+        latest_slice = df_city[df_city["timestamp_utc"] == latest_ts]
+        if "T2M" in latest_slice.columns and not latest_slice["T2M"].dropna().empty:
+            temp_c = round(float(latest_slice["T2M"].mean()), 1)
+        if "RH2M" in latest_slice.columns and not latest_slice["RH2M"].dropna().empty:
+            humidity_pct = round(float(latest_slice["RH2M"].mean()), 1)
+        if "PRECTOTCORR" in latest_slice.columns and not latest_slice["PRECTOTCORR"].dropna().empty:
+            precip_mm = round(float(latest_slice["PRECTOTCORR"].mean()), 1)
+        if "WS10M" in latest_slice.columns and not latest_slice["WS10M"].dropna().empty:
+            wind_speed = round(float(latest_slice["WS10M"].mean()), 1)
+
     return {
         "status": "success",
         "city": normalized_city,
@@ -152,6 +169,10 @@ def get_pm25_forecast(
         "baseline_persistence": mean_baseline,
         "coverage": coverage,
         "unit": "ug/m3",
+        "temperature_c": temp_c,
+        "humidity_pct": humidity_pct,
+        "precipitation_mm": precip_mm,
+        "wind_speed_ms": wind_speed,
         "message": (
             f"24h forecast for {normalized_city}: {mean_pred} ug/m3 "
             f"(80% CI: [{mean_lower}, {mean_upper}] ug/m3, persistence baseline: {mean_baseline} ug/m3)."

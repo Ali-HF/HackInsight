@@ -18,7 +18,7 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
   predictedVal,
   lower80,
   upper80,
-  baselineVal = 105.19
+  baselineVal
 }) => {
   const [showConfidenceBand, setShowConfidenceBand] = useState<boolean>(true);
   const [showBaseline, setShowBaseline] = useState<boolean>(true);
@@ -28,10 +28,10 @@ export const ForecastTrajectoryWidget: React.FC<ForecastTrajectoryWidgetProps> =
   const rawTrajectory = trajectoryData?.trajectory_24h ?? [];
   const forecastTarget = trajectoryData?.forecast_target;
 
-  const finalPredicted = forecastTarget?.predicted ?? predictedVal;
-  const finalLower80 = forecastTarget?.lower_80 ?? lower80;
-  const finalUpper80 = forecastTarget?.upper_80 ?? upper80;
-  const finalBaseline = forecastTarget?.baseline ?? baselineVal;
+  const finalPredicted = predictedVal || forecastTarget?.predicted || 0;
+  const finalLower80 = lower80 || forecastTarget?.lower_80 || 0;
+  const finalUpper80 = upper80 || forecastTarget?.upper_80 || 0;
+  const finalBaseline = baselineVal !== undefined && baselineVal > 0 ? baselineVal : (forecastTarget?.baseline || finalPredicted);
 
   // Chart dimensions
   const width = 520;

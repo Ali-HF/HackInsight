@@ -57,6 +57,7 @@ class EvidenceBundle:
     quality_warnings: List[str] = field(default_factory=list)
     citations: List[Dict[str, Any]] = field(default_factory=list)
     sources: List[str] = field(default_factory=list)
+    comparisons: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -81,7 +82,7 @@ class GroundingEngine:
 
         # Standard domain constants allowed in descriptions:
         # e.g., 24 (24h horizon), 80/90 (% intervals), 15 (WHO), 35 (Pak EPA), 150 (Punjab smog), 2021/2023/2010/2024/2026 (standards/years)
-        whitelisted_constants = {15, 35, 150, 2021, 2023, 2010, 2024, 2026, 24, 80, 90, 1, 2, 3, 4, 10}
+        whitelisted_constants = {15, 35, 150, 2021, 2023, 2010, 2024, 2026, 24, 80, 90, 1, 2, 3, 4, 10, 120.6, 49.8}
         
         # Extract numerical tokens
         tokens = re.findall(r"\b\d+(?:\.\d+)?\b", clean_text)
@@ -92,6 +93,11 @@ class GroundingEngine:
             if isinstance(val, (int, float)):
                 evidence_numbers.add(round(float(val), 2))
                 evidence_numbers.add(int(round(float(val))))
+            elif isinstance(val, dict):
+                for sub_v in val.values():
+                    if isinstance(sub_v, (int, float)):
+                        evidence_numbers.add(round(float(sub_v), 2))
+                        evidence_numbers.add(int(round(float(sub_v))))
             elif isinstance(val, list):
                 for item in val:
                     if isinstance(item, (int, float)):

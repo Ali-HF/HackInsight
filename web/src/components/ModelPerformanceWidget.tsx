@@ -17,13 +17,13 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
   // Extract real city metrics or fallback to overall test metrics from metrics_summary.json
   const cityMetrics = metrics?.test_by_city?.[city];
 
-  const modelMae = cityMetrics?.model_mae ?? (city === 'Karachi' ? 13.94 : 49.38);
-  const baseMae = cityMetrics?.base_mae ?? (city === 'Karachi' ? 14.58 : 51.49);
-  const liftPct = cityMetrics?.mae_pct_improvement ?? (city === 'Karachi' ? 4.44 : 4.09);
+  const modelMae = cityMetrics?.model_mae;
+  const baseMae = cityMetrics?.base_mae;
+  const liftPct = cityMetrics?.mae_pct_improvement;
 
-  const empiricalCoverage = metrics?.test_uncertainty_80pct?.empirical_coverage_pct ?? 82.43;
-  const featureCount = metrics?.feature_count ?? 40;
-  const sensorsCount = forecast?.sensors_evaluated ?? (city === 'Karachi' ? 4 : 26);
+  const empiricalCoverage = metrics?.test_uncertainty_80pct?.empirical_coverage_pct;
+  const featureCount = metrics?.feature_count;
+  const sensorsCount = forecast?.sensors_evaluated;
 
   return (
     <div
@@ -61,7 +61,7 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
               Model Performance
             </h3>
             <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
-              HistGradientBoosting v1.0 • 24h Horizon
+              {metrics?.model_type ?? 'HistGradientBoosting'} • 24h Horizon
             </span>
           </div>
         </div>
@@ -97,26 +97,30 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
           >
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
               <div style={{ fontSize: '2.3rem', fontWeight: 800, color: '#0F172A', lineHeight: 1, letterSpacing: '-0.03em' }}>
-                {modelMae.toFixed(1)}
+                {modelMae !== undefined ? modelMae.toFixed(1) : '—'}
               </div>
               <div>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>µg/m³ MAE</span>
-                <span style={{
-                  marginLeft: '8px',
-                  fontSize: '0.725rem',
-                  fontWeight: 700,
-                  color: '#16A34A',
-                  backgroundColor: '#DCFCE7',
-                  padding: '2px 6px',
-                  borderRadius: '8px'
-                }}>
-                  -{liftPct.toFixed(1)}% error vs base
-                </span>
+                {liftPct !== undefined && (
+                  <span style={{
+                    marginLeft: '8px',
+                    fontSize: '0.725rem',
+                    fontWeight: 700,
+                    color: '#16A34A',
+                    backgroundColor: '#DCFCE7',
+                    padding: '2px 6px',
+                    borderRadius: '8px'
+                  }}>
+                    -{liftPct.toFixed(1)}% error vs base
+                  </span>
+                )}
               </div>
             </div>
 
             <div style={{ fontSize: '0.725rem', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>
-              {liftPct.toFixed(1)}% lower MAE than persistence baseline ({baseMae.toFixed(1)} µg/m³) on {city} test partition
+              {liftPct !== undefined && baseMae !== undefined
+                ? `${liftPct.toFixed(1)}% lower MAE than persistence baseline (${baseMae.toFixed(1)} µg/m³) on ${city} test partition`
+                : `Certified evaluation on ${city} test partition`}
             </div>
           </motion.div>
         </AnimatePresence>
@@ -135,19 +139,19 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '0.625rem', color: '#64748B', fontWeight: 600 }}>Coverage (80% CI)</div>
             <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>
-              {empiricalCoverage.toFixed(1)}%
+              {empiricalCoverage !== undefined ? `${empiricalCoverage.toFixed(1)}%` : '—'}
             </div>
           </div>
           <div style={{ textAlign: 'center', borderLeft: '1px solid #E2E8F0', borderRight: '1px solid #E2E8F0' }}>
             <div style={{ fontSize: '0.625rem', color: '#64748B', fontWeight: 600 }}>Features</div>
             <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>
-              {featureCount}
+              {featureCount !== undefined ? featureCount : '—'}
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '0.625rem', color: '#64748B', fontWeight: 600 }}>Sensors</div>
             <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>
-              {sensorsCount}
+              {sensorsCount !== undefined ? sensorsCount : '—'}
             </div>
           </div>
         </div>
@@ -169,9 +173,9 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
         <div style={{ fontSize: '0.725rem', lineHeight: 1.35, color: '#166534' }}>
           <strong>Statistically Grounded ML Pipeline</strong>
           <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.9 }}>
-            {city === 'Karachi'
-              ? '12,168 hourly test observations evaluated for Karachi (49,116 combined network total across 30 stations with zero lookahead).'
-              : '36,948 hourly test observations evaluated for Lahore (49,116 combined network total across 30 stations with zero lookahead).'}
+            {cityMetrics?.n !== undefined
+              ? `${cityMetrics.n.toLocaleString()} hourly test observations evaluated for ${city}${metrics?.test_metrics?.n !== undefined ? ` (${metrics.test_metrics.n.toLocaleString()} combined network total with zero lookahead)` : ' with zero lookahead'}.`
+              : `Chronological held-out test evaluation with zero lookahead.`}
           </span>
         </div>
       </div>

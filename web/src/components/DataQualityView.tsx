@@ -32,7 +32,7 @@ export const DataQualityView: React.FC<{ quality?: QualityAssessmentPayload }> =
             NO_ACTION (Certified Clean)
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)' }}>
-            {assessment?.actions_summary.NO_ACTION ?? 10} Checks
+            {assessment?.actions_summary?.NO_ACTION !== undefined ? assessment.actions_summary.NO_ACTION : '—'} Checks
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Passed schema completeness and uniqueness criteria without adjustments.
@@ -47,7 +47,7 @@ export const DataQualityView: React.FC<{ quality?: QualityAssessmentPayload }> =
             FLAG (Anomalies Retained)
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)' }}>
-            {assessment?.actions_summary.FLAG ?? 3} Checks
+            {assessment?.actions_summary?.FLAG !== undefined ? assessment.actions_summary.FLAG : '—'} Checks
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Flagged extreme temporal spikes (&gt;800 µg/m³) while retaining raw audit trail.
@@ -62,7 +62,7 @@ export const DataQualityView: React.FC<{ quality?: QualityAssessmentPayload }> =
             FILL (Bounded Imputation)
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)' }}>
-            {assessment?.actions_summary.FILL ?? 0} Checks
+            {assessment?.actions_summary?.FILL !== undefined ? assessment.actions_summary.FILL : '—'} Checks
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Strict policy: PM2.5 targets are never fabricated or synthetically imputed.
@@ -77,7 +77,7 @@ export const DataQualityView: React.FC<{ quality?: QualityAssessmentPayload }> =
             FIX (Deterministic Correction)
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)' }}>
-            {assessment?.actions_summary.FIX ?? 0} Checks
+            {assessment?.actions_summary?.FIX !== undefined ? assessment.actions_summary.FIX : '—'} Checks
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Automated string whitespace trimming and UTC timezone offset alignment.

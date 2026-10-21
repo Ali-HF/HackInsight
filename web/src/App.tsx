@@ -73,21 +73,22 @@ export const App: React.FC = () => {
   const lahoreForecast = forecastData?.forecast_data?.cities?.['Lahore'];
   const karachiForecast = forecastData?.forecast_data?.cities?.['Karachi'];
 
-  const lahorePm25 = lahoreForecast?.current_pm25 ?? 105.19;
-  const karachiPm25 = karachiForecast?.current_pm25 ?? 123.50;
-  const lahorePredicted = lahoreForecast?.predicted_pm25_24h ?? 118.26;
-  const karachiPredicted = karachiForecast?.predicted_pm25_24h ?? 114.41;
+  const lahorePm25 = lahoreForecast?.current_pm25;
+  const karachiPm25 = karachiForecast?.current_pm25;
+  const lahorePredicted = lahoreForecast?.predicted_pm25_24h;
+  const karachiPredicted = karachiForecast?.predicted_pm25_24h;
 
-  const lahoreTemp = lahoreForecast?.temperature_c ?? 20.1;
-  const karachiTemp = karachiForecast?.temperature_c ?? 29.2;
-  const lahoreHumidity = lahoreForecast?.humidity_pct ?? 42.0;
-  const karachiHumidity = karachiForecast?.humidity_pct ?? 38.0;
-  const lahoreRain = lahoreForecast?.precipitation_mm ?? 0.0;
-  const karachiRain = karachiForecast?.precipitation_mm ?? 0.0;
+  const lahoreTemp = lahoreForecast?.temperature_c;
+  const karachiTemp = karachiForecast?.temperature_c;
+  const lahoreHumidity = lahoreForecast?.humidity_pct;
+  const karachiHumidity = karachiForecast?.humidity_pct;
+  const lahoreRain = lahoreForecast?.precipitation_mm;
+  const karachiRain = karachiForecast?.precipitation_mm;
 
-  const predictedPm25 = currentCityForecast?.predicted_pm25_24h ?? (selectedCity === 'Karachi' ? 114.41 : 118.26);
-  const lower80 = currentCityForecast?.lower_80 ?? (selectedCity === 'Karachi' ? 56.22 : 58.13);
-  const upper80 = currentCityForecast?.upper_80 ?? (selectedCity === 'Karachi' ? 193.36 : 199.83);
+  const predictedPm25 = currentCityForecast?.predicted_pm25_24h ?? 0;
+  const lower80 = currentCityForecast?.lower_80 ?? 0;
+  const upper80 = currentCityForecast?.upper_80 ?? 0;
+  const baselineVal = currentCityForecast?.baseline_persistence ?? 0;
 
   return (
     <div style={{
@@ -143,6 +144,10 @@ export const App: React.FC = () => {
                 karachiHumidity={karachiHumidity}
                 lahoreRain={lahoreRain}
                 karachiRain={karachiRain}
+                lahoreSensors={lahoreForecast?.sensors_evaluated}
+                karachiSensors={karachiForecast?.sensors_evaluated}
+                lahoreSensorId={lahoreForecast?.sensor_id}
+                karachiSensorId={karachiForecast?.sensor_id}
               />
 
               {/* Lower Section: 3 Bottom Widgets matching WeatherSwim */}
@@ -154,7 +159,7 @@ export const App: React.FC = () => {
                   predictedVal={predictedPm25}
                   lower80={lower80}
                   upper80={upper80}
-                  baselineVal={currentCityForecast?.baseline_persistence ?? (selectedCity === 'Karachi' ? 123.5 : 105.19)}
+                  baselineVal={baselineVal}
                 />
 
                 {/* Bottom Center: Model Performance & Lift Telemetry */}
@@ -169,6 +174,7 @@ export const App: React.FC = () => {
                   city={selectedCity}
                   forecasts={forecastData?.forecast_data?.cities || null}
                   quality={qualityData?.quality_assessment || null}
+                  metrics={metricsData}
                   onOpenFullChat={() => setActiveTab('assistant')}
                 />
               </div>
@@ -187,6 +193,7 @@ export const App: React.FC = () => {
                 onBackToDashboard={() => setActiveTab('overview')}
                 forecasts={forecastData?.forecast_data?.cities || null}
                 quality={qualityData?.quality_assessment || null}
+                metrics={metricsData}
                 selectedCity={selectedCity}
                 onSelectCity={setSelectedCity}
               />

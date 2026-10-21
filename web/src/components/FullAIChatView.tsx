@@ -25,6 +25,7 @@ interface FullAIChatViewProps {
   onBackToDashboard: () => void;
   forecasts: Record<string, ForecastCityData> | null;
   quality: any;
+  metrics?: any;
   selectedCity: 'Lahore' | 'Karachi';
   onSelectCity?: (city: 'Lahore' | 'Karachi') => void;
 }
@@ -72,6 +73,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   onBackToDashboard,
   forecasts,
   quality,
+  metrics,
   selectedCity: _selectedCity,
   onSelectCity: _onSelectCity
 }) => {
@@ -84,7 +86,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
       responseObj: evaluateQueryGrounded(
         `Compare Lahore and Karachi air quality right now.`,
         forecasts,
-        quality
+        quality,
+        metrics
       )
     }
   ]);
@@ -97,6 +100,25 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    if (forecasts && messages.length === 1 && messages[0].id === 'init-msg') {
+      setMessages([
+        {
+          id: 'init-msg',
+          sender: 'assistant',
+          text: `Hello! I am your **Unified Environmental Decision Assistant** for Pakistan.\n\nI monitor **both Lahore and Karachi** using live ground sensors from the Pakistan Air Quality Initiative (PAQI) and verified meteorological models. Ask me about current air safety, 24-hour smog forecasts, school rules, outdoor masks, or comparing cities.`,
+          timestamp: messages[0].timestamp,
+          responseObj: evaluateQueryGrounded(
+            `Compare Lahore and Karachi air quality right now.`,
+            forecasts,
+            quality,
+            metrics
+          )
+        }
+      ]);
+    }
+  }, [forecasts, quality, metrics]);
 
   useEffect(() => {
     scrollToBottom();
@@ -120,7 +142,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
 
     try {
       // 1. Evaluate with local unified grounded RAG engine
-      const evaluated = evaluateQueryGrounded(text, forecasts, quality);
+      const evaluated = evaluateQueryGrounded(text, forecasts, quality, metrics);
 
       // 2. Attempt remote Gemini 2.5 Flash if endpoint is available
       try {
@@ -223,8 +245,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
     });
   };
 
-  const lahoreLive = forecasts?.['Lahore']?.current_pm25 ?? 105.2;
-  const karachiLive = forecasts?.['Karachi']?.current_pm25 ?? 123.5;
+  const lahoreLive = forecasts?.['Lahore']?.current_pm25;
+  const karachiLive = forecasts?.['Karachi']?.current_pm25;
 
   return (
     <div style={{
@@ -313,7 +335,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0F172A' }}>Lahore</span>
               </div>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#DC2626' }}>
-                {lahoreLive.toFixed(1)} <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>µg/m³</span>
+                {lahoreLive !== undefined ? `${lahoreLive.toFixed(1)} µg/m³` : 'Syncing...'}
               </span>
             </div>
 
@@ -323,7 +345,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0F172A' }}>Karachi</span>
               </div>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#EA580C' }}>
-                {karachiLive.toFixed(1)} <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>µg/m³</span>
+                {karachiLive !== undefined ? `${karachiLive.toFixed(1)} µg/m³` : 'Syncing...'}
               </span>
             </div>
           </div>

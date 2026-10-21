@@ -7,6 +7,7 @@ interface RAGChatbotWidgetProps {
   city: 'Lahore' | 'Karachi';
   forecasts: any;
   quality: any;
+  metrics?: any;
   onOpenFullChat?: () => void;
 }
 
@@ -14,18 +15,19 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
   city,
   forecasts,
   quality,
+  metrics,
   onOpenFullChat
 }) => {
   const [inputQuery, setInputQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(() =>
-    evaluateQueryGrounded(`What is the 24h PM2.5 forecast for ${city}?`, forecasts, quality)
+    evaluateQueryGrounded(`What is the 24h PM2.5 forecast for ${city}?`, forecasts, quality, metrics)
   );
 
   // Sync default answer when city changes
   useEffect(() => {
-    setResponse(evaluateQueryGrounded(`What is the 24h PM2.5 forecast for ${city}?`, forecasts, quality));
-  }, [city, forecasts, quality]);
+    setResponse(evaluateQueryGrounded(`What is the 24h PM2.5 forecast for ${city}?`, forecasts, quality, metrics));
+  }, [city, forecasts, quality, metrics]);
 
   const quickPrompts = [
     { label: 'Compare Cities', query: `Compare Lahore and Karachi air quality right now.`, emoji: '⚖️' },
@@ -42,7 +44,7 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
 
     try {
       // 1. Evaluate with unified multi-city grounded semantic engine
-      const evaluated = evaluateQueryGrounded(queryText, forecasts, quality);
+      const evaluated = evaluateQueryGrounded(queryText, forecasts, quality, metrics);
 
       // 2. Attempt remote Gemini 2.5 Flash if available
       try {

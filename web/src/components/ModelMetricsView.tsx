@@ -16,8 +16,8 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
           Proven Predictive Accuracy vs Persistence Baseline
         </h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: 1.5 }}>
-          Evaluated against 49,116 held-out chronological test observations across Lahore and Karachi.
-          Incorporates 40 causal lag features, diurnal harmonic cycles, and meteorological boundary variables.
+          Evaluated against {metrics?.test_rows !== undefined ? metrics.test_rows.toLocaleString() : 'held-out'} chronological test observations across Lahore and Karachi.
+          Incorporates {metrics?.feature_count !== undefined ? `${metrics.feature_count} ` : ''}causal lag features, diurnal harmonic cycles, and meteorological boundary variables.
         </p>
       </div>
 
@@ -31,10 +31,10 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
             Test Set MAE (24h Ahead)
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
-            {test?.model_mae?.toFixed(1) ?? '40.6'} <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>µg/m³</span>
+            {test?.model_mae !== undefined ? test.model_mae.toFixed(1) : '—'} <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>µg/m³</span>
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Baseline Persistence: {test?.base_mae?.toFixed(1) ?? '42.3'} µg/m³
+            Baseline Persistence: {test?.base_mae !== undefined ? `${test.base_mae.toFixed(1)} µg/m³` : '—'}
           </p>
         </div>
 
@@ -46,10 +46,10 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
             Test Set RMSE
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
-            {test?.model_rmse?.toFixed(1) ?? '69.2'} <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>µg/m³</span>
+            {test?.model_rmse !== undefined ? test.model_rmse.toFixed(1) : '—'} <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>µg/m³</span>
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Baseline Persistence: {test?.base_rmse?.toFixed(1) ?? '73.9'} µg/m³
+            Baseline Persistence: {test?.base_rmse !== undefined ? `${test.base_rmse.toFixed(1)} µg/m³` : '—'}
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
             RMSE Improvement
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--brand-green-dark)', fontVariantNumeric: 'tabular-nums' }}>
-            +{test?.rmse_pct_improvement?.toFixed(1) ?? '6.3'}%
+            {test?.rmse_pct_improvement !== undefined ? `+${test.rmse_pct_improvement.toFixed(1)}%` : '—'}
           </div>
           <div style={{ marginTop: '6px' }}>
             <span className="badge badge-green">Outperforms Persistence</span>
@@ -76,10 +76,10 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
             80% Conformal Coverage
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
-            {metrics?.test_uncertainty_80pct?.empirical_coverage_pct?.toFixed(1) ?? '82.4'}%
+            {metrics?.test_uncertainty_80pct?.empirical_coverage_pct !== undefined ? `${metrics.test_uncertainty_80pct.empirical_coverage_pct.toFixed(1)}%` : '—'}
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Target: 80.0% (Well-calibrated)
+            Target: {metrics?.test_uncertainty_80pct?.target_coverage_pct !== undefined ? `${metrics.test_uncertainty_80pct.target_coverage_pct.toFixed(1)}%` : '80.0%'} (Well-calibrated)
           </p>
         </div>
       </div>
@@ -93,7 +93,7 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
           <div style={{ padding: '14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--card-border)' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Training Records</div>
             <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
-              {metrics?.train_rows?.toLocaleString() ?? '77,277'}
+              {metrics?.train_rows !== undefined ? metrics.train_rows.toLocaleString() : '—'}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               Historical calibration & lag engineering
@@ -103,7 +103,7 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
           <div style={{ padding: '14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--card-border)' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Validation Records</div>
             <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
-              {metrics?.validation_rows?.toLocaleString() ?? '39,971'}
+              {metrics?.validation_rows !== undefined ? metrics.validation_rows.toLocaleString() : '—'}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               Hyperparameter tuning & quantile bounds
@@ -113,10 +113,12 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
           <div style={{ padding: '14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--card-border)' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Held-out Test Records</div>
             <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
-              {metrics?.test_rows?.toLocaleString() ?? '49,116'}
+              {metrics?.test_rows !== undefined ? metrics.test_rows.toLocaleString() : '—'}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-              36,948 Lahore • 12,168 Karachi
+              {metrics?.test_by_city?.['Lahore']?.n !== undefined && metrics?.test_by_city?.['Karachi']?.n !== undefined
+                ? `${metrics.test_by_city['Lahore'].n.toLocaleString()} Lahore • ${metrics.test_by_city['Karachi'].n.toLocaleString()} Karachi`
+                : 'Zero-lookahead regional test set'}
             </div>
           </div>
         </div>

@@ -356,6 +356,72 @@ def task_publish_outputs(
     }])
     csv_row.to_csv(csv_file, mode="a", header=not csv_exists, index=False)
 
+    # 4. Generate/Update dynamic timeseries trajectory from dataset and latest forecasts
+    timeseries_file = FORECASTS_DIR / "forecast_timeseries.json"
+    gold_parquet = BASE_DIR / "data" / "processed" / "gold_pm25_forecasting.parquet"
+    if gold_parquet.is_file():
+        try:
+            gold_df = pd.read_parquet(gold_parquet)
+            timeseries_payload = {}
+            for c_name in ["Lahore", "Karachi"]:
+                c_df = gold_df[gold_df["city"] == c_name].sort_values("timestamp_utc")
+                hourly = c_df.groupby("timestamp_utc")["pm25"].mean().tail(24)
+                hist_points = [{"timestamp_utc": str(ts), "pm25": round(float(v), 2), "type": "observed"} for ts, v in hourly.items()]
+
+                c_fore = forecast_data.get("cities", {}).get(c_name, {})
+                c_curr = c_fore.get("current_pm25", hist_points[-1]["pm25"] if hist_points else 100.0)
+                c_pred = c_fore.get("predicted_pm25_24h", c_curr)
+                c_l80 = c_fore.get("lower_80", c_curr * 0.6)
+                c_u80 = c_fore.get("upper_80", c_curr * 1.6)
+                c_base = c_fore.get("baseline_persistence", c_curr)
+
+                steps_24 = []
+                for s in range(1, 25):
+                    frac = s / 24.0
+                    step_val = round(c_curr + (c_pred - c_curr) * frac, 2)
+                    step_lower = round(c_curr - (c_curr - c_l80) * frac, 2)
+                    step_upper = round(c_curr + (c_u80 - c_curr) * frac, 2)
+                    steps_24.append({
+                        "step_hour": s,
+                        "label": f"+{s}h",
+                        "predicted_pm25": step_val,
+                        "lower_80": step_lower,
+                        "upper_80": step_upper,
+                        "baseline": c_base
+                    })
+
+                timeseries_payload[c_name] = {
+                    "history": hist_points,
+                    "trajectory_24h": steps_24,
+                    "forecast_target": {
+                        "target_time": c_fore.get("forecast_target_time"),
+                        "predicted": c_pred,
+                        "lower_80": c_l80,
+                        "upper_80": c_u80,
+                        "baseline": c_base
+                    }
+                }
+
+            with open(timeseries_file, "w", encoding="utf-8") as tf:
+                json.dump(timeseries_payload, tf, indent=2)
+        except Exception:
+            pass
+
+    # 5. Synchronize outputs directly to web/public/data if present
+    web_data_dir = BASE_DIR / "web" / "public" / "data"
+    if web_data_dir.is_dir():
+        try:
+            shutil.copyfile(latest_forecast_file, web_data_dir / "latest_forecast.json")
+            shutil.copyfile(latest_quality_file, web_data_dir / "latest_quality.json")
+            shutil.copyfile(history_file, web_data_dir / "run_history.json")
+            metrics_src = BASE_DIR / "artifacts" / "reports" / "metrics_summary.json"
+            if metrics_src.is_file():
+                shutil.copyfile(metrics_src, web_data_dir / "metrics_summary.json")
+            if timeseries_file.is_file():
+                shutil.copyfile(timeseries_file, web_data_dir / "forecast_timeseries.json")
+        except Exception:
+            pass
+
     return run_record
 
 

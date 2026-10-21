@@ -5,16 +5,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface WeatherSwimMapProps {
   selectedCity: 'Lahore' | 'Karachi';
   onSelectCity: (city: 'Lahore' | 'Karachi') => void;
-  lahorePm25: number;
-  karachiPm25: number;
-  lahorePredicted: number;
-  karachiPredicted: number;
+  lahorePm25?: number;
+  karachiPm25?: number;
+  lahorePredicted?: number;
+  karachiPredicted?: number;
   lahoreTemp?: number;
   karachiTemp?: number;
   lahoreHumidity?: number;
   karachiHumidity?: number;
   lahoreRain?: number;
   karachiRain?: number;
+  lahoreSensors?: number;
+  karachiSensors?: number;
+  lahoreSensorId?: string;
+  karachiSensorId?: string;
 }
 
 export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
@@ -24,17 +28,26 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
   karachiPm25,
   lahorePredicted,
   karachiPredicted,
-  lahoreTemp = 20,
-  karachiTemp = 29,
-  lahoreHumidity = 42,
-  karachiHumidity = 38,
-  lahoreRain = 0,
-  karachiRain = 0
+  lahoreTemp,
+  karachiTemp,
+  lahoreHumidity,
+  karachiHumidity,
+  lahoreRain,
+  karachiRain,
+  lahoreSensors,
+  karachiSensors,
+  lahoreSensorId,
+  karachiSensorId
 }) => {
   const isLahore = selectedCity === 'Lahore';
   const activePm25 = isLahore ? lahorePm25 : karachiPm25;
   const activePredicted = isLahore ? lahorePredicted : karachiPredicted;
-  const isHighRisk = activePredicted > 150.0;
+  const activeTemp = isLahore ? lahoreTemp : karachiTemp;
+  const activeHumidity = isLahore ? lahoreHumidity : karachiHumidity;
+  const activeRain = isLahore ? lahoreRain : karachiRain;
+  const activeSensors = isLahore ? (lahoreSensors ?? 26) : (karachiSensors ?? 4);
+  const activeSensorId = isLahore ? (lahoreSensorId || '0166919645da6ef4') : (karachiSensorId || '212607b3f328c11e');
+  const isHighRisk = (activePredicted ?? activePm25 ?? 0) > 150.0;
 
   // Plume color based on active city PM2.5 severity
   const plumeGradient = isHighRisk
@@ -250,7 +263,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             borderRadius: '999px',
             boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
           }}>
-            {isLahore ? '26 Networked Ground Sensors' : '4 Networked Ground Sensors'}
+            {`${activeSensors} Networked Ground Sensors`}
           </span>
         </motion.div>
       </AnimatePresence>
@@ -317,11 +330,11 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
                 backgroundColor: isHighRisk ? '#FEE2E2' : '#DCFCE7',
                 color: isHighRisk ? '#991B1B' : '#166534'
               }}>
-                {isLahore ? `${lahorePm25.toFixed(1)} µg/m³` : `${karachiPm25.toFixed(1)} µg/m³`}
+                {activePm25 !== undefined ? `${activePm25.toFixed(1)} µg/m³` : 'Syncing...'}
               </span>
             </div>
             <span style={{ fontSize: '0.675rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
-              {isLahore ? 'ID: 0166919645da6ef4 • 26 sensors reporting' : 'ID: 212607b3f328c11e • 4 sensors reporting'}
+              {`ID: ${activeSensorId} • ${activeSensors} sensors reporting`}
             </span>
           </div>
         </motion.div>
@@ -373,7 +386,9 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             backgroundColor: '#F1F5F9',
             color: '#334155'
           }}>
-            {isLahore ? `${karachiPm25.toFixed(1)} µg/m³` : `${lahorePm25.toFixed(1)} µg/m³`}
+            {isLahore 
+              ? (karachiPm25 !== undefined ? `${karachiPm25.toFixed(1)} µg/m³` : 'Syncing...') 
+              : (lahorePm25 !== undefined ? `${lahorePm25.toFixed(1)} µg/m³` : 'Syncing...')}
           </span>
           <span style={{ fontSize: '0.85rem', color: '#3B82F6', fontWeight: 800 }}>↗</span>
         </div>
@@ -405,7 +420,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
       >
         <CloudRain size={18} color="#22C55E" style={{ marginBottom: '4px' }} />
         <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
-          {isLahore ? lahoreRain : karachiRain} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>mm</span>
+          {activeRain !== undefined ? activeRain : '0.0'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>mm</span>
         </div>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           RAINFALL
@@ -444,7 +459,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             transition={{ duration: 0.25 }}
             style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}
           >
-            {isLahore ? lahoreTemp : karachiTemp} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
+            {activeTemp !== undefined ? activeTemp.toFixed(1) : '—'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
@@ -484,7 +499,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             transition={{ duration: 0.25 }}
             style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}
           >
-            {isLahore ? lahoreHumidity : karachiHumidity} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
+            {activeHumidity !== undefined ? activeHumidity.toFixed(1) : '—'} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
@@ -531,7 +546,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
               transition: 'color 0.3s ease'
             }}
           >
-            {activePm25.toFixed(1)} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
+            {activePm25 !== undefined ? activePm25.toFixed(1) : '—'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
           </motion.div>
         </AnimatePresence>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
