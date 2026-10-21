@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Bot, ShieldCheck } from 'lucide-react';
+import { Send, Bot, ShieldCheck, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { evaluateQueryGrounded } from './AgentAssistant';
 
@@ -7,12 +7,14 @@ interface RAGChatbotWidgetProps {
   city: 'Lahore' | 'Karachi';
   forecasts: any;
   quality: any;
+  onOpenFullChat?: () => void;
 }
 
 export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
   city,
   forecasts,
-  quality
+  quality,
+  onOpenFullChat
 }) => {
   const [inputQuery, setInputQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,10 +28,11 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
   }, [city, forecasts, quality]);
 
   const quickPrompts = [
-    { label: 'Tomorrow', query: `What is tomorrow's forecast for ${city}?`, emoji: '⚡' },
-    { label: 'Safe outside?', query: `Is it safe to go outside right now in ${city}?`, emoji: '🛡️' },
+    { label: 'Compare Cities', query: `Compare Lahore and Karachi air quality right now.`, emoji: '⚖️' },
+    { label: 'Tomorrow', query: `What is tomorrow's 24h PM2.5 forecast for ${city}?`, emoji: '⚡' },
+    { label: 'Safe outside?', query: `Is it safe to go jogging or exercise outside in ${city}?`, emoji: '🛡️' },
     { label: 'School rules', query: `What are school rules for smog in ${city}?`, emoji: '🏫' },
-    { label: 'Data trust', query: `Can I trust this sensor data for ${city}?`, emoji: '✅' }
+    { label: 'Why smog traps', query: `Why does smog trap in winter in Pakistan?`, emoji: '🌡️' }
   ];
 
   const handleSend = async (queryText: string) => {
@@ -38,7 +41,7 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
     setLoading(true);
 
     try {
-      // 1. Evaluate with grounded semantic engine
+      // 1. Evaluate with unified multi-city grounded semantic engine
       const evaluated = evaluateQueryGrounded(queryText, forecasts, quality);
 
       // 2. Attempt remote Gemini 2.5 Flash if available
@@ -97,7 +100,7 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
       justifyContent: 'space-between',
       height: '100%'
     }}>
-      {/* Top Header & Chips */}
+      {/* Top Header & Expand Button */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
@@ -105,23 +108,56 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
               width: '24px',
               height: '24px',
               borderRadius: '7px',
-              backgroundColor: '#DCFCE7',
-              color: '#15803D',
+              backgroundColor: '#EFF6FF',
+              color: '#2563EB',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
               <Bot size={14} />
             </div>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1E293B', letterSpacing: '-0.01em' }}>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1E293B', letterSpacing: '-0.01em', margin: 0 }}>
               Decision Assistant
             </h3>
           </div>
 
-          <span className="badge badge-green" style={{ fontSize: '0.675rem', padding: '2px 8px' }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#15803D' }} />
-            Live Grounded RAG
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {onOpenFullChat && (
+              <button
+                onClick={onOpenFullChat}
+                title="Expand to Full Window AI Chat Assistant"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '0.675rem',
+                  fontWeight: 700,
+                  padding: '3px 8px',
+                  borderRadius: '999px',
+                  backgroundColor: '#EFF6FF',
+                  border: '1px solid #BFDBFE',
+                  color: '#2563EB',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  outline: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#DBEAFE';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#EFF6FF';
+                }}
+              >
+                <Maximize2 size={11} />
+                <span>Full Chat ↗</span>
+              </button>
+            )}
+
+            <span className="badge badge-green" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#15803D' }} />
+              Unified RAG
+            </span>
+          </div>
         </div>
 
         {/* Horizontal Non-Wrapping Quick Prompt Chips */}
@@ -172,8 +208,8 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
       {/* Response Speech Bubble (Spacious, Uncluttered, Plain English) */}
       <div style={{
         flex: 1,
-        minHeight: '115px',
-        maxHeight: '160px',
+        minHeight: '120px',
+        maxHeight: '165px',
         overflowY: 'auto',
         backgroundColor: '#F8FAFC',
         borderRadius: '14px',
@@ -196,7 +232,7 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
               padding: '12px 0'
             }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#22C55E' }} />
-              Checking sensor telemetry for {city}...
+              Checking multi-city sensor telemetry...
             </div>
           ) : (
             <motion.div
@@ -210,24 +246,47 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
                 fontSize: '0.815rem',
                 lineHeight: 1.5,
                 color: '#1E293B',
-                fontWeight: 450
+                fontWeight: 450,
+                whiteSpace: 'pre-wrap'
               }}>
                 {renderFormatted(response?.answer || '')}
               </div>
 
-              {/* Verified Grounding Subtitle */}
+              {/* Verified Grounding Subtitle & Full Chat Link */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
+                justifyContent: 'space-between',
                 fontSize: '0.675rem',
                 color: '#64748B',
                 marginTop: '8px',
                 paddingTop: '6px',
                 borderTop: '1px solid #EDF2F7'
               }}>
-                <ShieldCheck size={12} color="#16A34A" />
-                <span>Verified by official {city} air monitoring stations</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <ShieldCheck size={12} color="#16A34A" />
+                  <span>Verified ground telemetry (PAQI)</span>
+                </div>
+
+                {onOpenFullChat && (
+                  <button
+                    onClick={onOpenFullChat}
+                    style={{
+                      border: 'none',
+                      background: 'transparent',
+                      color: '#2563EB',
+                      fontSize: '0.675rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      padding: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}
+                  >
+                    <span>Read in full window ↗</span>
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
@@ -248,7 +307,7 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
           type="text"
           value={inputQuery}
           onChange={(e) => setInputQuery(e.target.value)}
-          placeholder={`Ask about ${city} air, masks, schools...`}
+          placeholder={`Ask about Lahore, Karachi, forecasts, masks...`}
           style={{
             flex: 1,
             border: 'none',

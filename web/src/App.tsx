@@ -4,6 +4,7 @@ import { WeatherSwimMap } from './components/WeatherSwimMap';
 import { ForecastTrajectoryWidget } from './components/ForecastTrajectoryWidget';
 import { ModelPerformanceWidget } from './components/ModelPerformanceWidget';
 import { RAGChatbotWidget } from './components/RAGChatbotWidget';
+import { FullAIChatView } from './components/FullAIChatView';
 import { DataQualityView } from './components/DataQualityView';
 import { ModelMetricsView } from './components/ModelMetricsView';
 import type {
@@ -168,8 +169,27 @@ export const App: React.FC = () => {
                   city={selectedCity}
                   forecasts={forecastData?.forecast_data?.cities || null}
                   quality={qualityData?.quality_assessment || null}
+                  onOpenFullChat={() => setActiveTab('assistant')}
                 />
               </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'assistant' && (
+            <motion.div
+              key="assistant"
+              initial={{ opacity: 0, y: 14, filter: 'blur(3px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, filter: 'blur(3px)' }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
+            >
+              <FullAIChatView
+                onBackToDashboard={() => setActiveTab('overview')}
+                forecasts={forecastData?.forecast_data?.cities || null}
+                quality={qualityData?.quality_assessment || null}
+                selectedCity={selectedCity}
+                onSelectCity={setSelectedCity}
+              />
             </motion.div>
           )}
 

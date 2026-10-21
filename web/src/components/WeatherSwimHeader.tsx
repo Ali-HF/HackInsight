@@ -21,6 +21,7 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
 }) => {
   const tabs = [
     { id: 'overview', label: 'Dashboard' },
+    { id: 'assistant', label: 'AI Assistant' },
     { id: 'quality', label: 'Data Quality' },
     { id: 'protocols', label: 'Action Protocols' },
     { id: 'model', label: 'Model Metrics' }
