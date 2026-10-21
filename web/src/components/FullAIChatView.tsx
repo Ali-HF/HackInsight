@@ -1,16 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Send,
-  Bot,
-  Sparkles,
-  ShieldCheck,
   ArrowLeft,
+  ArrowRight,
+  Bookmark,
   BookOpen,
   ChevronDown,
   ChevronRight,
-  MapPin
+  Folder,
+  MessageSquare,
+  Mic,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Share2,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { evaluateQueryGrounded, type AgentResponse, type ForecastCityData } from './AgentAssistant';
 
 interface ChatMessage {
@@ -30,44 +37,115 @@ interface FullAIChatViewProps {
   onSelectCity?: (city: 'Lahore' | 'Karachi') => void;
 }
 
-const SUGGESTED_PROMPTS = [
+interface FolderItem {
+  id: string;
+  name: string;
+  color: string;
+  query: string;
+}
+
+interface PresetChat {
+  id: string;
+  title: string;
+  subtitle: string;
+  query: string;
+  category: string;
+}
+
+const FOLDERS: FolderItem[] = [
   {
-    title: 'Compare Lahore & Karachi',
-    subtitle: 'Which city has worse air right now and why?',
-    query: 'Compare Lahore and Karachi air quality right now. Which city is worse and why?',
-    icon: '⚖️'
+    id: 'folder-live',
+    name: 'Live Sensor Telemetry',
+    color: '#10B981', // Emerald
+    query: 'What are the exact live PM2.5 readings for Lahore and Karachi right now? Compare their air quality levels.'
   },
   {
-    title: 'Tomorrow’s 24h Forecast',
-    subtitle: 'Will pollution rise or fall over the next 24 hours?',
-    query: 'What is the 24-hour PM2.5 forecast for Lahore and Karachi? Will air improve tomorrow?',
-    icon: '🌤️'
+    id: 'folder-forecast',
+    name: '24h Forecast Trajectory',
+    color: '#A855F7', // Purple
+    query: 'What is the 24-hour predictive PM2.5 forecast for Lahore and Karachi? Will air improve tomorrow?'
   },
   {
-    title: 'School & Mask Directives',
-    subtitle: 'Official criteria for outdoor sports & school closures',
-    query: 'What are the government school rules and mask requirements for smog in Punjab and Sindh?',
-    icon: '🏫'
+    id: 'folder-rules',
+    name: 'School & Smog Protocols',
+    color: '#F59E0B', // Amber
+    query: 'What are the official government school closure rules and emergency smog orders in Punjab and Sindh?'
   },
   {
-    title: 'Why Winter Smog Traps',
-    subtitle: 'Inversion physics and agricultural crop burning',
-    query: 'Why does smog become so severe in winter in Pakistan? Explain thermal inversion simply.',
-    icon: '🌡️'
-  },
-  {
-    title: 'Outdoor Exercise Safety',
-    subtitle: 'Can I go jogging or send kids out to play today?',
-    query: 'Is it safe to go jogging or exercise outdoors today? What precautions should I take?',
-    icon: '🏃'
-  },
-  {
-    title: 'Sensor Reliability & Truth',
-    subtitle: 'Audit trail, PAQI network, and zero synthetic data',
-    query: 'How reliable is this sensor data? How do you prevent fake or hallucinated readings?',
-    icon: '🛡️'
+    id: 'folder-health',
+    name: 'Health, Masks & Exercise',
+    color: '#EC4899', // Pink
+    query: 'Is it safe to go jogging or exercise outdoors today? What masking precautions are required?'
   }
 ];
+
+const PRESET_CHATS: PresetChat[] = [
+  {
+    id: 'chat-compare',
+    title: 'Compare Lahore & Karachi',
+    subtitle: 'Which city has worse air right now and why? Live sensor comparison...',
+    query: 'Compare Lahore and Karachi air quality right now. Which city is worse and why?',
+    category: 'Compare'
+  },
+  {
+    id: 'chat-forecast',
+    title: 'Tomorrow’s 24h Forecast',
+    subtitle: 'Will pollution rise or fall over the next 24 hours? ML trajectory...',
+    query: 'What is the 24-hour PM2.5 forecast for Lahore and Karachi? Will air improve tomorrow?',
+    category: 'Forecasts'
+  },
+  {
+    id: 'chat-smog',
+    title: 'Punjab Smog Protocols',
+    subtitle: 'Official criteria for outdoor sports, school closures & odd-even rules...',
+    query: 'What are the government school rules and mask requirements for smog in Punjab and Sindh?',
+    category: 'Regulations'
+  },
+  {
+    id: 'chat-exercise',
+    title: 'Outdoor Exercise Safety',
+    subtitle: 'Can I go jogging or send kids out to play today? Health guidelines...',
+    query: 'Is it safe to go jogging or exercise outdoors today? What precautions should I take?',
+    category: 'Health'
+  },
+  {
+    id: 'chat-sensor',
+    title: 'Sensor Reliability & Truth',
+    subtitle: 'Audit trail, PAQI network, zero synthetic hallucinations...',
+    query: 'How reliable is this sensor data? How do you prevent fake or hallucinated readings?',
+    category: 'Sensors'
+  }
+];
+
+const FILTER_TAGS = ['All', 'Forecasts', 'Health', 'Regulations', 'Sensors', 'Compare'];
+
+// airLabs stylized glowing flower/wind emblem matching screenshot
+const AirlabsEmblem: React.FC<{ size?: number; glow?: boolean }> = ({ size = 26, glow = false }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    style={{
+      filter: glow ? 'drop-shadow(0 0 10px rgba(16, 185, 129, 0.75))' : 'none',
+      flexShrink: 0
+    }}
+  >
+    <path
+      d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z"
+      stroke="#10B981"
+      strokeWidth="1.8"
+      strokeDasharray="2 3"
+    />
+    <circle cx="12" cy="12" r="4.5" fill="#10B981" />
+    <path
+      d="M12 4.5V7.5M12 16.5V19.5M4.5 12H7.5M16.5 12H19.5M6.7 6.7L8.8 8.8M15.2 15.2L17.3 17.3M6.7 17.3L8.8 15.2M15.2 8.8L17.3 6.7"
+      stroke="#34D399"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+  </svg>
+);
 
 export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   onBackToDashboard,
@@ -77,24 +155,16 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   selectedCity: _selectedCity,
   onSelectCity: _onSelectCity
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    {
-      id: 'init-msg',
-      sender: 'assistant',
-      text: `Hello! I am your **Unified Environmental Decision Assistant** for Pakistan.\n\nI monitor **both Lahore and Karachi** using live ground sensors from the Pakistan Air Quality Initiative (PAQI) and verified meteorological models. Ask me about current air safety, 24-hour smog forecasts, school rules, outdoor masks, or comparing cities.`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      responseObj: evaluateQueryGrounded(
-        `Compare Lahore and Karachi air quality right now.`,
-        forecasts,
-        quality,
-        metrics
-      )
-    }
-  ]);
-
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('All');
   const [loading, setLoading] = useState(false);
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
+  const [showFolders, setShowFolders] = useState(true);
+  const [showChats, setShowChats] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [bookmarked, setBookmarked] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -102,26 +172,9 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   };
 
   useEffect(() => {
-    if (forecasts && messages.length === 1 && messages[0].id === 'init-msg') {
-      setMessages([
-        {
-          id: 'init-msg',
-          sender: 'assistant',
-          text: `Hello! I am your **Unified Environmental Decision Assistant** for Pakistan.\n\nI monitor **both Lahore and Karachi** using live ground sensors from the Pakistan Air Quality Initiative (PAQI) and verified meteorological models. Ask me about current air safety, 24-hour smog forecasts, school rules, outdoor masks, or comparing cities.`,
-          timestamp: messages[0].timestamp,
-          responseObj: evaluateQueryGrounded(
-            `Compare Lahore and Karachi air quality right now.`,
-            forecasts,
-            quality,
-            metrics
-          )
-        }
-      ]);
+    if (messages.length > 0) {
+      scrollToBottom();
     }
-  }, [forecasts, quality, metrics]);
-
-  useEffect(() => {
-    scrollToBottom();
   }, [messages, loading]);
 
   const handleSend = async (queryText: string) => {
@@ -141,10 +194,10 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
     setLoading(true);
 
     try {
-      // 1. Evaluate with local unified grounded RAG engine (with full multi-turn conversation history)
+      // 1. Evaluate with local unified grounded RAG engine
       const evaluated = evaluateQueryGrounded(text, forecasts, quality, metrics, messages);
 
-      // 2. Attempt remote Gemini 2.5 Flash if endpoint is available
+      // 2. Attempt remote Gemini 2.5 Flash if available
       try {
         const apiRes = await fetch('/api/chat', {
           method: 'POST',
@@ -189,14 +242,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
   };
 
   const handleNewChat = () => {
-    setMessages([
-      {
-        id: `init-${Date.now()}`,
-        sender: 'assistant',
-        text: `Starting a fresh inquiry session. Ask me any question about **Lahore**, **Karachi**, smog physics, or health protocols.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ]);
+    setMessages([]);
+    setInput('');
   };
 
   const toggleEvidence = (msgId: string) => {
@@ -220,7 +267,7 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
       const renderedParts = parts.map((part, pIdx) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return (
-            <strong key={pIdx} style={{ color: '#0F172A', fontWeight: 700 }}>
+            <strong key={pIdx} style={{ color: '#F8FAFC', fontWeight: 700 }}>
               {part.slice(2, -2)}
             </strong>
           );
@@ -231,536 +278,1122 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
       if (isBullet) {
         return (
           <div key={lineIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '4px 0 4px 8px' }}>
-            <span style={{ color: '#2563EB', fontWeight: 800, marginTop: '-1px' }}>•</span>
-            <span style={{ fontSize: '0.925rem', lineHeight: 1.6, color: '#334155' }}>{renderedParts}</span>
+            <span style={{ color: '#10B981', fontWeight: 800, marginTop: '-1px' }}>•</span>
+            <span style={{ fontSize: '0.925rem', lineHeight: 1.6, color: '#E2E8F0' }}>{renderedParts}</span>
           </div>
         );
       }
 
       return (
-        <p key={lineIdx} style={{ margin: '4px 0', fontSize: '0.925rem', lineHeight: 1.6, color: '#334155' }}>
+        <p key={lineIdx} style={{ margin: '4px 0', fontSize: '0.925rem', lineHeight: 1.6, color: '#E2E8F0' }}>
           {renderedParts}
         </p>
       );
     });
   };
 
-  const lahoreLive = forecasts?.['Lahore']?.current_pm25;
-  const karachiLive = forecasts?.['Karachi']?.current_pm25;
+  // Filtered chats based on search input
+  const filteredChats = PRESET_CHATS.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          c.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = activeFilter === 'All' || c.category === activeFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredFolders = FOLDERS.filter(f =>
+    f.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div style={{
       display: 'flex',
       height: 'calc(100vh - 110px)',
       minHeight: '680px',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: '#0A0D12',
       borderRadius: '24px',
       overflow: 'hidden',
-      border: '1px solid rgba(226, 232, 240, 0.9)',
-      boxShadow: '0 8px 32px rgba(15, 23, 42, 0.05)'
+      border: '1px solid #1E2530',
+      boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6)',
+      position: 'relative'
     }}>
-      {/* 1. LEFT SIDEBAR (Claude / ChatGPT style) */}
-      <aside style={{
-        width: '320px',
-        borderRight: '1px solid #E2E8F0',
-        backgroundColor: '#F8FAFC',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        flexShrink: 0
-      }}>
-        {/* Top Header & New Chat Button */}
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <button
-            onClick={onBackToDashboard}
+      {/* 1. LEFT SIDEBAR (Matching User Template) */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.aside
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 280, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="airlabs-chat-sidebar"
             style={{
+              width: '280px',
+              backgroundColor: '#11161C',
+              borderRight: '1px solid #1D242E',
               display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              border: 'none',
-              background: 'transparent',
-              color: '#64748B',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              padding: '0',
-              outline: 'none'
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              flexShrink: 0,
+              zIndex: 30,
+              height: '100%'
             }}
           >
-            <ArrowLeft size={16} /> Back to Dashboard
-          </button>
-
-          <button
-            onClick={handleNewChat}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              backgroundColor: '#0F172A',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '11px 16px',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(15, 23, 42, 0.12)',
-              transition: 'background-color 0.15s ease'
-            }}
-          >
-            <Sparkles size={16} color="#60A5FA" />
-            + New Conversation
-          </button>
-
-          {/* Dual City Telemetry Card */}
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E2E8F0',
-            borderRadius: '16px',
-            padding: '12px 14px',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#22C55E' }} />
-              <span style={{ fontSize: '0.675rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                Live Ground Telemetry
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <MapPin size={13} color="#2563EB" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0F172A' }}>Lahore</span>
+            {/* Top Header & Search */}
+            <div style={{ padding: '16px 14px 10px 14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Header: Title + Sliders Icon */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <AirlabsEmblem size={22} glow />
+                  <span style={{
+                    fontSize: '0.95rem',
+                    fontWeight: 700,
+                    color: '#F8FAFC',
+                    fontFamily: 'var(--font-display, Outfit, sans-serif)',
+                    letterSpacing: '-0.01em'
+                  }}>
+                    My Chats
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  title="Toggle sidebar"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94A3B8',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'color 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+                >
+                  <SlidersHorizontal size={16} />
+                </button>
               </div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#DC2626' }}>
-                {lahoreLive !== undefined ? `${lahoreLive.toFixed(1)} µg/m³` : 'Syncing...'}
-              </span>
-            </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <MapPin size={13} color="#0D9488" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0F172A' }}>Karachi</span>
-              </div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#EA580C' }}>
-                {karachiLive !== undefined ? `${karachiLive.toFixed(1)} µg/m³` : 'Syncing...'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Middle: Recommended Prompts */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.675rem', fontWeight: 800, color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '4px' }}>
-            Recommended Queries
-          </span>
-          {SUGGESTED_PROMPTS.map((p, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSend(p.query)}
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                border: '1px solid transparent',
-                backgroundColor: 'transparent',
-                borderRadius: '10px',
-                padding: '9px 10px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
+              {/* Search Box */}
+              <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#EDF2F7';
-                e.currentTarget.style.borderColor = '#CBD5E1';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = 'transparent';
-              }}
-            >
-              <span style={{ fontSize: '1.05rem' }}>{p.icon}</span>
-              <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1E293B', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {p.title}
-                </div>
-                <div style={{ fontSize: '0.675rem', color: '#64748B', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {p.subtitle}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Bottom Verification Footer */}
-        <div style={{ padding: '16px 20px', borderTop: '1px solid #E2E8F0', backgroundColor: '#F1F5F9' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ShieldCheck size={16} color="#16A34A" />
-            <div style={{ fontSize: '0.7rem', color: '#334155', lineHeight: 1.3 }}>
-              <strong>100% Ground Telemetry</strong>
-              <div style={{ fontSize: '0.65rem', color: '#64748B' }}>
-                Zero hallucinated numerical data
+                gap: '8px',
+                backgroundColor: '#181F27',
+                border: '1px solid #242D38',
+                borderRadius: '12px',
+                padding: '7px 12px'
+              }}>
+                <Search size={14} color="#64748B" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search"
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    outline: 'none',
+                    color: '#F8FAFC',
+                    fontSize: '0.8rem',
+                    width: '100%',
+                    fontFamily: 'inherit'
+                  }}
+                />
               </div>
             </div>
-          </div>
-        </div>
-      </aside>
 
-      {/* 2. MAIN CONVERSATION WORKSPACE */}
+            {/* Scrollable Center: Folders & Chats */}
+            <div className="airlabs-chat-sidebar-scroll" style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '0 10px 10px 10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              {/* Folders Section */}
+              <div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '4px 6px',
+                  marginBottom: '6px'
+                }}>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: '#94A3B8',
+                    letterSpacing: '0.04em'
+                  }}>
+                    Folders
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <button
+                      onClick={handleNewChat}
+                      title="New Folder / Chat"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#64748B',
+                        cursor: 'pointer',
+                        padding: '2px',
+                        display: 'flex'
+                      }}
+                    >
+                      <Plus size={13} />
+                    </button>
+                    <button
+                      onClick={() => setShowFolders(!showFolders)}
+                      title="Toggle Folders"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#64748B',
+                        cursor: 'pointer',
+                        padding: '2px',
+                        display: 'flex'
+                      }}
+                    >
+                      <ChevronDown size={13} style={{ transform: showFolders ? 'none' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
+                    </button>
+                  </div>
+                </div>
+
+                {showFolders && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {filteredFolders.map(folder => (
+                      <div
+                        key={folder.id}
+                        onClick={() => handleSend(folder.query)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '7px 10px',
+                          borderRadius: '10px',
+                          backgroundColor: '#151C23',
+                          border: '1px solid #1F2733',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1C2430';
+                          e.currentTarget.style.borderColor = '#2B3746';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#151C23';
+                          e.currentTarget.style.borderColor = '#1F2733';
+                        }}
+                      >
+                        {/* Colored Left Accent Strip */}
+                        <div style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: '3.5px',
+                          backgroundColor: folder.color
+                        }} />
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '4px', overflow: 'hidden' }}>
+                          <Folder size={14} color="#94A3B8" />
+                          <span style={{
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            color: '#E2E8F0',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}>
+                            {folder.name}
+                          </span>
+                        </div>
+                        <MoreHorizontal size={13} color="#64748B" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Chats Section */}
+              <div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '4px 6px',
+                  marginBottom: '6px'
+                }}>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: '#94A3B8',
+                    letterSpacing: '0.04em'
+                  }}>
+                    Chats
+                  </span>
+                  <button
+                    onClick={() => setShowChats(!showChats)}
+                    title="Toggle Chats"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#64748B',
+                      cursor: 'pointer',
+                      padding: '2px',
+                      display: 'flex'
+                    }}
+                  >
+                    <ChevronDown size={13} style={{ transform: showChats ? 'none' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
+                  </button>
+                </div>
+
+                {showChats && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {filteredChats.map(chat => (
+                      <div
+                        key={chat.id}
+                        onClick={() => handleSend(chat.query)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          borderRadius: '10px',
+                          backgroundColor: '#151C23',
+                          border: '1px solid #1F2733',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1C2430';
+                          e.currentTarget.style.borderColor = '#2B3746';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#151C23';
+                          e.currentTarget.style.borderColor = '#1F2733';
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', overflow: 'hidden' }}>
+                          <MessageSquare size={14} color="#64748B" style={{ marginTop: '2px', flexShrink: 0 }} />
+                          <div style={{ overflow: 'hidden' }}>
+                            <div style={{
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                              color: '#F1F5F9',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}>
+                              {chat.title}
+                            </div>
+                            <div style={{
+                              fontSize: '0.68rem',
+                              color: '#64748B',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}>
+                              {chat.subtitle}
+                            </div>
+                          </div>
+                        </div>
+                        <MoreHorizontal size={13} color="#64748B" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Bottom Bright Emerald "New chat" Button (Exact Screenshot Match) */}
+            <div style={{ padding: '12px 14px', borderTop: '1px solid #1D242E' }}>
+              <button
+                onClick={handleNewChat}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#10B981',
+                  color: '#042F2E',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '9px 12px 9px 16px',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+                  transition: 'background-color 0.15s ease, transform 0.1s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#059669';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#10B981';
+                  e.currentTarget.style.transform = 'none';
+                }}
+              >
+                <span style={{ color: '#042F2E', fontWeight: 800 }}>New chat</span>
+                <div style={{
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#059669'
+                }}>
+                  <Plus size={16} strokeWidth={2.5} />
+                </div>
+              </button>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* 2. MAIN WORKSPACE AREA */}
       <section style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#FFFFFF',
-        position: 'relative'
+        backgroundColor: '#0A0D12',
+        backgroundImage: 'radial-gradient(circle at 85% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 55%)',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        {/* Workspace Top Header */}
+        {/* Workspace Top Navigation Bar */}
         <div style={{
-          padding: '14px 24px',
-          borderBottom: '1px solid #F1F5F9',
+          padding: '14px 20px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          backgroundColor: '#FFFFFF'
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          backgroundColor: 'rgba(10, 13, 18, 0.85)',
+          backdropFilter: 'blur(12px)',
+          zIndex: 20
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: '34px',
-              height: '34px',
-              borderRadius: '10px',
-              backgroundColor: '#EFF6FF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#2563EB'
-            }}>
-              <Bot size={18} />
-            </div>
-            <div>
-              <h2 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.01em' }}>
-                Unified Environmental Decision Assistant
-              </h2>
-              <span style={{ fontSize: '0.725rem', color: '#64748B' }}>
-                Simultaneously grounded in Lahore & Karachi monitoring stations
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={onBackToDashboard}
-            style={{
-              padding: '6px 14px',
-              borderRadius: '999px',
-              border: '1px solid #CBD5E1',
-              backgroundColor: '#F8FAFC',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: '#334155',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            Close Full Window ✕
-          </button>
-        </div>
-
-        {/* Message Feed */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '24px 32px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px'
-        }}>
-          {messages.map((msg) => {
-            const isUser = msg.sender === 'user';
-            const resp = msg.responseObj;
-
-            return (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                style={{
-                  display: 'flex',
-                  gap: '14px',
-                  alignItems: 'flex-start',
-                  justifyContent: isUser ? 'flex-end' : 'flex-start'
-                }}
-              >
-                {!isUser && (
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '10px',
-                    backgroundColor: '#EFF6FF',
-                    border: '1px solid #BFDBFE',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#2563EB',
-                    flexShrink: 0
-                  }}>
-                    <Sparkles size={16} />
-                  </div>
-                )}
-
-                <div style={{
-                  maxWidth: isUser ? '75%' : '84%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px'
-                }}>
-                  {/* Message Bubble */}
-                  <div style={{
-                    backgroundColor: isUser ? '#0F172A' : '#F8FAFC',
-                    color: isUser ? '#FFFFFF' : '#1E293B',
-                    padding: isUser ? '12px 18px' : '18px 22px',
-                    borderRadius: isUser ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
-                    border: isUser ? 'none' : '1px solid #E2E8F0',
-                    boxShadow: isUser ? '0 4px 12px rgba(15, 23, 42, 0.12)' : '0 2px 8px rgba(0, 0, 0, 0.02)'
-                  }}>
-                    {isUser ? (
-                      <p style={{ margin: 0, fontSize: '0.925rem', lineHeight: 1.5, color: '#FFFFFF' }}>
-                        {msg.text}
-                      </p>
-                    ) : (
-                      renderMessageContent(msg.text)
-                    )}
-                  </div>
-
-                  {/* AI Metadata Box: Verified Sources & Telemetry Drawer */}
-                  {!isUser && resp && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
-                      {/* Citations Box */}
-                      {resp.citations && resp.citations.length > 0 && (
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          flexWrap: 'wrap',
-                          gap: '6px',
-                          marginTop: '2px'
-                        }}>
-                          <span style={{ fontSize: '0.675rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                            Verified Sources:
-                          </span>
-                          {resp.citations.map((c, cIdx) => (
-                            <span
-                              key={cIdx}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                fontSize: '0.7rem',
-                                fontWeight: 700,
-                                padding: '2px 8px',
-                                borderRadius: '6px',
-                                backgroundColor: '#EFF6FF',
-                                border: '1px solid #DBEAFE',
-                                color: '#1E40AF'
-                              }}
-                            >
-                              <BookOpen size={11} color="#2563EB" />
-                              {c.title}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Expandable Grounding Evidence Accordion */}
-                      {resp.evidence && Object.keys(resp.evidence).length > 0 && (
-                        <div>
-                          <button
-                            onClick={() => toggleEvidence(msg.id)}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              border: 'none',
-                              background: 'transparent',
-                              color: '#64748B',
-                              fontSize: '0.725rem',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              padding: '2px 0',
-                              outline: 'none'
-                            }}
-                          >
-                            {expandedEvidence[msg.id] ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-                            <span>{expandedEvidence[msg.id] ? 'Hide Numerical Evidence' : 'Inspect Verified Telemetry Evidence'}</span>
-                          </button>
-
-                          {expandedEvidence[msg.id] && (
-                            <motion.pre
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              style={{
-                                margin: '6px 0 0 0',
-                                padding: '10px 14px',
-                                borderRadius: '10px',
-                                backgroundColor: '#0F172A',
-                                color: '#38BDF8',
-                                fontSize: '0.7rem',
-                                fontFamily: 'monospace',
-                                overflowX: 'auto',
-                                lineHeight: 1.45
-                              }}
-                            >
-                              {JSON.stringify(resp.evidence, null, 2)}
-                            </motion.pre>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Timestamp */}
-                  <span style={{
-                    fontSize: '0.675rem',
-                    color: '#94A3B8',
-                    alignSelf: isUser ? 'flex-end' : 'flex-start',
-                    paddingLeft: isUser ? '0' : '4px'
-                  }}>
-                    {msg.timestamp}
-                  </span>
-                </div>
-
-                {isUser && (
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '10px',
-                    backgroundColor: '#0F172A',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#FFFFFF',
-                    fontWeight: 800,
-                    fontSize: '0.75rem',
-                    flexShrink: 0
-                  }}>
-                    U
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
-
-          {loading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748B', fontSize: '0.825rem' }}>
-              <div style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '8px',
-                backgroundColor: '#EFF6FF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#2563EB'
-              }}>
-                <Sparkles size={16} />
-              </div>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                Synthesizing grounded multi-city telemetry...
-              </span>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Bar Area */}
-        <div style={{
-          padding: '16px 28px 20px 28px',
-          borderTop: '1px solid #F1F5F9',
-          backgroundColor: '#FFFFFF'
-        }}>
-          {/* Quick Prompt Pills above Input */}
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px' }}>
-            {SUGGESTED_PROMPTS.slice(0, 4).map((p, idx) => (
+          {/* Left: Back button + Model pill badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {!sidebarOpen && (
               <button
-                key={idx}
-                onClick={() => handleSend(p.query)}
+                onClick={() => setSidebarOpen(true)}
+                title="Open Sidebar"
                 style={{
-                  fontSize: '0.725rem',
-                  padding: '4px 12px',
-                  borderRadius: '999px',
-                  border: '1px solid #E2E8F0',
-                  backgroundColor: '#F8FAFC',
-                  color: '#475569',
-                  whiteSpace: 'nowrap',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#94A3B8',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px'
+                  padding: '4px'
                 }}
               >
-                <span>{p.icon}</span>
-                <span>{p.title}</span>
+                <SlidersHorizontal size={16} />
               </button>
-            ))}
-          </div>
+            )}
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#F8FAFC',
-            border: '1.5px solid #E2E8F0',
-            borderRadius: '18px',
-            padding: '6px 8px 6px 18px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
-            transition: 'border-color 0.2s ease'
-          }}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask anything about Lahore or Karachi air, smog forecasts, health rules, or compare cities..."
+            <button
+              onClick={onBackToDashboard}
               style={{
-                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
                 border: 'none',
                 background: 'transparent',
-                outline: 'none',
-                fontSize: '0.925rem',
-                color: '#0F172A',
-                padding: '8px 0'
+                color: '#94A3B8',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                padding: '0',
+                transition: 'color 0.15s ease'
               }}
-            />
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+            >
+              <ArrowLeft size={16} />
+              <span>Back to Dashboard</span>
+            </button>
+
+            {/* Model Badge Pill (Screenshot GPT-4.0 replica with airLabs theme) */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#064E3B',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              borderRadius: '9999px',
+              padding: '3px 10px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              color: '#34D399',
+              boxShadow: '0 0 10px rgba(16, 185, 129, 0.2)'
+            }}>
+              <span style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: '#10B981',
+                boxShadow: '0 0 6px #10B981'
+              }} />
+              <span>airLabs AI • RAG</span>
+            </div>
+          </div>
+
+          {/* Right Action Icons: Bookmark & Share */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
-              onClick={() => handleSend(input)}
-              disabled={!input.trim() || loading}
+              onClick={() => setBookmarked(!bookmarked)}
+              title={bookmarked ? 'Remove Bookmark' : 'Bookmark Inquiry'}
               style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '12px',
-                backgroundColor: input.trim() && !loading ? '#2563EB' : '#CBD5E1',
-                color: '#FFFFFF',
+                background: 'transparent',
                 border: 'none',
-                cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
+                color: bookmarked ? '#10B981' : '#94A3B8',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'background-color 0.2s ease',
-                flexShrink: 0
+                transition: 'color 0.15s ease'
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#10B981'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = bookmarked ? '#10B981' : '#94A3B8'; }}
             >
-              <Send size={16} />
+              <Bookmark size={17} fill={bookmarked ? '#10B981' : 'none'} />
+            </button>
+            <button
+              onClick={() => {
+                if (navigator.clipboard) {
+                  navigator.clipboard.writeText(window.location.href);
+                }
+              }}
+              title="Share or Copy Link"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#94A3B8',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'color 0.15s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+            >
+              <Share2 size={17} />
             </button>
           </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', fontSize: '0.675rem', color: '#94A3B8' }}>
-            <span>Grounded in PAQI telemetry, EPA Barkjohn calibration, and official Pak-EPA NEQS standards.</span>
-            <span>Press Enter to send</span>
-          </div>
         </div>
+
+        {/* 3. CENTER CONTENT WORKSPACE */}
+        {messages.length === 0 ? (
+          /* ========================================================
+             EMPTY / WELCOME STATE: FLOATING HERO CARD (Screenshot Replica)
+             ======================================================== */
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            overflowY: 'auto'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="airlabs-chat-hero-card"
+              style={{
+                width: '100%',
+                maxWidth: '740px',
+                backgroundColor: '#141A23',
+                border: '1px solid #232C3A',
+                borderRadius: '26px',
+                padding: '36px 36px 30px 36px',
+                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center'
+              }}
+            >
+              {/* Centered Glowing Logo */}
+              <div style={{ marginBottom: '18px' }}>
+                <AirlabsEmblem size={44} glow />
+              </div>
+
+              {/* Headline */}
+              <h1 className="airlabs-chat-hero-title" style={{
+                fontFamily: 'var(--font-display, Outfit, sans-serif)',
+                fontSize: '2.1rem',
+                fontWeight: 600,
+                color: '#FFFFFF',
+                margin: '0 0 10px 0',
+                letterSpacing: '-0.02em'
+              }}>
+                How can I help you today?
+              </h1>
+
+              {/* Subtitle */}
+              <p style={{
+                fontSize: '0.875rem',
+                color: '#94A3B8',
+                maxWidth: '520px',
+                margin: '0 auto 28px auto',
+                lineHeight: 1.5
+              }}>
+                Real-time atmospheric intelligence, 24-hour predictive PM2.5 trajectories, and statutory health guidance for Pakistan.
+              </p>
+
+              {/* 3 Action Cards (Horizontal Row) */}
+              <div className="airlabs-hero-actions-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '12px',
+                width: '100%',
+                marginBottom: '26px'
+              }}>
+                {/* Action Card 1: Saved Prompt Templates */}
+                <div
+                  className="airlabs-chat-action-card"
+                  onClick={() => handleSend('Compare Lahore and Karachi air quality right now. Which city is worse and why?')}
+                  style={{
+                    backgroundColor: '#19212C',
+                    border: '1px solid #242E3C',
+                    borderRadius: '16px',
+                    padding: '18px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#10B981',
+                    marginBottom: '10px'
+                  }}>
+                    <BookOpen size={20} />
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '4px' }}>
+                    Saved Prompt Templates
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#94A3B8', lineHeight: 1.4 }}>
+                    Users save and reuse prompt templates for faster responses.
+                  </div>
+                </div>
+
+                {/* Action Card 2: Live Telemetry */}
+                <div
+                  className="airlabs-chat-action-card"
+                  onClick={() => handleSend('What is the 24-hour PM2.5 forecast for Lahore and Karachi? Will air improve tomorrow?')}
+                  style={{
+                    backgroundColor: '#19212C',
+                    border: '1px solid #242E3C',
+                    borderRadius: '16px',
+                    padding: '18px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#10B981',
+                    marginBottom: '10px'
+                  }}>
+                    <SlidersHorizontal size={20} />
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '4px' }}>
+                    Media & Trajectory Selection
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#94A3B8', lineHeight: 1.4 }}>
+                    Users select media type for tailored interactions.
+                  </div>
+                </div>
+
+                {/* Action Card 3: Multilingual & Health Support */}
+                <div
+                  className="airlabs-chat-action-card"
+                  onClick={() => handleSend('What are the government school rules and mask requirements for smog in Punjab and Sindh?')}
+                  style={{
+                    backgroundColor: '#19212C',
+                    border: '1px solid #242E3C',
+                    borderRadius: '16px',
+                    padding: '18px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#10B981',
+                    marginBottom: '10px'
+                  }}>
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '4px' }}>
+                    Multilingual Support
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#94A3B8', lineHeight: 1.4 }}>
+                    Choose language for better interaction and health rules.
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Tabs Row (Matching Screenshot: All Text Image Video Music Analytics) */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '18px',
+                marginBottom: '20px',
+                flexWrap: 'wrap'
+              }}>
+                {FILTER_TAGS.map(tag => {
+                  const isActive = activeFilter === tag;
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => setActiveFilter(tag)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: isActive ? '#10B981' : '#94A3B8',
+                        fontSize: '0.825rem',
+                        fontWeight: isActive ? 700 : 500,
+                        cursor: 'pointer',
+                        padding: '4px 2px',
+                        borderBottom: isActive ? '2px solid #10B981' : '2px solid transparent',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Hero Input Pill Bar */}
+              <div style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#1A232E',
+                border: '1px solid #283444',
+                borderRadius: '16px',
+                padding: '7px 8px 7px 16px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+                transition: 'border-color 0.2s ease'
+              }}>
+                <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>
+                  <AirlabsEmblem size={22} glow />
+                </div>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type your prompt here..."
+                  style={{
+                    flex: 1,
+                    border: 'none',
+                    background: 'transparent',
+                    outline: 'none',
+                    fontSize: '0.925rem',
+                    color: '#F8FAFC',
+                    fontFamily: 'inherit'
+                  }}
+                />
+                <button
+                  type="button"
+                  title="Voice input (mock)"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94A3B8',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Mic size={17} />
+                </button>
+                <button
+                  onClick={() => handleSend(input)}
+                  disabled={!input.trim() || loading}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: input.trim() && !loading ? '#10B981' : '#2A3646',
+                    color: input.trim() && !loading ? '#042F2E' : '#64748B',
+                    border: 'none',
+                    cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease',
+                    flexShrink: 0
+                  }}
+                >
+                  <ArrowRight size={18} strokeWidth={2.5} />
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Bottom Disclaimer */}
+            <p style={{
+              fontSize: '0.72rem',
+              color: '#64748B',
+              marginTop: '16px',
+              textAlign: 'center'
+            }}>
+              airLabs AI can make mistakes. Consider checking important information.
+            </p>
+          </div>
+        ) : (
+          /* ========================================================
+             ACTIVE CONVERSATION STATE: DISCLUTTERED DARK CHAT STREAM
+             ======================================================== */
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+            {/* Messages Scroll Area */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '24px 28px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px'
+            }}>
+              <div style={{ maxWidth: '820px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {messages.map((msg) => {
+                  const isUser = msg.sender === 'user';
+                  const resp = msg.responseObj;
+
+                  return (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                      style={{
+                        display: 'flex',
+                        gap: '12px',
+                        alignItems: 'flex-start',
+                        justifyContent: isUser ? 'flex-end' : 'flex-start'
+                      }}
+                    >
+                      {!isUser && (
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '10px',
+                          backgroundColor: '#122421',
+                          border: '1px solid rgba(16, 185, 129, 0.3)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          marginTop: '2px'
+                        }}>
+                          <AirlabsEmblem size={18} glow />
+                        </div>
+                      )}
+
+                      <div style={{
+                        maxWidth: isUser ? '75%' : '86%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}>
+                        {/* Bubble Container */}
+                        <div style={{
+                          backgroundColor: isUser ? '#1C2430' : '#141A23',
+                          border: isUser ? '1px solid #2B3746' : '1px solid #232C3A',
+                          color: '#F8FAFC',
+                          padding: isUser ? '12px 18px' : '18px 22px',
+                          borderRadius: isUser ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)'
+                        }}>
+                          {isUser ? (
+                            <p style={{ margin: 0, fontSize: '0.925rem', lineHeight: 1.5, color: '#F8FAFC' }}>
+                              {msg.text}
+                            </p>
+                          ) : (
+                            renderMessageContent(msg.text)
+                          )}
+                        </div>
+
+                        {/* Metadata Citations & Grounding Evidence for Assistant */}
+                        {!isUser && resp && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                            {/* Citations */}
+                            {resp.citations && resp.citations.length > 0 && (
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                gap: '6px',
+                                marginTop: '2px'
+                              }}>
+                                <span style={{ fontSize: '0.675rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                  Verified Sources:
+                                </span>
+                                {resp.citations.map((c, cIdx) => (
+                                  <span
+                                    key={cIdx}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      fontSize: '0.7rem',
+                                      fontWeight: 700,
+                                      padding: '2px 8px',
+                                      borderRadius: '6px',
+                                      backgroundColor: '#064E3B',
+                                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                                      color: '#34D399'
+                                    }}
+                                  >
+                                    <BookOpen size={11} color="#10B981" />
+                                    {c.title}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Collapsible Telemetry Evidence Accordion */}
+                            {resp.evidence && Object.keys(resp.evidence).length > 0 && (
+                              <div>
+                                <button
+                                  onClick={() => toggleEvidence(msg.id)}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    border: 'none',
+                                    background: 'transparent',
+                                    color: '#94A3B8',
+                                    fontSize: '0.725rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    padding: '2px 0',
+                                    outline: 'none'
+                                  }}
+                                >
+                                  {expandedEvidence[msg.id] ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                                  <span>{expandedEvidence[msg.id] ? 'Hide Numerical Evidence' : 'Inspect Verified Telemetry Evidence'}</span>
+                                </button>
+
+                                {expandedEvidence[msg.id] && (
+                                  <motion.pre
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    style={{
+                                      margin: '6px 0 0 0',
+                                      padding: '10px 14px',
+                                      borderRadius: '10px',
+                                      backgroundColor: '#0F141C',
+                                      border: '1px solid #1E2734',
+                                      color: '#34D399',
+                                      fontSize: '0.7rem',
+                                      fontFamily: 'var(--font-mono, monospace)',
+                                      overflowX: 'auto',
+                                      lineHeight: 1.45
+                                    }}
+                                  >
+                                    {JSON.stringify(resp.evidence, null, 2)}
+                                  </motion.pre>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Timestamp */}
+                        <span style={{
+                          fontSize: '0.675rem',
+                          color: '#64748B',
+                          alignSelf: isUser ? 'flex-end' : 'flex-start',
+                          paddingLeft: isUser ? '0' : '4px'
+                        }}>
+                          {msg.timestamp}
+                        </span>
+                      </div>
+
+                      {isUser && (
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '10px',
+                          backgroundColor: '#1E2530',
+                          border: '1px solid #2F3946',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#F8FAFC',
+                          fontWeight: 800,
+                          fontSize: '0.75rem',
+                          flexShrink: 0
+                        }}>
+                          U
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+
+                {loading && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94A3B8', fontSize: '0.825rem' }}>
+                    <div style={{
+                      width: '30px',
+                      height: '30px',
+                      borderRadius: '8px',
+                      backgroundColor: '#122421',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#10B981'
+                    }}>
+                      <Sparkles size={16} />
+                    </div>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      Synthesizing grounded multi-city telemetry...
+                    </span>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            {/* Bottom Docked Input Bar in Active Chat */}
+            <div style={{
+              padding: '14px 24px 18px 24px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+              backgroundColor: 'rgba(10, 13, 18, 0.95)',
+              backdropFilter: 'blur(12px)'
+            }}>
+              <div style={{ maxWidth: '820px', width: '100%', margin: '0 auto' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#1A232E',
+                  border: '1px solid #283444',
+                  borderRadius: '16px',
+                  padding: '7px 8px 7px 16px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+                  transition: 'border-color 0.2s ease'
+                }}>
+                  <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>
+                    <AirlabsEmblem size={22} glow />
+                  </div>
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ask about Lahore or Karachi air, smog forecasts, school rules..."
+                    style={{
+                      flex: 1,
+                      border: 'none',
+                      background: 'transparent',
+                      outline: 'none',
+                      fontSize: '0.925rem',
+                      color: '#F8FAFC',
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    title="Voice input"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#94A3B8',
+                      cursor: 'pointer',
+                      padding: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <Mic size={17} />
+                  </button>
+                  <button
+                    onClick={() => handleSend(input)}
+                    disabled={!input.trim() || loading}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '10px',
+                      backgroundColor: input.trim() && !loading ? '#10B981' : '#2A3646',
+                      color: input.trim() && !loading ? '#042F2E' : '#64748B',
+                      border: 'none',
+                      cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.15s ease',
+                      flexShrink: 0
+                    }}
+                  >
+                    <ArrowRight size={18} strokeWidth={2.5} />
+                  </button>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginTop: '8px',
+                  fontSize: '0.675rem',
+                  color: '#64748B'
+                }}>
+                  <span>Grounded in PAQI ground telemetry & official Pak-EPA NEQS standards.</span>
+                  <span>airLabs AI can make mistakes. Consider checking important information.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
