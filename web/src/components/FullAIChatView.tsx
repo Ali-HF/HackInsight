@@ -141,8 +141,8 @@ export const FullAIChatView: React.FC<FullAIChatViewProps> = ({
     setLoading(true);
 
     try {
-      // 1. Evaluate with local unified grounded RAG engine
-      const evaluated = evaluateQueryGrounded(text, forecasts, quality, metrics);
+      // 1. Evaluate with local unified grounded RAG engine (with full multi-turn conversation history)
+      const evaluated = evaluateQueryGrounded(text, forecasts, quality, metrics, messages);
 
       // 2. Attempt remote Gemini 2.5 Flash if endpoint is available
       try {

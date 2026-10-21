@@ -1,6 +1,6 @@
 import React from 'react';
-import { Search, SlidersHorizontal, Bell, ShieldCheck, Sun, Moon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Wind, Sun, Moon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface WeatherSwimHeaderProps {
   activeTab: string;
@@ -28,49 +28,51 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
   ];
 
   return (
-    <header style={{
-      width: '100%',
-      padding: '16px 28px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-      gap: '16px',
-      backgroundColor: 'transparent'
-    }}>
-      {/* 1. Brand Logo (WeatherSwim style) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+    <header className="airlabs-navbar">
+      <div className="airlabs-navbar-inner">
+        {/* 1. Brand Logo: airLabs */}
         <div
           onClick={() => setActiveTab('overview')}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', userSelect: 'none' }}
+          className="airlabs-brand"
+          style={{ cursor: 'pointer', userSelect: 'none' }}
         >
-          <span style={{ fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0F172A' }}>
-            Weather<span style={{ color: '#22C55E' }}>Air</span>
-          </span>
-          <span style={{
-            fontSize: '0.625rem',
-            fontWeight: 800,
-            padding: '2px 6px',
-            borderRadius: '6px',
-            backgroundColor: '#DCFCE7',
-            color: '#15803D',
-            letterSpacing: '0.04em'
+          <div style={{
+            width: '34px',
+            height: '34px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(15, 23, 42, 0.14)',
+            color: '#FFFFFF',
+            flexShrink: 0
           }}>
-            PK
-          </span>
+            <Wind size={18} strokeWidth={2.4} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
+            <span style={{
+              fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.4rem',
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              color: isDark ? '#F8FAFC' : '#0F172A'
+            }}>
+              air<span style={{ color: '#059669' }}>Labs</span>
+            </span>
+            <span style={{
+              width: '5px',
+              height: '5px',
+              borderRadius: '50%',
+              backgroundColor: '#10B981',
+              marginBottom: '3px',
+              marginLeft: '1px'
+            }} />
+          </div>
         </div>
 
-        {/* 2. Center Pill Tabs with Smooth Sliding Pill */}
-        <nav style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          backgroundColor: '#FFFFFF',
-          padding: '4px 6px',
-          borderRadius: '999px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-          border: '1px solid rgba(226, 232, 240, 0.7)'
-        }}>
+        {/* 2. Center Pill Tabs with Smooth Animated Pill */}
+        <nav className="airlabs-nav-tabs">
           {tabs.map((t) => {
             const isActive = activeTab === t.id;
             return (
@@ -81,15 +83,17 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
                   position: 'relative',
                   border: 'none',
                   background: 'transparent',
-                  color: isActive ? '#FFFFFF' : '#64748B',
+                  color: isActive ? '#FFFFFF' : (isDark ? '#94A3B8' : '#64748B'),
                   fontWeight: isActive ? 700 : 500,
                   fontSize: '0.8rem',
                   padding: '7px 16px',
                   borderRadius: '999px',
                   cursor: 'pointer',
                   zIndex: 1,
-                  transition: 'color 0.2s ease',
-                  outline: 'none'
+                  transition: 'color 0.15s ease',
+                  outline: 'none',
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'inherit'
                 }}
               >
                 {isActive && (
@@ -110,137 +114,89 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
             );
           })}
         </nav>
-      </div>
 
-      {/* 3. Search Bar, Controls & Agency Profile */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-        {/* Search input with icons */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          backgroundColor: '#FFFFFF',
-          padding: '6px 14px',
-          borderRadius: '999px',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-        }}>
-          <Search size={14} color="#94A3B8" />
-          <input
-            type="text"
-            placeholder="Search sensor node..."
-            style={{
-              border: 'none',
-              outline: 'none',
-              background: 'transparent',
-              fontSize: '0.8rem',
-              color: '#334155',
-              width: '130px',
-              fontFamily: 'inherit'
-            }}
-          />
-        </div>
-
-        {/* Icon Action Buttons (Filter, Notification, Settings) */}
-        <button style={{
-          width: '34px',
-          height: '34px',
-          borderRadius: '50%',
-          backgroundColor: '#FFFFFF',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          color: '#64748B'
-        }}>
-          <SlidersHorizontal size={14} />
-        </button>
-
-        <button style={{
-          width: '34px',
-          height: '34px',
-          borderRadius: '50%',
-          backgroundColor: '#FFFFFF',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          color: '#64748B'
-        }}>
-          <Bell size={14} />
-        </button>
-
-        <button
-          onClick={toggleDark}
-          title="Toggle Theme"
-          style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '50%',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid rgba(226, 232, 240, 0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: '#64748B'
-          }}
-        >
-          {isDark ? <Sun size={14} color="#F59E0B" /> : <Moon size={14} />}
-        </button>
-
-        {/* Agency Profile Card with Smooth City Switcher */}
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setSelectedCity && setSelectedCity(selectedCity === 'Lahore' ? 'Karachi' : 'Lahore')}
-          title={`Click to switch station to ${selectedCity === 'Lahore' ? 'Karachi' : 'Lahore'}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            backgroundColor: '#FFFFFF',
-            padding: '5px 14px 5px 6px',
-            borderRadius: '999px',
-            border: '1px solid rgba(226, 232, 240, 0.8)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-            cursor: 'pointer',
-            userSelect: 'none',
-            transition: 'border-color 0.2s ease'
-          }}
-        >
+        {/* 3. Right Controls: Professional City Segmented Switcher & Theme Toggle */}
+        <div className="airlabs-nav-controls">
+          {/* Segmented City Toggle */}
           <div style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            backgroundColor: '#DCFCE7',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            color: '#15803D'
+            backgroundColor: isDark ? '#1E293B' : '#F1F5F9',
+            padding: '3px',
+            borderRadius: '999px',
+            border: `1px solid ${isDark ? '#334155' : '#E2E8F0'}`
           }}>
-            <ShieldCheck size={16} />
+            <button
+              onClick={() => setSelectedCity && setSelectedCity('Lahore')}
+              style={{
+                border: 'none',
+                padding: '5px 12px',
+                borderRadius: '999px',
+                fontSize: '0.75rem',
+                fontWeight: selectedCity === 'Lahore' ? 700 : 600,
+                backgroundColor: selectedCity === 'Lahore' ? (isDark ? '#0F172A' : '#FFFFFF') : 'transparent',
+                color: selectedCity === 'Lahore' ? (isDark ? '#F8FAFC' : '#0F172A') : '#64748B',
+                boxShadow: selectedCity === 'Lahore' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                fontFamily: 'inherit'
+              }}
+            >
+              Lahore
+            </button>
+            <button
+              onClick={() => setSelectedCity && setSelectedCity('Karachi')}
+              style={{
+                border: 'none',
+                padding: '5px 12px',
+                borderRadius: '999px',
+                fontSize: '0.75rem',
+                fontWeight: selectedCity === 'Karachi' ? 700 : 600,
+                backgroundColor: selectedCity === 'Karachi' ? (isDark ? '#0F172A' : '#FFFFFF') : 'transparent',
+                color: selectedCity === 'Karachi' ? (isDark ? '#F8FAFC' : '#0F172A') : '#64748B',
+                boxShadow: selectedCity === 'Karachi' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                fontFamily: 'inherit'
+              }}
+            >
+              Karachi
+            </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={selectedCity}
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                transition={{ duration: 0.2 }}
-                style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}
-              >
-                PAQI • {selectedCity}
-              </motion.span>
-            </AnimatePresence>
-            <span style={{ fontSize: '0.65rem', color: '#15803D', fontWeight: 600 }}>
-              Switch ⇄
-            </span>
+
+          {/* Subtle Live PAQI Status */}
+          <div className="airlabs-live-tag">
+            <span style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: '#16A34A',
+              boxShadow: '0 0 6px #16A34A'
+            }} />
+            <span>PAQI Live</span>
           </div>
-        </motion.div>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleDark}
+            title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '50%',
+              backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+              border: `1px solid ${isDark ? '#334155' : 'rgba(226, 232, 240, 0.8)'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: isDark ? '#FBBF24' : '#64748B',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            {isDark ? <Sun size={15} color="#FBBF24" /> : <Moon size={15} />}
+          </button>
+        </div>
       </div>
     </header>
   );

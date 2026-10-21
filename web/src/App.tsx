@@ -352,7 +352,7 @@ export const App: React.FC = () => {
         gap: '8px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <strong>WeatherAir PK</strong>
+          <strong style={{ color: '#0F172A', fontFamily: "'Outfit', sans-serif", fontSize: '0.85rem' }}>air<span style={{ color: '#059669' }}>Labs</span></strong>
           <span>• Powered by Pakistan Air Quality Initiative (PAQI) Sensor Telemetry</span>
         </div>
         <div>

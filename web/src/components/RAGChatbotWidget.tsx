@@ -49,7 +49,8 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
     setLoading(true);
 
     try {
-      const evaluated = evaluateQueryGrounded(queryText, forecasts, quality, metrics);
+      const cityContext = [{ sender: 'system', text: `Active dashboard city context: ${city}` }];
+      const evaluated = evaluateQueryGrounded(queryText, forecasts, quality, metrics, cityContext);
 
       try {
         const apiRes = await fetch('/api/chat', {

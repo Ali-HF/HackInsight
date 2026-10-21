@@ -37,8 +37,8 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
   karachiRain,
   lahoreSensors,
   karachiSensors,
-  lahoreSensorId,
-  karachiSensorId,
+  lahoreSensorId: _lahoreSensorId,
+  karachiSensorId: _karachiSensorId,
   isLiveOutdoor = true
 }) => {
   const isLahore = selectedCity === 'Lahore';
@@ -48,7 +48,6 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
   const activeHumidity = isLahore ? lahoreHumidity : karachiHumidity;
   const activeRain = isLahore ? lahoreRain : karachiRain;
   const activeSensors = isLahore ? (lahoreSensors ?? 26) : (karachiSensors ?? 4);
-  const activeSensorId = isLahore ? (lahoreSensorId || '0166919645da6ef4') : (karachiSensorId || '212607b3f328c11e');
   const isHighRisk = (activePredicted ?? activePm25 ?? 0) > 150.0;
 
   // Plume color based on active city PM2.5 severity
@@ -270,7 +269,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         </motion.div>
       </AnimatePresence>
 
-      {/* 5A. ACTIVE GROUND STATION TELEMETRY BADGE (ALWAYS ACCURATE TO CURRENT CITY) */}
+      {/* 5A. ACTIVE GROUND STATION TELEMETRY BADGE (UNCLUTTERED, PROFESSIONAL) */}
       <AnimatePresence mode="wait">
         <motion.div
           key={selectedCity + '-station'}
@@ -278,13 +277,14 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="map-station-badge"
           style={{
             position: 'absolute',
             left: '20px',
             top: '20px',
             backgroundColor: 'rgba(255, 255, 255, 0.94)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
             borderRadius: '16px',
             padding: '10px 16px',
             border: '1.5px solid rgba(255, 255, 255, 0.95)',
@@ -296,17 +296,18 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           }}
         >
           <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
+            width: '34px',
+            height: '34px',
+            borderRadius: '10px',
             backgroundColor: isHighRisk ? '#FEE2E2' : '#DCFCE7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: isHighRisk ? '#DC2626' : '#15803D',
-            position: 'relative'
+            position: 'relative',
+            flexShrink: 0
           }}>
-            <Radio size={16} />
+            <Radio size={17} />
             <span style={{
               position: 'absolute',
               top: '-2px',
@@ -320,41 +321,41 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           </div>
 
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{
+                fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
+                fontSize: '0.875rem',
+                fontWeight: 800,
+                color: '#0F172A',
+                letterSpacing: '-0.01em'
+              }}>
                 {isLahore ? 'Lahore Ground Station' : 'Karachi Coastal Station'}
               </span>
               <span style={{
-                fontSize: '0.65rem',
-                fontWeight: 700,
-                padding: '1px 6px',
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                padding: '2px 8px',
                 borderRadius: '999px',
                 backgroundColor: isHighRisk ? '#FEE2E2' : '#DCFCE7',
-                color: isHighRisk ? '#991B1B' : '#166534'
+                color: isHighRisk ? '#991B1B' : '#166534',
+                fontFamily: "'JetBrains Mono', monospace"
               }}>
                 {activePm25 !== undefined ? `${activePm25.toFixed(1)} µg/m³` : 'Syncing...'}
               </span>
-              {isLiveOutdoor && (
-                <span style={{
-                  fontSize: '0.625rem',
-                  fontWeight: 800,
-                  padding: '1px 7px',
-                  borderRadius: '999px',
-                  backgroundColor: '#DCFCE7',
-                  color: '#15803D',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  border: '1px solid rgba(34, 197, 94, 0.3)'
-                }}>
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#22C55E' }} />
-                  LIVE OUTDOOR
-                </span>
-              )}
             </div>
-            <span style={{ fontSize: '0.675rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
-              {`ID: ${activeSensorId} • ${activeSensors} sensors reporting`}
-            </span>
+            <div style={{
+              fontSize: '0.7rem',
+              color: '#64748B',
+              marginTop: '2px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#22C55E' }} />
+              <span>PAQI Sensor Network</span>
+              <span>•</span>
+              <span>{`${activeSensors} active monitors`}</span>
+            </div>
           </div>
         </motion.div>
       </AnimatePresence>
