@@ -102,7 +102,11 @@ Every team member must be present and fluent in their assigned tier. Below is th
 
 ## 4. 3-Minute Demo Video Script & Walkthrough Guide
 
-The competition requires a **demo video of 3 minutes or less with no login required**. Below is the exact time-coded recording plan:
+The competition requires a **demo video of 3 minutes or less with no login required**.  
+- **Live YouTube Video Link:** [https://youtu.be/9Zq4rCNXnho?si=mkJ-F9WoXuDmKBGC](https://youtu.be/9Zq4rCNXnho?si=mkJ-F9WoXuDmKBGC)  
+- **Standalone Interactive HTML Demo:** [`brag-output/brag-demo.html`](../brag-output/brag-demo.html) (or in `submission_deliverables/demo_video_assets/brag-demo.html`)
+
+Below is the exact time-coded recording plan:
 
 | Timestamp | Screen to Show | Narration / Demonstration Script |
 |---|---|---|

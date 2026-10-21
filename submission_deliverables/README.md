@@ -79,8 +79,8 @@ submission_deliverables/
 | **7** | **GitHub repo tagged `v1.0-final`** | Repository tagged at [`v1.0-final`](https://github.com/Ali-HF/HackInsight/tree/v1.0-final) |
 | **8** | **Hugging Face Space link** | [`huggingface-space/`](huggingface-space/) |
 | **9 & 10** | **Executive Summary (`Summary.pdf` - 1 Page)** | [`Summary.pdf`](Summary.pdf) (Verified exactly 1 page) |
-| **10** | **Demo Video (<3 mins, no login)** | [`demo_video_assets/brag-demo.html`](demo_video_assets/brag-demo.html), script in [`SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#4-3-minute-demo-video-script--walkthrough-guide) |
-| **11** | **AI Use Log (`AI_Use_Log.md`)** | [`AI_Use_Log.md`](AI_Use_Log.md) |
+| **11** | **Demo Video (<3 mins, no login)** | [YouTube Video Walkthrough (No Login Required)](https://youtu.be/9Zq4rCNXnho?si=mkJ-F9WoXuDmKBGC), [`demo_video_assets/brag-demo.html`](demo_video_assets/brag-demo.html), script in [`SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#4-3-minute-demo-video-script--walkthrough-guide) |
+| **12** | **AI Use Log (`AI_Use_Log.md`)** | [`AI_Use_Log.md`](AI_Use_Log.md) |
 | **12** | **Physical viva preparation** | [`SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#3-physical-viva-preparation--team-defense-guide) |
 | **14** | **Business model (user, payer, value, running cost)** | [`SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#1-business-model-architecture) |
 | **15** | **Optimization log (accuracy, speed, memory)** | [`SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#2-model--pipeline-optimization-log) |
