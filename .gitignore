@@ -31,6 +31,12 @@ htmlcov/
 # Temporary media and third-party vendor clones
 brag-output/
 ecc/
+demo-video/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
 
 .vercel
 .env*
