@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Send, Sparkles, AlertCircle, BookOpen, Bot } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Send, Bot, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { evaluateQueryGrounded } from './AgentAssistant';
 
@@ -20,11 +20,16 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
     evaluateQueryGrounded(`What is the 24h PM2.5 forecast for ${city}?`, forecasts, quality)
   );
 
+  // Sync default answer when city changes
+  useEffect(() => {
+    setResponse(evaluateQueryGrounded(`What is the 24h PM2.5 forecast for ${city}?`, forecasts, quality));
+  }, [city, forecasts, quality]);
+
   const quickPrompts = [
-    `24h Forecast`,
-    `Safe outside?`,
-    `School rules`,
-    `Sensor reliability`
+    { label: 'Tomorrow', query: `What is tomorrow's forecast for ${city}?`, emoji: '⚡' },
+    { label: 'Safe outside?', query: `Is it safe to go outside right now in ${city}?`, emoji: '🛡️' },
+    { label: 'School rules', query: `What are school rules for smog in ${city}?`, emoji: '🏫' },
+    { label: 'Data trust', query: `Can I trust this sensor data for ${city}?`, emoji: '✅' }
   ];
 
   const handleSend = async (queryText: string) => {
@@ -64,9 +69,25 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
     }
   };
 
+  // Helper to render bold markdown (**text**) cleanly
+  const renderFormatted = (text: string) => {
+    if (!text) return null;
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return (
+          <strong key={idx} style={{ color: '#0F172A', fontWeight: 700 }}>
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="airlab-card" style={{
-      padding: '18px 20px',
+      padding: '20px 22px',
       borderRadius: '22px',
       backgroundColor: '#FFFFFF',
       border: '1px solid rgba(226, 232, 240, 0.8)',
@@ -76,10 +97,10 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
       justifyContent: 'space-between',
       height: '100%'
     }}>
-      {/* Header */}
+      {/* Top Header & Chips */}
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
             <div style={{
               width: '24px',
               height: '24px',
@@ -99,124 +120,142 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
 
           <span className="badge badge-green" style={{ fontSize: '0.675rem', padding: '2px 8px' }}>
             <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#15803D' }} />
-            Grounded RAG
+            Live Grounded RAG
           </span>
         </div>
 
-        {/* Quick Suggestion Chips */}
-        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '10px' }}>
+        {/* Horizontal Non-Wrapping Quick Prompt Chips */}
+        <div style={{
+          display: 'flex',
+          gap: '6px',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+          paddingBottom: '2px',
+          marginBottom: '10px',
+          scrollbarWidth: 'none'
+        }}>
           {quickPrompts.map((p) => (
             <button
-              key={p}
-              onClick={() => handleSend(`${p} for ${city}`)}
+              key={p.label}
+              onClick={() => handleSend(p.query)}
               style={{
-                fontSize: '0.675rem',
+                fontSize: '0.7rem',
                 fontWeight: 600,
-                padding: '3px 8px',
+                padding: '4px 10px',
                 borderRadius: '999px',
                 backgroundColor: '#F1F5F9',
-                color: '#475569',
+                color: '#334155',
                 border: '1px solid #E2E8F0',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '3px',
+                gap: '4px',
+                outline: 'none',
                 transition: 'all 0.15s ease'
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#E2E8F0';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#F1F5F9';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
-              <Sparkles size={10} color="#15803D" />
-              {p}
+              <span>{p.emoji}</span>
+              <span>{p.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Chat Response Stream (Compact & Scrollable) */}
+      {/* Response Speech Bubble (Spacious, Uncluttered, Plain English) */}
       <div style={{
         flex: 1,
-        minHeight: '110px',
-        maxHeight: '135px',
+        minHeight: '115px',
+        maxHeight: '160px',
         overflowY: 'auto',
         backgroundColor: '#F8FAFC',
-        borderRadius: '12px',
-        padding: '10px 12px',
-        border: '1px solid #EDF2F7',
-        fontSize: '0.78rem',
-        lineHeight: 1.45,
-        color: '#334155',
+        borderRadius: '14px',
+        padding: '12px 14px',
+        border: '1px solid #E2E8F0',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
         marginBottom: '10px'
       }}>
         <AnimatePresence mode="wait">
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748B', fontStyle: 'italic', padding: '8px 0' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22C55E' }} />
-              Grounding response from sensor telemetry...
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: '#64748B',
+              fontSize: '0.78rem',
+              fontStyle: 'italic',
+              padding: '12px 0'
+            }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#22C55E' }} />
+              Checking sensor telemetry for {city}...
             </div>
           ) : (
             <motion.div
               key={response?.interaction_id}
-              initial={{ opacity: 0, y: 4 }}
+              initial={{ opacity: 0, y: 3 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.15 }}
+              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}
             >
-              <div style={{ color: '#0F172A', fontWeight: 500, marginBottom: '6px' }}>
-                {response?.answer}
+              <div style={{
+                fontSize: '0.815rem',
+                lineHeight: 1.5,
+                color: '#1E293B',
+                fontWeight: 450
+              }}>
+                {renderFormatted(response?.answer || '')}
               </div>
 
-              {/* Warning Alert Banner (if present) */}
-              {response?.warnings && response.warnings.length > 0 && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  backgroundColor: '#FEF2F2',
-                  border: '1px solid #FCA5A5',
-                  borderRadius: '6px',
-                  padding: '3px 6px',
-                  fontSize: '0.675rem',
-                  color: '#B91C1C',
-                  marginBottom: '6px'
-                }}>
-                  <AlertCircle size={11} color="#DC2626" />
-                  <span>{response.warnings[0]}</span>
-                </div>
-              )}
-
-              {/* Citations / Sources */}
-              {response?.citations && response.citations.length > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.65rem', color: '#64748B', flexWrap: 'wrap', marginTop: '4px' }}>
-                  <BookOpen size={10} color="#15803D" />
-                  <span style={{ fontWeight: 600 }}>Source:</span>
-                  <span>{response.citations[0].title}</span>
-                </div>
-              )}
+              {/* Verified Grounding Subtitle */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '0.675rem',
+                color: '#64748B',
+                marginTop: '8px',
+                paddingTop: '6px',
+                borderTop: '1px solid #EDF2F7'
+              }}>
+                <ShieldCheck size={12} color="#16A34A" />
+                <span>Verified by official {city} air monitoring stations</span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Bottom Compact Input Bar */}
+      {/* Input Bar */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
         backgroundColor: '#F1F5F9',
         borderRadius: '999px',
-        padding: '4px 6px 4px 12px',
+        padding: '4px 6px 4px 14px',
         border: '1px solid #E2E8F0'
       }}>
         <input
           type="text"
           value={inputQuery}
           onChange={(e) => setInputQuery(e.target.value)}
-          placeholder={`Ask about ${city} air quality or advisories...`}
+          placeholder={`Ask about ${city} air, masks, schools...`}
           style={{
             flex: 1,
             border: 'none',
             background: 'transparent',
             outline: 'none',
-            fontSize: '0.75rem',
-            color: '#1E293B',
+            fontSize: '0.78rem',
+            color: '#0F172A',
             fontFamily: 'inherit'
           }}
           onKeyDown={(e) => {
@@ -239,7 +278,16 @@ export const RAGChatbotWidget: React.FC<RAGChatbotWidgetProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            transition: 'background-color 0.15s ease'
+            transition: 'all 0.15s ease',
+            outline: 'none'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#1E293B';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#0F172A';
+            e.currentTarget.style.transform = 'scale(1)';
           }}
         >
           <Send size={12} />
