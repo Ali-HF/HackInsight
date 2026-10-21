@@ -24,6 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'GEMINI_API_KEY environment variable not configured' });
   }
 
+  const { question, telemetryContext } = req.body || {};
   if (!question) {
     return res.status(400).json({ error: 'Question is required' });
   }
@@ -68,18 +69,24 @@ ${JSON.stringify(telemetryContext || {}, null, 2)}
 
     if (!response.ok) {
       const errText = await response.text();
-      return res.status(500).json({ error: 'Gemini API Error', details: errText });
+      console.error('Gemini API Error:', errText);
+      return res.status(502).json({ error: 'Failed to contact Gemini API', details: errText });
     }
 
     const data = await response.json();
-    const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to formulate response.";
+    const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!candidateText) {
+      return res.status(500).json({ error: 'Empty generation received from Gemini' });
+    }
 
     return res.status(200).json({
-      answer,
-      status: 'success',
-      model: 'gemini-2.5-flash'
+      answer: candidateText.trim(),
+      model: 'gemini-2.5-flash',
+      status: 'success'
     });
-  } catch (error: any) {
-    return res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  } catch (err: any) {
+    console.error('Serverless function error:', err);
+    return res.status(500).json({ error: err.message || 'Internal Server Error' });
   }
 }
