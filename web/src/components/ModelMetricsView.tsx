@@ -1,3 +1,4 @@
+import React from 'react';
 import type { ModelMetricsPayload } from '../types';
 import { Award, Zap, TrendingDown, Target } from 'lucide-react';
 
@@ -5,116 +6,116 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
   const test = metrics?.test_metrics;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div style={{ maxWidth: '840px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <span className="badge badge-green">Member 2: ML Forecasting Engine</span>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>• Chronological Train / Val / Test Partition</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <div style={{ maxWidth: '800px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span className="badge badge-green">ML Forecasting Engine</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>• Chronological Train / Val / Test Partition</span>
         </div>
-        <h2 style={{ fontSize: '2.25rem', fontWeight: 700, letterSpacing: '-0.03em', color: '#1C2024' }}>
-          Proven predictive accuracy exceeding 24h persistence baselines.
+        <h2 style={{ fontSize: '1.65rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+          Proven Predictive Accuracy vs Persistence Baseline
         </h2>
-        <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginTop: '8px', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: 1.5 }}>
           Evaluated against 49,116 held-out chronological test observations across Lahore and Karachi.
           Incorporates 40 causal lag features, diurnal harmonic cycles, and meteorological boundary variables.
         </p>
       </div>
 
       {/* Metrics Highlights Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-        <div className="airlab-card">
-          <div className="green-icon-box">
-            <Award size={22} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+        <div className="airlab-card" style={{ padding: '18px' }}>
+          <div className="green-icon-box" style={{ width: '38px', height: '38px', borderRadius: '8px', marginBottom: '10px' }}>
+            <Award size={18} />
           </div>
-          <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
             Test Set MAE (24h Ahead)
           </div>
-          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: '#1C2024' }}>
-            {test?.model_mae?.toFixed(1) ?? '40.6'} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>µg/m³</span>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
+            {test?.model_mae?.toFixed(1) ?? '40.6'} <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>µg/m³</span>
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Baseline Persistence: {test?.base_mae?.toFixed(1) ?? '42.3'} µg/m³
           </p>
         </div>
 
-        <div className="airlab-card">
-          <div className="green-icon-box">
-            <TrendingDown size={22} />
+        <div className="airlab-card" style={{ padding: '18px' }}>
+          <div className="green-icon-box" style={{ width: '38px', height: '38px', borderRadius: '8px', marginBottom: '10px' }}>
+            <TrendingDown size={18} />
           </div>
-          <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
             Test Set RMSE
           </div>
-          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: '#1C2024' }}>
-            {test?.model_rmse?.toFixed(1) ?? '69.2'} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>µg/m³</span>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
+            {test?.model_rmse?.toFixed(1) ?? '69.2'} <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>µg/m³</span>
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Baseline Persistence: {test?.base_rmse?.toFixed(1) ?? '73.9'} µg/m³
           </p>
         </div>
 
-        <div className="airlab-card">
-          <div className="green-icon-box">
-            <Zap size={22} />
+        <div className="airlab-card" style={{ padding: '18px' }}>
+          <div className="green-icon-box" style={{ width: '38px', height: '38px', borderRadius: '8px', marginBottom: '10px' }}>
+            <Zap size={18} />
           </div>
-          <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
             RMSE Improvement
           </div>
-          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: '#6CAE4F' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--brand-green-dark)', fontVariantNumeric: 'tabular-nums' }}>
             +{test?.rmse_pct_improvement?.toFixed(1) ?? '6.3'}%
           </div>
-          <div style={{ marginTop: '8px' }}>
+          <div style={{ marginTop: '6px' }}>
             <span className="badge badge-green">Outperforms Persistence</span>
           </div>
         </div>
 
-        <div className="airlab-card">
-          <div className="green-icon-box">
-            <Target size={22} />
+        <div className="airlab-card" style={{ padding: '18px' }}>
+          <div className="green-icon-box" style={{ width: '38px', height: '38px', borderRadius: '8px', marginBottom: '10px' }}>
+            <Target size={18} />
           </div>
-          <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
             80% Conformal Coverage
           </div>
-          <div style={{ fontSize: '2.1rem', fontWeight: 700, marginTop: '6px', color: '#1C2024' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '4px', color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
             {metrics?.test_uncertainty_80pct?.empirical_coverage_pct?.toFixed(1) ?? '82.4'}%
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             Target: 80.0% (Well-calibrated)
           </p>
         </div>
       </div>
 
       {/* Dataset Cohort Splits Overview */}
-      <div className="airlab-card" style={{ padding: '28px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1C2024', marginBottom: '14px' }}>
+      <div className="airlab-card" style={{ padding: '24px' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px' }}>
           Zero-Lookahead Dataset Partitioning
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-          <div style={{ padding: '16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Training Records</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1C2024', marginTop: '4px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div style={{ padding: '14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--card-border)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Training Records</div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
               {metrics?.train_rows?.toLocaleString() ?? '77,277'}
             </div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               Historical calibration & lag engineering
             </div>
           </div>
 
-          <div style={{ padding: '16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Validation Records</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1C2024', marginTop: '4px' }}>
+          <div style={{ padding: '14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--card-border)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Validation Records</div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
               {metrics?.validation_rows?.toLocaleString() ?? '39,971'}
             </div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               Hyperparameter tuning & quantile bounds
             </div>
           </div>
 
-          <div style={{ padding: '16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Held-out Test Records</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1C2024', marginTop: '4px' }}>
+          <div style={{ padding: '14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--card-border)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Held-out Test Records</div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>
               {metrics?.test_rows?.toLocaleString() ?? '49,116'}
             </div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               Unbiased final test evaluation
             </div>
           </div>
@@ -123,3 +124,5 @@ export const ModelMetricsView: React.FC<{ metrics?: ModelMetricsPayload }> = ({ 
     </div>
   );
 };
+
+export default ModelMetricsView;

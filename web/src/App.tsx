@@ -65,9 +65,7 @@ export const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-subtle)' }}>
-
-
-      {/* Primary Navigation with Framer Motion Tabs */}
+      {/* Primary Sticky Header */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -78,90 +76,101 @@ export const App: React.FC = () => {
         toggleDark={toggleDark}
       />
 
-      {/* Main Page Body with Animated Tab Transitions */}
-      <main className="container" style={{ flex: 1, padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: '44px' }}>
+      {/* Main Page Body */}
+      <main className="container" style={{ flex: 1, padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
         <AnimatePresence mode="wait">
           {activeTab === 'overview' && (
             <motion.div
               key="overview"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '44px' }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}
             >
+              {/* 1. Main Telemetry & 24h Predictive Horizon */}
               <ForecastHero
                 city={selectedCity}
                 forecast={currentCityForecast}
                 timeseries={cityTimeseries}
               />
 
-              {/* Decision Protocol Section - Clean and Scannable */}
-              <section id="decision-protocol" style={{ marginTop: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
-                  <div>
-                    <span className="badge badge-green" style={{ marginBottom: '6px' }}>Statutory Thresholds</span>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      Provincial Action Triggers
+              {/* 2. Grounded Decision Assistant (Featured Prominently on Front Page) */}
+              <section id="agent-insight">
+                <AgentAssistant />
+              </section>
+
+              {/* 3. Provincial Action Triggers - Clean, Non-bloated Summary Strip */}
+              <section id="decision-protocol" style={{ marginTop: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="badge badge-green">Statutory Triggers</span>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      Provincial Smog Action Protocols
                     </h3>
                   </div>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Punjab & Sindh Protocols (PM2.5 &gt; 150 µg/m³)</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    Active when 24h PM2.5 &gt; 150 µg/m³ (Punjab EPD & Sindh EPA)
+                  </span>
                 </div>
 
                 <div className="grid-4">
-                  <div className="airlab-card" style={{ padding: '16px' }}>
-                    <div className="green-icon-box" style={{ marginBottom: '8px' }}>
-                      <School size={18} />
+                  <div className="airlab-card" style={{ padding: '14px 16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div className="green-icon-box" style={{ width: '34px', height: '34px', borderRadius: '8px', marginBottom: 0, flexShrink: 0 }}>
+                      <School size={16} />
                     </div>
-                    <h4 style={{ fontWeight: 700, fontSize: '0.925rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                      Schools
-                    </h4>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Suspend outdoor activities and morning assemblies when PM2.5 &gt; 150 µg/m³.
-                    </p>
+                    <div>
+                      <h4 style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '2px' }}>
+                        Schools & Academia
+                      </h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                        Suspend morning assemblies and outdoor sports. Mandatory N95 masks.
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="airlab-card" style={{ padding: '16px' }}>
-                    <div className="green-icon-box" style={{ marginBottom: '8px' }}>
-                      <Truck size={18} />
+                  <div className="airlab-card" style={{ padding: '14px 16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div className="green-icon-box" style={{ width: '34px', height: '34px', borderRadius: '8px', marginBottom: 0, flexShrink: 0 }}>
+                      <Truck size={16} />
                     </div>
-                    <h4 style={{ fontWeight: 700, fontSize: '0.925rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                      Transport
-                    </h4>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Divert heavy diesel traffic away from urban ring roads during nocturnal inversions.
-                    </p>
+                    <div>
+                      <h4 style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '2px' }}>
+                        Heavy Transport
+                      </h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                        Divert heavy diesel traffic off urban ring roads during nocturnal inversions.
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="airlab-card" style={{ padding: '16px' }}>
-                    <div className="green-icon-box" style={{ marginBottom: '8px' }}>
-                      <Factory size={18} />
+                  <div className="airlab-card" style={{ padding: '14px 16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div className="green-icon-box" style={{ width: '34px', height: '34px', borderRadius: '8px', marginBottom: 0, flexShrink: 0 }}>
+                      <Factory size={16} />
                     </div>
-                    <h4 style={{ fontWeight: 700, fontSize: '0.925rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                      Industry
-                    </h4>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Enforce wet scrubbers and mandate staggered shifts for high-emission clusters.
-                    </p>
+                    <div>
+                      <h4 style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '2px' }}>
+                        Industrial Clusters
+                      </h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                        Mandate wet scrubbers for brick kilns and enforce staggered shift operations.
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="airlab-card" style={{ padding: '16px' }}>
-                    <div className="green-icon-box" style={{ marginBottom: '8px' }}>
-                      <Building2 size={18} />
+                  <div className="airlab-card" style={{ padding: '14px 16px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div className="green-icon-box" style={{ width: '34px', height: '34px', borderRadius: '8px', marginBottom: 0, flexShrink: 0 }}>
+                      <Building2 size={16} />
                     </div>
-                    <h4 style={{ fontWeight: 700, fontSize: '0.925rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                      Clinical Triage
-                    </h4>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Pre-mobilize respiratory triage and bronchodilator stocks 24h prior to smog surges.
-                    </p>
+                    <div>
+                      <h4 style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '2px' }}>
+                        Clinical Triage
+                      </h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                        Mobilize emergency bronchodilator stocks and pediatric respiratory beds.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </section>
-
-              {/* Agent Assistant: Prominently featured on First Page */}
-              <section id="agent-insight" style={{ marginTop: '8px' }}>
-                <AgentAssistant />
               </section>
             </motion.div>
           )}
@@ -169,10 +178,10 @@ export const App: React.FC = () => {
           {activeTab === 'assistant' && (
             <motion.div
               key="assistant"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
             >
               <AgentAssistant />
             </motion.div>
@@ -181,10 +190,10 @@ export const App: React.FC = () => {
           {activeTab === 'quality' && (
             <motion.div
               key="quality"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
             >
               <DataQualityView quality={qualityData ?? undefined} />
             </motion.div>
@@ -193,10 +202,10 @@ export const App: React.FC = () => {
           {activeTab === 'model' && (
             <motion.div
               key="model"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
             >
               <ModelMetricsView metrics={metricsData ?? undefined} />
             </motion.div>
@@ -204,70 +213,70 @@ export const App: React.FC = () => {
         </AnimatePresence>
       </main>
 
-      {/* Airlab-style Clean Minimal Footer */}
+      {/* Clean Minimalist Footer */}
       <footer style={{
         backgroundColor: 'var(--bg-main)',
         borderTop: '1px solid var(--card-border)',
-        padding: '48px 0 32px 0',
+        padding: '36px 0 24px 0',
         marginTop: 'auto'
       }}>
         <div className="container" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '32px',
-          marginBottom: '36px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '24px',
+          marginBottom: '28px'
         }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                 air<span style={{ color: 'var(--brand-green-dark)' }}>lab</span>
-                <span style={{ fontSize: '0.8rem', marginLeft: '6px', color: 'var(--text-muted)' }}>Pakistan Operational Pipeline</span>
+                <span style={{ fontSize: '0.75rem', marginLeft: '6px', color: 'var(--text-muted)', fontWeight: 500 }}>PK EPD Telemetry</span>
               </span>
             </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', maxWidth: '340px', lineHeight: 1.6 }}>
-              Built for TECHFEST '26 HackInsight. Delivering consistent, certified, and reproducible air quality forecasting across Lahore and Karachi.
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '300px', lineHeight: 1.5 }}>
+              TECHFEST '26 HackInsight. Certified, zero-leakage air quality forecasting across Lahore and Karachi.
             </p>
           </div>
 
           <div>
-            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
+            <h5 style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', textTransform: 'uppercase' }}>
               Architecture
             </h5>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              <span>Member 1: Data Engineering</span>
-              <span>Member 2: ML Forecaster</span>
-              <span>Member 3: Grounded Agent</span>
-              <span>Member 4: Orchestration & UI</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+              <span>Data Engineering (Prefect & Parquet)</span>
+              <span>ML Forecaster (HistGradientBoosting)</span>
+              <span>Grounded Decision RAG Agent</span>
+              <span>Production Web UI (React & Vite)</span>
             </div>
           </div>
 
           <div>
-            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
-              Standards
+            <h5 style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', textTransform: 'uppercase' }}>
+              Statutory Benchmarks
             </h5>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
               <span>Pak-NEQS 2010 (35 µg/m³)</span>
-              <span>Punjab Smog Plan (150 µg/m³)</span>
+              <span>Punjab Smog Emergency (150 µg/m³)</span>
               <span>WHO 2021 (15 µg/m³)</span>
-              <span>NASA ASDC DAAC Sensor DOI</span>
+              <span>PAQI Sensor Network Calibration</span>
             </div>
           </div>
 
           <div>
-            <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
-              Source & Code
+            <h5 style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', textTransform: 'uppercase' }}>
+              Repository
             </h5>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <a
                 href="https://github.com/Ali-HF/HackInsight"
                 target="_blank"
                 rel="noreferrer"
                 className="btn-outline"
-                style={{ fontSize: '0.8125rem', padding: '8px 16px' }}
+                style={{ fontSize: '0.78rem', padding: '6px 14px', width: 'fit-content' }}
               >
-                <GitBranch size={14} /> View on GitHub
+                <GitBranch size={13} /> View on GitHub
               </a>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
                 Production Deployment Verified
               </span>
             </div>
@@ -276,16 +285,16 @@ export const App: React.FC = () => {
 
         <div className="container" style={{
           borderTop: '1px solid var(--card-border)',
-          paddingTop: '20px',
+          paddingTop: '16px',
           display: 'flex',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '8px',
-          fontSize: '0.8rem',
+          fontSize: '0.75rem',
           color: 'var(--text-muted)'
         }}>
           <div>© 2026 HackInsight Team DataMinors. Open-source under MIT License.</div>
-          <div>Pakistan Air Quality Initiative (PAQI) Low-Cost Sensor Network</div>
+          <div>Pakistan Air Quality Initiative (PAQI) Low-Cost Sensor Telemetry</div>
         </div>
       </footer>
     </div>

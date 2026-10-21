@@ -39,3 +39,5 @@ rules.md
 inspect_paqi.py
 paqi_inspection_report.md
 
+.vercel
+.env*

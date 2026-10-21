@@ -1,17 +1,43 @@
 import React from 'react';
 
-export const Logo: React.FC<{ className?: string }> = ({ className = 'h-8' }) => (
-  <div className={`flex items-center gap-2.5 font-bold tracking-tight ${className}`}>
-    <div className="w-8 h-8 rounded-full bg-[#99DE7B] flex items-center justify-center text-[#1E2E1A] shadow-sm">
-      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+export const Logo: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} className={className}>
+    <div style={{
+      width: '28px',
+      height: '28px',
+      borderRadius: '8px',
+      backgroundColor: '#1E2E1A',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#99DE7B',
+      boxShadow: '0 2px 6px rgba(30, 46, 26, 0.2)'
+    }}>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+        <path d="M12 12v9" />
+        <path d="m8 17 4 4 4-4" />
       </svg>
     </div>
-    <span className="text-xl font-semibold tracking-tighter text-[#1C1F26]">
-      air<span className="text-[#65A747]">lab</span>
-      <span className="text-xs ml-1.5 px-2 py-0.5 rounded-full bg-[#EBF7E5] text-[#2D5A1E] font-medium border border-[#99DE7B]/40">
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+      <span style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+        air<span style={{ color: 'var(--brand-green-dark)' }}>lab</span>
+      </span>
+      <span style={{
+        fontSize: '0.65rem',
+        fontWeight: 700,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+        padding: '2px 6px',
+        borderRadius: '4px',
+        backgroundColor: 'var(--brand-green-subtle)',
+        color: 'var(--brand-green-text)',
+        border: '1px solid rgba(153, 222, 123, 0.4)'
+      }}>
         PK EPD
       </span>
-    </span>
+    </div>
   </div>
 );
+
+export default Logo;
