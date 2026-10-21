@@ -5,7 +5,7 @@ interface WeatherSwimHeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   selectedCity: 'Lahore' | 'Karachi';
-  setSelectedCity: (city: 'Lahore' | 'Karachi') => void;
+  setSelectedCity?: (city: 'Lahore' | 'Karachi') => void;
   isDark: boolean;
   toggleDark: () => void;
 }
@@ -14,7 +14,7 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
   activeTab,
   setActiveTab,
   selectedCity,
-  setSelectedCity,
+  setSelectedCity: _setSelectedCity,
   isDark,
   toggleDark
 }) => {
@@ -173,36 +173,6 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
           {isDark ? <Sun size={14} color="#F59E0B" /> : <Moon size={14} />}
         </button>
 
-        {/* City Selector Switch */}
-        <div style={{
-          display: 'flex',
-          gap: '3px',
-          backgroundColor: '#FFFFFF',
-          padding: '3px',
-          borderRadius: '999px',
-          border: '1px solid rgba(226, 232, 240, 0.8)'
-        }}>
-          {(['Lahore', 'Karachi'] as const).map((c) => (
-            <button
-              key={c}
-              onClick={() => setSelectedCity(c)}
-              style={{
-                border: 'none',
-                background: selectedCity === c ? '#22C55E' : 'transparent',
-                color: selectedCity === c ? '#FFFFFF' : '#475569',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                padding: '5px 12px',
-                borderRadius: '999px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
         {/* Agency Profile Card (WeatherSwim style) */}
         <div style={{
           display: 'flex',
@@ -228,10 +198,10 @@ export const WeatherSwimHeader: React.FC<WeatherSwimHeaderProps> = ({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
-              PAQI Agency
+              PAQI • {selectedCity}
             </span>
             <span style={{ fontSize: '0.65rem', color: '#94A3B8' }}>
-              epd.punjab.gov
+              epd.gov.pk
             </span>
           </div>
         </div>

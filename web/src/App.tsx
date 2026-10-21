@@ -65,7 +65,14 @@ export const App: React.FC = () => {
   const currentCityForecast = forecastData?.forecast_data?.cities?.[selectedCity];
   const cityTimeseries = timeseriesData[selectedCity] ?? [];
 
-  const currentPm25 = currentCityForecast?.current_pm25 ?? (selectedCity === 'Karachi' ? 95.5 : 180.1);
+  const lahoreForecast = forecastData?.forecast_data?.cities?.['Lahore'];
+  const karachiForecast = forecastData?.forecast_data?.cities?.['Karachi'];
+
+  const lahorePm25 = lahoreForecast?.current_pm25 ?? 180.1;
+  const karachiPm25 = karachiForecast?.current_pm25 ?? 95.5;
+  const lahorePredicted = lahoreForecast?.predicted_pm25_24h ?? 153.8;
+  const karachiPredicted = karachiForecast?.predicted_pm25_24h ?? 107.9;
+
   const predictedPm25 = currentCityForecast?.predicted_pm25_24h ?? (selectedCity === 'Karachi' ? 107.9 : 153.8);
   const lower80 = currentCityForecast?.lower_80 ?? (selectedCity === 'Karachi' ? 53.0 : 75.8);
   const upper80 = currentCityForecast?.upper_80 ?? (selectedCity === 'Karachi' ? 182.4 : 259.7);
@@ -111,12 +118,14 @@ export const App: React.FC = () => {
               transition={{ duration: 0.2 }}
               style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
             >
-              {/* Upper Section: Atmospheric Map Canvas with Floating Weather Bubbles */}
+              {/* Upper Section: Atmospheric Map Canvas with Interactive On-Map City Switching */}
               <WeatherSwimMap
-                city={selectedCity}
-                currentPm25={currentPm25}
-                predictedPm25={predictedPm25}
-                isHighRisk={isHighRisk}
+                selectedCity={selectedCity}
+                onSelectCity={setSelectedCity}
+                lahorePm25={lahorePm25}
+                karachiPm25={karachiPm25}
+                lahorePredicted={lahorePredicted}
+                karachiPredicted={karachiPredicted}
               />
 
               {/* Lower Section: 3 Bottom Widgets matching WeatherSwim */}

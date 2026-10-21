@@ -1,101 +1,110 @@
 import React from 'react';
-import { CloudRain, Wind, Droplets, Zap, Plus, Minus, Layers, MapPin } from 'lucide-react';
+import { CloudRain, Wind, Droplets, Zap, Plus, Minus, Layers, MapPin, Radio } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface WeatherSwimMapProps {
-  city: 'Lahore' | 'Karachi';
-  currentPm25: number;
-  predictedPm25: number;
-  isHighRisk: boolean;
+  selectedCity: 'Lahore' | 'Karachi';
+  onSelectCity: (city: 'Lahore' | 'Karachi') => void;
+  lahorePm25: number;
+  karachiPm25: number;
+  lahorePredicted: number;
+  karachiPredicted: number;
 }
 
 export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
-  city,
-  currentPm25,
-  isHighRisk
+  selectedCity,
+  onSelectCity,
+  lahorePm25,
+  karachiPm25,
+  lahorePredicted,
+  karachiPredicted
 }) => {
-  // District coordinates and names based on selected city
-  const districts = city === 'Lahore'
-    ? [
-        { name: 'WOODLANDS / RAVI', x: '35%', y: '12%' },
-        { name: 'YISHUN / SHAHDRAS', x: '60%', y: '15%' },
-        { name: 'MALL ROAD', x: '24%', y: '40%' },
-        { name: 'GULBERG CENTRAL', x: '46%', y: '42%' },
-        { name: 'MODEL TOWN', x: '58%', y: '43%' },
-        { name: 'DHA PHASE 5', x: '68%', y: '58%' },
-        { name: 'JOHAR TOWN', x: '26%', y: '58%' },
-        { name: 'BAHRIA / TOA PAYOH', x: '63%', y: '61%' },
-        { name: 'AIRPORT / BEDIAN', x: '82%', y: '42%' },
-        { name: 'RAIWIND', x: '40%', y: '85%' },
-      ]
-    : [
-        { name: 'NORTH NAZIMABAD', x: '35%', y: '15%' },
-        { name: 'GULSHAN-E-IQBAL', x: '60%', y: '18%' },
-        { name: 'SADDAR DOWNTOWN', x: '32%', y: '42%' },
-        { name: 'CLIFTON SEAFRONT', x: '45%', y: '50%' },
-        { name: 'DEFENCE / DHA', x: '62%', y: '46%' },
-        { name: 'KORANGI INDUSTRIAL', x: '72%', y: '56%' },
-        { name: 'MALIR CANTT', x: '82%', y: '36%' },
-        { name: 'PORT QASIM', x: '85%', y: '68%' },
-        { name: 'MANORA ISLAND', x: '25%', y: '65%' },
-      ];
+  const isLahore = selectedCity === 'Lahore';
+  const activePm25 = isLahore ? lahorePm25 : karachiPm25;
+  const activePredicted = isLahore ? lahorePredicted : karachiPredicted;
+  const isHighRisk = activePredicted > 150.0;
 
-  // Plume color based on PM2.5 severity
+  // Plume color based on active city PM2.5 severity
   const plumeGradient = isHighRisk
     ? 'radial-gradient(circle, rgba(239, 68, 68, 0.55) 0%, rgba(249, 115, 22, 0.45) 32%, rgba(234, 179, 8, 0.35) 58%, rgba(132, 204, 22, 0.18) 78%, rgba(255,255,255,0) 100%)'
     : 'radial-gradient(circle, rgba(234, 179, 8, 0.5) 0%, rgba(132, 204, 22, 0.4) 38%, rgba(34, 197, 94, 0.22) 68%, rgba(255,255,255,0) 100%)';
+
+  // District labels for active city
+  const lahoreDistricts = [
+    { name: 'WOODLANDS / RAVI', x: '42%', y: '14%' },
+    { name: 'SHAHDRA NORTH', x: '65%', y: '16%' },
+    { name: 'MALL ROAD', x: '35%', y: '36%' },
+    { name: 'GULBERG CENTRAL', x: '50%', y: '40%' },
+    { name: 'MODEL TOWN', x: '62%', y: '42%' },
+    { name: 'DHA PHASE 5', x: '72%', y: '56%' },
+    { name: 'JOHAR TOWN', x: '34%', y: '56%' },
+    { name: 'AIRPORT / BEDIAN', x: '82%', y: '42%' },
+  ];
+
+  const karachiDistricts = [
+    { name: 'NORTH NAZIMABAD', x: '34%', y: '16%' },
+    { name: 'GULSHAN-E-IQBAL', x: '58%', y: '18%' },
+    { name: 'SADDAR DOWNTOWN', x: '32%', y: '42%' },
+    { name: 'CLIFTON SEAFRONT', x: '45%', y: '52%' },
+    { name: 'DEFENCE / DHA', x: '64%', y: '46%' },
+    { name: 'KORANGI INDUSTRIAL', x: '74%', y: '56%' },
+    { name: 'MALIR CANTT', x: '82%', y: '34%' },
+    { name: 'PORT QASIM', x: '84%', y: '68%' },
+  ];
+
+  const districts = isLahore ? lahoreDistricts : karachiDistricts;
 
   return (
     <div style={{
       position: 'relative',
       width: '100%',
-      minHeight: '430px',
+      minHeight: '440px',
       borderRadius: '24px',
       overflow: 'hidden',
-      backgroundColor: 'var(--map-bg, #EAF1F5)',
-      border: '1px solid var(--card-border, #E2E8F0)',
+      backgroundColor: '#EAF1F5',
+      border: '1px solid #E2E8F0',
       boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      {/* 1. Stylized Background Geography (Subtle Roads, Coastline & Water) */}
+      {/* 1. Stylized Background Geography Grid */}
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.85 }}>
         <defs>
-          <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+          <pattern id="gridPattern2" width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(203, 213, 225, 0.35)" strokeWidth="0.8" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#gridPattern)" />
+        <rect width="100%" height="100%" fill="url(#gridPattern2)" />
 
-        {/* Abstract Coastlines & River curves */}
-        {city === 'Lahore' ? (
-          // Ravi River curve
+        {/* Dynamic Water & River paths based on active region */}
+        {isLahore ? (
+          // Ravi River meandering along North
           <path
-            d="M -20 80 Q 220 120 450 60 T 900 110 T 1400 90"
+            d="M -20 90 Q 240 130 480 70 T 950 115 T 1450 85"
             fill="none"
-            stroke="rgba(186, 215, 233, 0.8)"
+            stroke="rgba(186, 215, 233, 0.85)"
             strokeWidth="32"
             strokeLinecap="round"
           />
         ) : (
-          // Karachi Arabian Sea Coastline
+          // Karachi Coastline
           <path
-            d="M -50 340 Q 300 280 600 320 T 1300 270 L 1300 500 L -50 500 Z"
-            fill="rgba(186, 220, 240, 0.6)"
-            stroke="rgba(147, 197, 225, 0.6)"
+            d="M -50 330 Q 300 270 650 320 T 1400 260 L 1400 500 L -50 500 Z"
+            fill="rgba(186, 220, 240, 0.65)"
+            stroke="rgba(147, 197, 225, 0.7)"
             strokeWidth="3"
           />
         )}
 
-        {/* Major Arterial Roads / Ring Roads */}
+        {/* Ring Roads and Transit Grids */}
         <circle cx="50%" cy="48%" r="180" fill="none" stroke="rgba(255, 255, 255, 0.7)" strokeWidth="2.5" strokeDasharray="6 4" />
         <circle cx="50%" cy="48%" r="280" fill="none" stroke="rgba(255, 255, 255, 0.5)" strokeWidth="1.5" />
         <line x1="10%" y1="20%" x2="90%" y2="75%" stroke="rgba(255, 255, 255, 0.6)" strokeWidth="2" />
         <line x1="20%" y1="80%" x2="80%" y2="20%" stroke="rgba(255, 255, 255, 0.6)" strokeWidth="2" />
       </svg>
 
-      {/* 2. District Labels printed cleanly on map */}
+      {/* 2. District Labels printed on map */}
       {districts.map((d, i) => (
         <span
           key={i}
@@ -103,7 +112,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
             position: 'absolute',
             left: d.x,
             top: d.y,
-            fontSize: '0.68rem',
+            fontSize: '0.675rem',
             fontWeight: 700,
             letterSpacing: '0.08em',
             color: 'rgba(100, 116, 139, 0.75)',
@@ -116,8 +125,10 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         </span>
       ))}
 
-      {/* 3. The Atmospheric Aerosol Plume (WeatherSwim Heatmap center) */}
+      {/* 3. The Atmospheric Aerosol Plume for Active City */}
       <motion.div
+        key={selectedCity}
+        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: [1, 1.03, 1], opacity: [0.92, 1, 0.92] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         style={{
@@ -134,7 +145,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         }}
       />
 
-      {/* 4. Center Location Marker & City Pin */}
+      {/* 4. Center Primary City Epicenter (Active Node) */}
       <div style={{
         position: 'absolute',
         left: '50%',
@@ -144,50 +155,115 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         gap: '4px',
-        zIndex: 5
+        zIndex: 10
       }}>
-        <div style={{
-          width: '32px',
-          height: '32px',
-          borderRadius: '50%',
-          backgroundColor: '#FFFFFF',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          border: '2px solid #FFFFFF'
-        }}>
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            backgroundColor: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 6px 16px rgba(0,0,0,0.18)',
+            border: '2.5px solid #FFFFFF'
+          }}
+        >
           <div style={{
-            width: '14px',
-            height: '14px',
+            width: '16px',
+            height: '16px',
             borderRadius: '50%',
             backgroundColor: isHighRisk ? '#EF4444' : '#22C55E',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <MapPin size={8} color="#FFFFFF" />
+            <MapPin size={9} color="#FFFFFF" />
           </div>
-        </div>
+        </motion.div>
+
         <span style={{
-          fontSize: '1.45rem',
+          fontSize: '1.5rem',
           fontWeight: 800,
           color: isHighRisk ? '#991B1B' : '#15803D',
           letterSpacing: '-0.02em',
-          textShadow: '0 1px 8px rgba(255,255,255,0.9)'
+          textShadow: '0 1px 10px rgba(255,255,255,0.95)'
         }}>
-          {city}
+          {selectedCity}
         </span>
       </div>
 
-      {/* 5. Four Floating Frosted Glass Widgets (Matching WeatherSwim Exactly) */}
+      {/* 5. INTERACTIVE SECONDARY CITY STATION ON MAP */}
+      {/* Click this node directly on the map to switch telemetry to the other city! */}
+      <motion.div
+        whileHover={{ scale: 1.05, y: -2 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => onSelectCity(isLahore ? 'Karachi' : 'Lahore')}
+        title={`Click to view ${isLahore ? 'Karachi' : 'Lahore'} ground station`}
+        style={{
+          position: 'absolute',
+          left: isLahore ? '12%' : '80%',
+          top: isLahore ? '72%' : '18%',
+          backgroundColor: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderRadius: '999px',
+          padding: '8px 16px',
+          border: '1.5px solid rgba(255, 255, 255, 0.95)',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          cursor: 'pointer',
+          zIndex: 12,
+          transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+        }}
+      >
+        <div style={{
+          width: '26px',
+          height: '26px',
+          borderRadius: '50%',
+          backgroundColor: isLahore ? '#DCFCE7' : '#FEE2E2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: isLahore ? '#15803D' : '#DC2626'
+        }}>
+          <Radio size={13} />
+        </div>
 
-      {/* Top-Left Bubble: RAINFALL */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ fontSize: '0.825rem', fontWeight: 800, color: '#0F172A' }}>
+              {isLahore ? 'Karachi Station' : 'Lahore Station'}
+            </span>
+            <span style={{
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              padding: '1px 6px',
+              borderRadius: '999px',
+              backgroundColor: isLahore ? '#DCFCE7' : '#FEE2E2',
+              color: isLahore ? '#166534' : '#991B1B'
+            }}>
+              {isLahore ? `${karachiPm25.toFixed(0)} µg/m³` : `${lahorePm25.toFixed(0)} µg/m³`}
+            </span>
+          </div>
+          <span style={{ fontSize: '0.675rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
+            Click node to switch telemetry ↗
+          </span>
+        </div>
+      </motion.div>
+
+      {/* 6. Four Floating Frosted Glass Widgets (WeatherSwim Style) */}
+
+      {/* Bubble 1: RAINFALL */}
       <motion.div
         whileHover={{ scale: 1.04 }}
         style={{
           position: 'absolute',
-          left: '23%',
+          left: '22%',
           top: '18%',
           width: '124px',
           height: '124px',
@@ -201,8 +277,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 8,
-          cursor: 'pointer'
+          zIndex: 8
         }}
       >
         <CloudRain size={18} color="#22C55E" style={{ marginBottom: '4px' }} />
@@ -214,12 +289,12 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         </span>
       </motion.div>
 
-      {/* Bottom-Center-Left Bubble: TEMPERATURE */}
+      {/* Bubble 2: TEMPERATURE */}
       <motion.div
         whileHover={{ scale: 1.04 }}
         style={{
           position: 'absolute',
-          left: '37%',
+          left: '36%',
           top: '38%',
           width: '120px',
           height: '120px',
@@ -233,20 +308,19 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 8,
-          cursor: 'pointer'
+          zIndex: 8
         }}
       >
         <Wind size={18} color="#F97316" style={{ marginBottom: '4px' }} />
         <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
-          23 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
+          {isLahore ? '23' : '28'} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>°C</span>
         </div>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           TEMPERATURE
         </span>
       </motion.div>
 
-      {/* Top-Right Bubble: HUMIDITY */}
+      {/* Bubble 3: HUMIDITY */}
       <motion.div
         whileHover={{ scale: 1.04 }}
         style={{
@@ -265,20 +339,19 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 8,
-          cursor: 'pointer'
+          zIndex: 8
         }}
       >
         <Droplets size={20} color="#0EA5E9" style={{ marginBottom: '4px' }} />
         <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
-          68 <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
+          {isLahore ? '68' : '78'} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>%</span>
         </div>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           HUMIDITY
         </span>
       </motion.div>
 
-      {/* Bottom-Right Bubble: PM2.5 / AIR QUALITY */}
+      {/* Bubble 4: PM2.5 / AIR QUALITY */}
       <motion.div
         whileHover={{ scale: 1.04 }}
         style={{
@@ -297,25 +370,24 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 8,
-          cursor: 'pointer'
+          zIndex: 8
         }}
       >
         <Zap size={20} color={isHighRisk ? '#EF4444' : '#22C55E'} style={{ marginBottom: '4px' }} />
         <div style={{ fontSize: '1.4rem', fontWeight: 800, color: isHighRisk ? '#DC2626' : '#16A34A', lineHeight: 1 }}>
-          {currentPm25.toFixed(0)} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
+          {activePm25.toFixed(0)} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>µg/m³</span>
         </div>
         <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.06em', marginTop: '2px' }}>
           PM2.5 / AIR
         </span>
       </motion.div>
 
-      {/* 6. Concentration Legend (Bottom-Left) */}
+      {/* 7. Low-to-High Concentration Legend (Bottom-Left) */}
       <div style={{
         position: 'absolute',
         left: '24px',
         bottom: '20px',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: 'rgba(255, 255, 255, 0.92)',
         backdropFilter: 'blur(10px)',
         padding: '10px 16px',
         borderRadius: '16px',
@@ -339,7 +411,7 @@ export const WeatherSwimMap: React.FC<WeatherSwimMapProps> = ({
         </div>
       </div>
 
-      {/* 7. Map Controls (Bottom-Right/Right Edge) */}
+      {/* 8. Map Zoom Controls */}
       <div style={{
         position: 'absolute',
         right: '20px',
