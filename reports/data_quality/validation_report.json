@@ -1,16 +1,16 @@
 {
   "schema_version": "2.0",
-  "run_id": "RUN-20261020132143",
-  "generated_at_utc": "2026-10-20T13:21:43.975506+00:00",
+  "run_id": "RUN-20261020180408",
+  "generated_at_utc": "2026-10-20T18:04:08.379521+00:00",
   "status": "WARN",
-  "total_records_checked": 49116,
+  "total_records_checked": 176392,
   "checks": [
     {
       "check_id": "schema_completeness",
       "rule_id": "DQ-SCH-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "All contract schema columns are present."
@@ -20,7 +20,7 @@
       "rule_id": "DQ-FIX-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "No untrimmed string whitespace detected."
@@ -30,7 +30,7 @@
       "rule_id": "DQ-DUP-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "All 'record_id' identifiers are strictly unique."
@@ -40,7 +40,7 @@
       "rule_id": "DQ-NULL-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "Zero null values in target column 'pm25_target_24h'."
@@ -50,7 +50,7 @@
       "rule_id": "DQ-NULL-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "Zero null values in target column 'pm25'."
@@ -60,7 +60,7 @@
       "rule_id": "DQ-FILL-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "Zero null values across all meteorological covariates."
@@ -70,7 +70,7 @@
       "rule_id": "DQ-RNG-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "All PM2.5 observations conform to physical bounds [0, 1500] ug/m3."
@@ -80,7 +80,7 @@
       "rule_id": "DQ-RNG-002",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "All temperature values conform to realistic range [-10, 60] \u00b0C."
@@ -90,7 +90,7 @@
       "rule_id": "DQ-RNG-003",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
       "message": "All relative humidity readings conform to [0, 100]%."
@@ -100,40 +100,40 @@
       "rule_id": "DQ-TMP-001",
       "status": "WARN",
       "severity": "warning",
-      "records_checked": 49116,
-      "records_affected": 3591,
+      "records_checked": 176392,
+      "records_affected": 9548,
       "action_taken": "FLAG",
-      "message": "Detected 3591 temporal gaps exceeding 1h (maximum gap: 1299.0h). Time series discontinuity preserved; FLAGGED."
+      "message": "Detected 9548 temporal gaps exceeding 1h (maximum gap: 13524.0h). Time series discontinuity preserved; FLAGGED."
     },
     {
       "check_id": "sensor_flatlining",
       "rule_id": "DQ-FLT-001",
       "status": "WARN",
       "severity": "warning",
-      "records_checked": 49116,
-      "records_affected": 297,
+      "records_checked": 176392,
+      "records_affected": 421,
       "action_taken": "FLAG",
-      "message": "Detected 23 sensor flatline episodes (>=6h constant pm25) affecting 297 records. Indicates potential frozen sensor; FLAGGED."
+      "message": "Detected 40 sensor flatline episodes (>=6h constant pm25) affecting 421 records. Indicates potential frozen sensor; FLAGGED."
     },
     {
       "check_id": "data_timeliness",
       "rule_id": "DQ-TIM-001",
       "status": "PASS",
       "severity": "info",
-      "records_checked": 49116,
+      "records_checked": 176392,
       "records_affected": 0,
       "action_taken": "NO_ACTION",
-      "message": "All timestamps parse validly in UTC. Range: 2024-07-23 05:00:00+00:00 to 2024-12-30 23:00:00+00:00."
+      "message": "All timestamps parse validly in UTC. Range: 2022-01-01 00:00:00+00:00 to 2024-12-30 23:00:00+00:00."
     },
     {
       "check_id": "distribution_spikes",
       "rule_id": "DQ-DST-001",
       "status": "WARN",
       "severity": "warning",
-      "records_checked": 49116,
-      "records_affected": 81,
+      "records_checked": 176392,
+      "records_affected": 123,
       "action_taken": "FLAG",
-      "message": "Detected 81 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review."
+      "message": "Detected 123 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review."
     }
   ],
   "actions_summary": {
