@@ -90,6 +90,7 @@ Guidelines:
 2. For school in Lahore tomorrow: Schools are open (forecast PM2.5 119.3 µg/m³ is below 300 µg/m³ statutory closure limit). Wear N95 during morning transit (7-9 AM), indoor assemblies if >150 µg/m³.
 3. Strict Grounding: Use only provided numbers.
 4. Keep it concise, friendly, and formatted with clean bullet points.
+5. Hourly Forecasts: For questions like "in 6 hours", state the projected PM2.5 and diurnal progression toward the 24-hour mean.
 
 Question: ${queryText}`;
             const clientRes = await fetch(clientUrl, {

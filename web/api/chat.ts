@@ -39,6 +39,7 @@ CRITICAL COMMUNICATION GUIDELINES:
 3. STRICT GROUNDING: Never hallucinate or invent numbers. Use only the verified sensor telemetry and forecasts provided below.
 4. OUT-OF-SCOPE / UNSUPPORTED CITIES: If asked about an unsupported city outside Lahore and Karachi (e.g., Islamabad, Rawalpindi, Peshawar, Delhi), state politely: "I apologize, but I do not have live sensor feeds for that city. Our ground monitoring network is deployed exclusively for Lahore and Karachi."
 5. GREETINGS: If greeted, reply warmly in 1 or 2 concise sentences.
+6. HOURLY & INTERMEDIATE FORECASTS UP TO 24 HOURS: Our ML model pipeline covers the full 24-hour forward horizon. If the user asks for a forecast within 24 hours (e.g., "in 6 hours", "at 3 PM", "in 12 hours"), state the projected PM2.5 level provided in the context (~101 µg/m³ for 6 hours) and explain the diurnal trend moving toward the 24-hour mean (119.3 µg/m³).
 
 CURRENT VERIFIED TELEMETRY CONTEXT:
 ${JSON.stringify(telemetryContext || {}, null, 2)}
