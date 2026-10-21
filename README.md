@@ -15,26 +15,35 @@ license: mit
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue.svg)](https://www.python.org/)
 [![Orchestration: Prefect 3](https://img.shields.io/badge/orchestration-Prefect%203.8-orange.svg)](https://www.prefect.io/)
 [![Dashboard: Streamlit](https://img.shields.io/badge/dashboard-Streamlit-red.svg)](https://streamlit.io/)
+[![Frontend: React 19 + Three.js](https://img.shields.io/badge/web-React%2019%20%7C%20Vite-61DAFB.svg)](https://web-livid-eight-rcllafnbqq.vercel.app)
+[![Tests: 101 Passed](https://img.shields.io/badge/tests-101%2F101%20passed-brightgreen.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An end-to-end, reproducible air-quality operational pipeline and decision-support system built for **HackInsight 2026 (TECHFEST '26)**. The system forecasts ground-level hourly PM2.5 concentrations **24 hours ahead ($t+24$)** for **Lahore** and **Karachi**, provides calibrated 80% & 90% uncertainty intervals, enforces deterministic data-quality governance, and powers an anti-hallucination decision-support agent grounded in statutory environmental standards.
+
+**Team:** DataMinors  
+**Members:** Laiba Akram, Ali Hasan Farooqui, Areeba, Bushra Abid  
+**Repository:** [Ali-HF/HackInsight](https://github.com/Ali-HF/HackInsight)  
+**Release Tag:** [`v1.0-final`](https://github.com/Ali-HF/HackInsight/tree/v1.0-final)  
+**Live Citizen Web App:** [https://web-livid-eight-rcllafnbqq.vercel.app](https://web-livid-eight-rcllafnbqq.vercel.app)  
+**Hugging Face Telemetry Space:** [huggingface.co/spaces](https://huggingface.co/spaces)  
 
 ---
 
 ## 🏆 HackInsight 2026 Official Submission Index
 
-| Item | Deliverable Requirement | Location in Repository / Verification | Status |
+| Item | Guide Requirement | Location in Repository / Verification | Status |
 |:---:|:---|:---|:---:|
-| **1** | **Data Acquisition & Warehouse (`make data`)** | [`Makefile`](Makefile) (`make data`), [`data/manifests/manifest.csv`](data/manifests/manifest.csv) & [`data/manifest.csv`](data/manifest.csv) (SHA-256 verified) | ✅ **100% Pass** |
-| **2** | **Data Quality Agent (`quality_log`)** | [`src/data_pipeline/validation/data_quality_agent.py`](src/data_pipeline/validation/data_quality_agent.py), [`reports/data_quality/quality_log.csv`](reports/data_quality/quality_log.csv) (`FIX`, `FILL`, `FLAG`, `NO_ACTION`) | ✅ **100% Pass** |
-| **3** | **ML Model (Beats Baseline, Uncertainty, Group Errors)** | [`artifacts/reports/metrics_summary.json`](artifacts/reports/metrics_summary.json), [`artifacts/reports/error_analysis.json`](artifacts/reports/error_analysis.json) (+4.12% MAE, +6.30% RMSE, 82.4% conformal coverage) | ✅ **100% Pass** |
-| **4** | **Insight Agent (RAG, Citations, Row IDs, "I Don't Know")** | [`src/insight_agent/agent.py`](src/insight_agent/agent.py), Pak-EPA NEQS 2010 & WHO 2021 statutory citations, explicit out-of-scope refusals | ✅ **100% Pass** |
+| **1** | **Data Acquisition & Warehouse (`make data`)** | [`Makefile`](Makefile) (`make data`), [`data/manifests/manifest.csv`](data/manifests/manifest.csv) (SHA-256 verified) | ✅ **100% Pass** |
+| **2** | **Data Quality Agent (`quality_log.csv`)** | [`src/data_pipeline/validation/data_quality_agent.py`](src/data_pipeline/validation/data_quality_agent.py), [`reports/data_quality/quality_log.csv`](reports/data_quality/quality_log.csv) (`FIX`, `FILL`, `FLAG`, `NO_ACTION`) | ✅ **100% Pass** |
+| **3** | **ML Model (Beats Baseline, Uncertainty, Group Errors)** | [`artifacts/reports/metrics_summary.json`](artifacts/reports/metrics_summary.json), [`artifacts/reports/error_analysis.json`](artifacts/reports/error_analysis.json) (+3.63% MAE, +5.79% RMSE, 82.42% conformal coverage) | ✅ **100% Pass** |
+| **4** | **Insight Agent (RAG, Citations, Row IDs, "I Don't Know")** | [`src/insight_agent/interface.py`](src/insight_agent/interface.py), Pak-EPA NEQS 2010 & WHO 2021 statutory citations, explicit out-of-scope refusals, bilingual Urdu | ✅ **100% Pass** |
 | **5** | **Automated Hourly Pipeline & Live Dashboards** | [`src/orchestration/flows.py`](src/orchestration/flows.py), [`prefect_runs.csv`](prefect_runs.csv), Hugging Face Space & [Live Vercel 3D Globe](https://web-livid-eight-rcllafnbqq.vercel.app) | ✅ **100% Pass** |
 | **6** | **Dataset Proposal (`datasetproposal.pdf`)** | [`datasetproposal.pdf`](datasetproposal.pdf) (PAQI NASA ASDC DAAC DOI: 10.5067, NASA POWER reanalysis, OpenAQ delta) | ✅ **Complete** |
-| **7** | **GitHub Release Tag (`v1.0-final`)** | Git tag `v1.0-final` on branch `main` | ✅ **Tagged** |
+| **7** | **GitHub Release Tag (`v1.0-final`)** | Git tag `v1.0-final` on branch `main` (verified clean commit) | ✅ **Tagged** |
 | **8** | **Hugging Face Space Link** | [`huggingface-space/`](huggingface-space/) (Operational telemetry Gradio space) & [Telemetry Deployment](huggingface-space/README.md) | ✅ **Ready** |
 | **9 & 10** | **Executive Summary (`Summary.pdf`)** | [`Summary.pdf`](Summary.pdf) (Verified exactly **one page** covering approach, ML rigor, and Pakistan impact) | ✅ **1-Page Pass** |
-| **11** | **3-Minute Demo Video Walkthrough** | Complete time-coded script (0:00–3:00, no login needed) in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#4-3-minute-demo-video-script--walkthrough-guide) | ✅ **Documented** |
+| **11** | **3-Minute Demo Video Walkthrough** | Standalone visual demo [`brag-output/brag-demo.html`](brag-output/brag-demo.html), script in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#4-3-minute-demo-video-script--walkthrough-guide) | ✅ **Documented** |
 | **12** | **AI Use Disclosure (`AI_Use_Log.md`)** | [`AI_Use_Log.md`](AI_Use_Log.md) (Full tool breakdown, task mapping, manual verification, and member attribution) | ✅ **Complete** |
 | **13** | **Physical Viva Preparation Matrix** | Member-by-member defense guide and Q&A in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#3-physical-viva-preparation--team-defense-guide) | ✅ **Ready** |
 | **14** | **Business Model (User, Payer, Value, Running Cost)** | Detailed financial and operational model in [`docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md`](docs/SUBMISSION_DEFENSE_AND_BUSINESS_MODEL.md#1-business-model-architecture) | ✅ **Documented** |

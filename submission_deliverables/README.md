@@ -19,7 +19,6 @@ submission_deliverables/
 ├── README.md                                 # This master index and evaluation guide
 ├── Summary.pdf                               # Verified exactly 1 page executive summary
 ├── datasetproposal.pdf                       # Dataset Proposal (PAQI NASA DAAC DOI, NASA POWER, OpenAQ)
-├── datasetpropsal.pdf                        # Alias copy to cover both common spellings
 ├── AI_Use_Log.md                             # AI tooling disclosures and manual verifications
 ├── Makefile                                  # Automation entrypoint (make data, make test, make run)
 ├── manifest.csv                              # Cryptographic data manifest with SHA-256 hashes
@@ -76,7 +75,7 @@ submission_deliverables/
 | **3** | **Model (Beats baseline, uncertainty, group errors)** | [`reports/metrics_summary.json`](reports/metrics_summary.json), [`reports/error_analysis.json`](reports/error_analysis.json), [`models/pm25_forecaster.joblib`](models/pm25_forecaster.joblib) |
 | **4** | **Insight Agent (RAG, citations, row IDs, "I don't know")** | [`docs/insight_agent_documentation.md`](docs/insight_agent_documentation.md) |
 | **5** | **Automated hourly pipeline & Hugging Face dashboard** | [`prefect_runs.csv`](prefect_runs.csv), [`outputs/run_history/`](outputs/run_history/), [`huggingface-space/`](huggingface-space/) |
-| **6** | **Dataset Proposal (`datasetproposal.pdf`)** | [`datasetproposal.pdf`](datasetproposal.pdf), [`datasetpropsal.pdf`](datasetpropsal.pdf), [`DATASET_DECLARATION.md`](DATASET_DECLARATION.md) |
+| **6** | **Dataset Proposal (`datasetproposal.pdf`)** | [`datasetproposal.pdf`](datasetproposal.pdf), [`DATASET_DECLARATION.md`](DATASET_DECLARATION.md) |
 | **7** | **GitHub repo tagged `v1.0-final`** | Repository tagged at [`v1.0-final`](https://github.com/Ali-HF/HackInsight/tree/v1.0-final) |
 | **8** | **Hugging Face Space link** | [`huggingface-space/`](huggingface-space/) |
 | **9 & 10** | **Executive Summary (`Summary.pdf` - 1 Page)** | [`Summary.pdf`](Summary.pdf) (Verified exactly 1 page) |
