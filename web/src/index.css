@@ -262,8 +262,18 @@ code, pre {
   align-items: start;
 }
 
+.weatherswim-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
 /* Tablet & Mobile Breakpoints */
 @media (max-width: 1024px) {
+  .weatherswim-bottom-grid {
+    grid-template-columns: 1fr;
+  }
   .grid-hero {
     grid-template-columns: 1fr;
   }
