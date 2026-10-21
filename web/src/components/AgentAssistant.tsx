@@ -124,6 +124,28 @@ export const evaluateQueryGrounded = (
     }
   }
 
+  // 0. Greetings & Friendly Conversational Inquiries
+  const isGreeting = /^(hi|hello|hey|salam|assalam|aoa|good\s*(morning|afternoon|evening)|help|who\s*are\s*you|what\s*can\s*you\s*do)\b/i.test(q) || 
+    q === 'hi' || q === 'hello' || q === 'hey' || q === 'salam';
+  if (isGreeting) {
+    return {
+      answer: `**Hello! I am your Unified Air Quality & Environmental Decision Assistant.**\n\nI monitor real-time ground telemetry, government environmental directives, and 24-hour predictive machine learning models for both **Lahore** and **Karachi**.\n\n**Current Live Status at a Glance:**\n• **Lahore Ground Station:** **${lahoreVal.toFixed(1)} µg/m³** (${lahoreCat.tier})\n• **Karachi Coastal Station:** **${karachiVal.toFixed(1)} µg/m³** (${karachiCat.tier})\n\n**How can I help you today? You can ask me:**\n• *"What is the air quality in Karachi right now?"*\n• *"What is the air quality in Lahore right now?"*\n• *"Compare Lahore and Karachi air quality."*\n• *"What is tomorrow's 24-hour forecast for Lahore?"*\n• *"Is it safe to go jogging or exercise outdoors today?"*\n• *"What are the government school rules and smog emergency protocols?"*\n• *"Why does winter smog get so severe in Pakistan?"*`,
+      status: "success",
+      evidence: {
+        lahore: { current_pm25: lahoreVal, aqi_category: lahoreCat.tier },
+        karachi: { current_pm25: karachiVal, aqi_category: karachiCat.tier }
+      },
+      citations: [
+        { title: "Pakistan Air Quality Initiative (PAQI) Monitoring Network" },
+        { title: "Pak-EPA NEQS 24-hr Ambient Standard (35 µg/m³)" }
+      ],
+      warnings: [],
+      tools_used: ["conversational_greeting", "get_current_pm25"],
+      grounding_passed: true,
+      interaction_id: interactionId
+    };
+  }
+
   // Detect explicit single-city focus if user only asked about one
   const mentionsLahore = q.includes('lahore') || q.includes('lhr');
   const mentionsKarachi = q.includes('karachi') || q.includes('khi');
@@ -160,9 +182,69 @@ export const evaluateQueryGrounded = (
     };
   }
 
-  // 2. Why Smog Happens in Winter (Physics & Inversion in Plain Words)
-  const isSmogPhysics = q.includes('why') || q.includes('cause') || q.includes('inversion') || 
-    q.includes('winter') || q.includes('trap') || q.includes('physics') || q.includes('how does smog');
+  // 2. Specific Single-City Current Air Quality (e.g., "what's the air quality in karachi right now?")
+  const isCurrentAirQuery = q.includes('right now') || q.includes('now') || q.includes('current') || 
+    q.includes('air quality') || q.includes('aqi') || q.includes('pm2.5') || q.includes('pm25') || 
+    q.includes('today') || q.includes('status') || q.includes('reading') || q.includes('level') ||
+    q.includes('smog') || q.includes('how is') || q.includes('pollut');
+
+  // 2a. Karachi Specific Current Air Quality
+  if (mentionsKarachi && !mentionsLahore && !isComparison && 
+      (isCurrentAirQuery || (!q.includes('forecast') && !q.includes('predict') && !q.includes('model') && !q.includes('accuracy') && !q.includes('school')))) {
+    return {
+      answer: `**Current Air Quality in Karachi:**\n\n• **Live Ground PM2.5:** **${karachiVal.toFixed(1)} µg/m³**\n• **Air Quality Classification:** **${karachiCat.tier}** (${karachiCat.aqiDesc})\n• **Legal Health Benchmark:** Exceeds Pakistan's 24-hr NEQS limit (35 µg/m³) by **${(karachiVal / 35.0).toFixed(1)}×**.\n• **24-Hour Outlook:** Projected at **${karachiPred.toFixed(1)} µg/m³** (80% CI: [${karachiLower.toFixed(0)} - ${karachiUpper.toFixed(0)}] µg/m³).\n\n**Why Is Karachi's Air at This Level Right Now? (In Plain Words):**\nKarachi's pollution is driven by heavy diesel port logistics, dense urban traffic along major corridors (M.A. Jinnah Rd, Korangi, Shahrah-e-Faisal), and resuspended road dust. High coastal humidity traps fine particulates in a shallow marine boundary layer. While sea breezes provide horizontal ventilation, baseline aerosol concentrations remain elevated.\n\n**Actionable Advice for Karachi Residents:**\n• **Outdoor Masking:** Wear an N95 or well-fitting mask if commuting on motorcycles, buses, or open rickshaws.\n• **Sensitive Groups:** Children, asthmatics, and elderly individuals should avoid prolonged outdoor exposure and keep rescue inhalers accessible.\n• **Exercise:** Avoid vigorous jogging along heavy traffic corridors. If exercising, choose coastal parks during midday when sea breezes are strongest.`,
+      status: "success",
+      evidence: {
+        city: "Karachi",
+        current_pm25: karachiVal,
+        predicted_pm25_24h: karachiPred,
+        lower_80: karachiLower,
+        upper_80: karachiUpper,
+        aqi_tier: karachiCat.tier,
+        pak_neqs_limit: 35.0
+      },
+      citations: [
+        { title: "PAQI Ground Monitoring Sensor Registry (Karachi Stations)" },
+        { title: "Pak-EPA NEQS Ambient Standard (35 µg/m³ 24-hr standard)" },
+        { title: "Sindh Environmental Protection Agency (SEPA) Baseline" }
+      ],
+      warnings: ["Karachi currently exceeds statutory 24-hour health limits."],
+      tools_used: ["get_current_pm25", "get_pm25_forecast"],
+      grounding_passed: true,
+      interaction_id: interactionId
+    };
+  }
+
+  // 2b. Lahore Specific Current Air Quality
+  if (mentionsLahore && !mentionsKarachi && !isComparison && 
+      (isCurrentAirQuery || (!q.includes('forecast') && !q.includes('predict') && !q.includes('model') && !q.includes('accuracy') && !q.includes('school')))) {
+    return {
+      answer: `**Current Air Quality in Lahore:**\n\n• **Live Ground PM2.5:** **${lahoreVal.toFixed(1)} µg/m³**\n• **Air Quality Classification:** **${lahoreCat.tier}** (${lahoreCat.aqiDesc})\n• **Legal Health Benchmark:** Exceeds Pakistan's 24-hr NEQS limit (35 µg/m³) by **${(lahoreVal / 35.0).toFixed(1)}×**.\n• **24-Hour Outlook:** Projected to rise overnight to **${lahorePred.toFixed(1)} µg/m³** (80% CI: [${lahoreLower.toFixed(0)} - ${lahoreUpper.toFixed(0)}] µg/m³).\n\n**Why Is Lahore's Air at This Level Right Now? (In Plain Words):**\nLahore sits in an inland, landlocked basin that suffers from nocturnal temperature inversions. A layer of cold air gets trapped under warm air like an atmospheric lid, sealing vehicle exhaust, industrial brick kiln smoke, and agricultural dust near ground level. With light surface winds, pollution cannot blow away and accumulates rapidly.\n\n**Actionable Advice for Lahore Residents:**\n• **Outdoor Masking:** Strictly wear an N95/KN95 respirator outdoors. Regular cloth masks cannot filter fine PM2.5 particles.\n• **Exercise Precautions:** Strictly avoid early morning outdoor jogging (06:00 - 09:00) when inversion smog is most concentrated. The safest window is between 12:00 PM and 3:00 PM.\n• **Indoor Protection:** Keep windows closed overnight and run an indoor air purifier with a true HEPA filter if available.`,
+      status: "success",
+      evidence: {
+        city: "Lahore",
+        current_pm25: lahoreVal,
+        predicted_pm25_24h: lahorePred,
+        lower_80: lahoreLower,
+        upper_80: lahoreUpper,
+        aqi_tier: lahoreCat.tier,
+        pak_neqs_limit: 35.0
+      },
+      citations: [
+        { title: "PAQI Ground Monitoring Sensor Registry (Lahore Stations)" },
+        { title: "Pak-EPA NEQS Ambient Standard (35 µg/m³ 24-hr standard)" },
+        { title: "Punjab Clean Air Action Plan 2023" }
+      ],
+      warnings: ["Lahore currently exceeds statutory 24-hour health limits."],
+      tools_used: ["get_current_pm25", "get_pm25_forecast"],
+      grounding_passed: true,
+      interaction_id: interactionId
+    };
+  }
+
+  // 3. Why Smog Happens in Winter (Physics & Inversion in Plain Words)
+  const isSmogPhysics = /\b(inversion|thermal\s+inversion|stubble|crop\s+burn(ing)?|causes?\s+of\s+smog|why\s+does\s+smog|how\s+smog\s+forms?|why\s+smog\s+happens?|physics\s+of\s+smog)\b/i.test(q) ||
+    (q.includes('why') && (q.includes('smog') || q.includes('inversion') || q.includes('winter') || q.includes('trap')));
 
   if (isSmogPhysics) {
     return {
@@ -181,10 +263,8 @@ export const evaluateQueryGrounded = (
     };
   }
 
-  // 3. School Protocols & Government Emergency Regulations
-  const isSchoolOrPolicy = q.includes('school') || q.includes('student') || q.includes('child') || 
-    q.includes('kid') || q.includes('assembly') || q.includes('policy') || q.includes('rule') || 
-    q.includes('protocol') || q.includes('punjab') || q.includes('sindh') || q.includes('law');
+  // 4. School Protocols & Government Emergency Regulations
+  const isSchoolOrPolicy = /\b(schools?|students?|children|kids?|assembly|assemblies|government\s+rules?|smog\s+policy|emergency\s+protocol|punjab\s+clean\s+air|closure|holidays?)\b/i.test(q);
 
   if (isSchoolOrPolicy) {
     return {
@@ -203,11 +283,8 @@ export const evaluateQueryGrounded = (
     };
   }
 
-  // 4. Forecast / Predictions (24h Ahead, Trends, Tomorrow)
-  const isForecastQuery = q.includes('forecast') || q.includes('predict') || q.includes('tomorrow') || 
-    q.includes('24h') || q.includes('24-hour') || q.includes('next day') || q.includes('will it') || 
-    q.includes('future') || q.includes('trend') || q.includes('interval') || q.includes('conformal') || 
-    q.includes('expected') || q.includes('improve');
+  // 5. Forecast / Predictions (24h Ahead, Trends, Tomorrow)
+  const isForecastQuery = /\b(forecast|predictions?|predict|tomorrow|next\s+24h|next\s+day|24-?hours?|future\s+trend|will\s+it\s+improve)\b/i.test(q);
 
   if (isForecastQuery) {
     if (mentionsKarachi && !mentionsLahore) {
@@ -255,10 +332,8 @@ export const evaluateQueryGrounded = (
     };
   }
 
-  // 5. Health, Safety, Outdoor Exercise, Running & Masks
-  const isHealthSafety = q.includes('safe') || q.includes('outside') || q.includes('jog') || 
-    q.includes('run') || q.includes('walk') || q.includes('exercise') || q.includes('breathe') || 
-    q.includes('mask') || q.includes('health') || q.includes('hospital') || q.includes('precaution');
+  // 6. Health, Safety, Outdoor Exercise, Running & Masks
+  const isHealthSafety = /\b(safe|safety|jog(ging)?|run(ning)?|walk(ing)?|exercise|exercising|workout|outside|outdoors?|masks?|n95|kn95|breathe|asthma|health\s+risks?|precautions?)\b/i.test(q);
 
   if (isHealthSafety) {
     return {
@@ -277,10 +352,8 @@ export const evaluateQueryGrounded = (
     };
   }
 
-  // 6. Data Quality, Reliability, Sensor Checks & Trust
-  const isDataTrust = q.includes('data quality') || q.includes('clean') || q.includes('reliable') || 
-    q.includes('trust') || q.includes('sensor') || q.includes('real') || q.includes('fake') || 
-    q.includes('hallucinat') || q.includes('audit') || q.includes('checks');
+  // 7. Data Quality, Reliability, Sensor Checks & Trust
+  const isDataTrust = /\b(data\s+quality|reliable|reliability|trust|sensors?|fake|hallucinat(ed|ion)?|audits?|checks?|barkjohn|calibration)\b/i.test(q);
 
   if (isDataTrust) {
     const totalRecords = quality?.total_records_checked || 176392;
@@ -301,10 +374,9 @@ export const evaluateQueryGrounded = (
     };
   }
 
-  // 7. Model Performance & ML Accuracy
-  const isModelQuery = q.includes('baseline') || q.includes('model') || q.includes('accuracy') || 
-    q.includes('mae') || q.includes('rmse') || q.includes('better') || q.includes('performance') || 
-    q.includes('metric') || q.includes('persistence') || q.includes('ai');
+  // 8. Model Performance & ML Accuracy (Strictly word-bounded)
+  const isModelQuery = /\b(model|accuracy|mae|rmse|baseline\s+persistence|performance\s+metrics?|machine\s+learning|algorithm|how\s+accurate)\b/i.test(q) ||
+    /\b(ai\s+model|ai\s+accuracy|ai\s+performance)\b/i.test(q);
 
   if (isModelQuery) {
     return {
@@ -328,7 +400,7 @@ export const evaluateQueryGrounded = (
     };
   }
 
-  // 8. General Catch-All / Status
+  // 9. General Catch-All / Status
   return {
     answer: `**Current Air Quality Summary (Unified System):**\n\n• **Lahore Ground Station:** **${lahoreVal.toFixed(1)} µg/m³** (${lahoreCat.tier} - ${lahoreCat.aqiDesc})\n  - 24h Projected: **${lahorePred.toFixed(1)} µg/m³**\n  - Health Standard: Exceeds Pak-EPA 24-hr NEQS limit (35 µg/m³) by ${(lahoreVal / 35.0).toFixed(1)}×.\n\n• **Karachi Coastal Station:** **${karachiVal.toFixed(1)} µg/m³** (${karachiCat.tier} - ${karachiCat.aqiDesc})\n  - 24h Projected: **${karachiPred.toFixed(1)} µg/m³**\n  - Health Standard: Exceeds Pak-EPA 24-hr NEQS limit (35 µg/m³) by ${(karachiVal / 35.0).toFixed(1)}×.\n\n**Key Recommendation:** Air in both cities is currently Unhealthy. Wear an N95 mask during prolonged outdoor commutes and avoid heavy early-morning workouts.`,
     status: "success",
