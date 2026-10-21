@@ -10,6 +10,18 @@ pinned: false
 license: mit
 ---
 
+```text
+   ____        _     _      _                  _      ___  ____  
+  |  _ \ __ _ | | __(_)___ | |_  __ _  _ __   / \    / _ \|  _ \ 
+  | |_) / _` || |/ /| / __|| __|/ _` || '_ \ / _ \  | | | | |_) |
+  |  __/ (_| ||   < | \__ \| |_| (_| || | | / ___ \ | |_| |  __/ 
+  |_|   \__,_||_|\_\|_|___/ \__|\__,_||_| |/_/   \_(_)__\_\_|    
+  ===============================================================
+       GROUND-LEVEL PM2.5 24H FORECASTING & DECISION SUPPORT      
+     LAHORE & KARACHI  |  TECHFEST '26  |  TEAM: DATAMINORS       
+  ===============================================================
+```
+
 # Pakistan PM2.5 Forecasting and Decision-Support System
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue.svg)](https://www.python.org/)
@@ -17,6 +29,7 @@ license: mit
 [![Dashboard: Streamlit](https://img.shields.io/badge/dashboard-Streamlit-red.svg)](https://streamlit.io/)
 [![Frontend: React 19 + Three.js](https://img.shields.io/badge/web-React%2019%20%7C%20Vite-61DAFB.svg)](https://web-livid-eight-rcllafnbqq.vercel.app)
 [![Tests: 101 Passed](https://img.shields.io/badge/tests-101%2F101%20passed-brightgreen.svg)](tests/)
+[![Video: YouTube Demo](https://img.shields.io/badge/demo-YouTube%20Walkthrough-FF0000.svg)](https://youtu.be/9Zq4rCNXnho?si=mkJ-F9WoXuDmKBGC)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An end-to-end, reproducible air-quality operational pipeline and decision-support system built for **HackInsight 2026 (TECHFEST '26)**. The system forecasts ground-level hourly PM2.5 concentrations **24 hours ahead ($t+24$)** for **Lahore** and **Karachi**, provides calibrated 80% & 90% uncertainty intervals, enforces deterministic data-quality governance, and powers an anti-hallucination decision-support agent grounded in statutory environmental standards.
@@ -77,74 +90,70 @@ To predict ground-level PM2.5 concentration (µg/m³) **24 hours ahead ($t+24$)*
 ## 2. System Architecture
 
 ```text
-===================================================================================================================
-                                  PAKISTAN PM2.5 OPERATIONAL PIPELINE & ARCHITECTURE
-===================================================================================================================
++---------------------------------------------------------------------------------------------------+
+|                        PAKISTAN PM2.5 OPERATIONAL PIPELINE & ARCHITECTURE                         |
++---------------------------------------------------------------------------------------------------+
 
- [ DATA INGESTION: MEMBER 1 ]
-  +--------------------------------------------------------+
-  | - PAQI ICARTT Text Archive (ASDC DAAC DOI: 10.5067)    |
-  | - NASA POWER Hourly Meteorology (T2M, RH2M, WS10M, PS) |
-  +---------------------------+----------------------------+
-                              |
-                              v
- [ CLEANING & PROCESSING: MEMBER 1 ]
-  +--------------------------------------------------------+
-  | - Reshape Wide Sensor Matrix to Long Panel             |
-  | - UTC Standardization & Hourly Reindexing              |
-  | - Causal 24h Target Construction & Feature Alignment   |
-  | - Canonical Gold Dataset: data/processed/gold.parquet   |
-  +---------------------------+----------------------------+
-                              |
-                              v
- [ DATA QUALITY GOVERNANCE: MEMBER 3 ]
-  +--------------------------------------------------------+
-  | DataQualityAgent Policy Engine:                        |
-  | - NO_ACTION (Certified Clean)                          |
-  | - FLAG (Temporal Gaps, Flatlines, Extreme Spikes)      |
-  | - FILL (Bounded backward ffill <=2h for covariates)   |
-  | - FIX (Deduplication, Whitespace Normalization)        |
-  | - Output: reports/data_quality/quality_log.csv         |
-  +---------------------------+----------------------------+
-                              |
-                              v
- [ ML FORECASTING ENGINE: MEMBER 2 ]
-  +--------------------------------------------------------+
-  | HistGradientBoostingRegressor (max_iter=150, lr=0.08)  |
-  | - 40 Causal Lag & Rolling Features (Zero Lookahead)    |
-  | - Chronological Split (Train 60%, Val 20%, Test 20%)   |
-  | - Calibrated 80% & 90% Empirical Prediction Intervals  |
-  | - Artifact: artifacts/models/pm25_forecaster.joblib    |
-  +---------------------------+----------------------------+
-                              |
-                              v
- [ PREFECT ORCHESTRATION & SCHEDULING: MEMBER 4 ]
-  +--------------------------------------------------------+
-  | Flow: pm25-hourly-pipeline (Asia/Karachi, 0 * * * *)   |
-  | - Task 1: Ingestion & Live Stream Acquisition          |
-  | - Task 2: Schema & Physical Validation                 |
-  | - Task 3: Data Quality Assessment Execution            |
-  | - Task 4: 24h Point & Interval Forecast Generation     |
-  | - Task 5: Agent Input & Evidence Refresh               |
-  | - Task 6: Atomic Output Publishing & Run Logging       |
-  | - Failure Isolation: Preserves last valid outputs      |
-  +---------------------------+----------------------------+
-                              |
-                              v
- [ SERVING & DECISION-SUPPORT: MEMBER 4 ]
-  +------------------------------------+------------------------------------+
-  | Interactive Streamlit Dashboard    | Insight / RAG Decision Agent       |
-  | (src/dashboard/app.py)             | (src/insight_agent/interface.py)   |
-  | - Live Readings & 24h Predictions  | - Grounded Natural Language Q&A    |
-  | - 80% & 90% Uncertainty Bands      | - Verified Numerical Evidence      |
-  | - Station & Centroid Selection     | - Regulatory Health Action Advice  |
-  | - System Health & Data Freshness   | - Rejection of Unsupported Queries |
-  +------------------------------------+------------------------------------+
-                              |
-                              v
- [ DEPLOYMENT: MEMBER 4 ]
-  Hugging Face Space (Streamlit SDK) + Local Prefect Scheduler Infrastructure
-===================================================================================================================
+ [ DATA ACQUISITION & INGESTION ]  --> Owned by Ali Hasan Farooqui (Member 1)
+  +-----------------------------------------------------------------------------------------------+
+  |  - PAQI ICARTT Text Archive (NASA ASDC DAAC DOI: 10.5067/LOW-COST-SENSORS-AQ/PAKAIRQUALITY)   |
+  |  - NASA POWER Hourly Meteorology (T2M, RH2M, WS10M, WD10M, PS, PRECTOTCORR, T2MDEW)          |
+  |  - OpenAQ v3 Incremental Live Delta Fetcher with Exponential Backoff Retries                  |
+  +-----------------------------------------------+-----------------------------------------------+
+                                                  |
+                                                  v
+ [ CLEANING, RESHAPING & GOLD WAREHOUSE ]  --> Owned by Ali Hasan Farooqui (Member 1)
+  +-----------------------------------------------------------------------------------------------+
+  |  - Reshape Wide Sensor Matrix (210 Channels) to Standardized Long Panel                       |
+  |  - UTC Timestamp Standardization & Strict Hourly Reindexing (Zero Timezone Shift)             |
+  |  - Causal 24h Target Construction & Covariate Alignment (Zero Lookahead)                      |
+  |  - Canonical Gold Parquet Warehouse: data/processed/gold_pm25_forecasting.parquet             |
+  |  - Cryptographic Provenance Manifest: data/manifests/manifest.csv (SHA-256 Verified)          |
+  +-----------------------------------------------+-----------------------------------------------+
+                                                  |
+                                                  v
+ [ AUTONOMOUS DATA QUALITY GOVERNANCE ]  --> Evaluated by DataQualityAgent
+  +-----------------------------------------------------------------------------------------------+
+  |  - FIX: Deterministic whitespace normalization, type casting, and deduplication               |
+  |  - FILL: Bounded forward-fill strictly capped at <= 2 hours for weather covariates only       |
+  |  - FLAG: Temporal gaps (>1h), sensor flatlines (>=6h), extreme episodic spikes (>800 ug/m3)  |
+  |  - NO_ACTION: 100% Certified Clean Records | Non-Fabrication: Ground targets NEVER imputed   |
+  |  - Audit Trail: reports/data_quality/quality_log.csv & validation_report.json                 |
+  +-----------------------------------------------+-----------------------------------------------+
+                                                  |
+                                                  v
+ [ ML FORECASTING ENGINE (t+24h) ]  --> Owned by Laiba Akram (Member 2)
+  +-----------------------------------------------------------------------------------------------+
+  |  - HistGradientBoostingRegressor (max_iter=150, lr=0.08, l2_reg=0.1, log1p target transform)  |
+  |  - 40 Causal Lag & Rolling Features per Sensor Station (Strict Zero Lookahead Guarantee)     |
+  |  - Chronological Partition: Train 60% (77k) | Validation 20% (40k) | Quarantined Test 20% (49k)|
+  |  - Calibrated 80% & 90% Conformal Uncertainty Intervals (82.42% Empirical Test Coverage)     |
+  |  - Beats Declared Baseline: MAE +3.63% (40.81 vs 42.35), RMSE +5.79% (69.63 vs 73.90)        |
+  |  - Serialized Production Model: artifacts/models/pm25_forecaster.joblib                       |
+  +-----------------------------------------------+-----------------------------------------------+
+                                                  |
+                                                  v
+ [ PREFECT HOURLY ORCHESTRATION ]  --> Owned by Bushra Abid (Member 4)
+  +-----------------------------------------------------------------------------------------------+
+  |  - Flow: pm25-hourly-pipeline (Schedule: Cron '0 * * * *', Asia/Karachi Timezone)             |
+  |  - Task Pipeline: Ingestion -> Schema Validation -> Quality Audit -> Forecast -> Publishing   |
+  |  - Fault Tolerance: 3x Retries with Exponential Backoff, File Lock (.pipeline.lock)           |
+  |  - Non-Destructive Publishing: Atomic JSON file swaps (preserves last valid outputs on error)  |
+  |  - Immutable Execution Log: prefect_runs.csv & outputs/run_history/run_history.json           |
+  +-----------------------------------------------+-----------------------------------------------+
+                                                  |
+                         +------------------------+------------------------+
+                         |                                                 |
+                         v                                                 v
+ [ DUAL DECISION-SUPPORT DASHBOARDS ]              [ ANTI-HALLUCINATION INSIGHT AGENT ]
+ Owned by Bushra Abid (Member 4)                   Owned by Areeba (Member 3)
+ +---------------------------------------------+   +---------------------------------------------+
+ | - Live Web: React 19 + Three.js 3D Globe    |   | - Python Tool-driven Grounded RAG Interface |
+ |   https://web-livid-eight-rcllafnbqq.vercel.app  | - Zero Numbers from LLM (from Gold Tables)  |
+ | - Local App: Streamlit Analytical Dashboard |   | - Statutory Pak-EPA 2010 & WHO 2021 Citations|
+ | - Telemetry: Hugging Face Gradio Space      |   | - Honest "I Don't Know" Out-of-Scope Bounds |
+ | - Interactive 24h Forecasts & Freshness     |   | - Bilingual Support: Full Urdu (language=ur)|
+ +---------------------------------------------+   +---------------------------------------------+
 ```
 
 ---
@@ -239,9 +248,31 @@ cp .env.example .env
    - **Publisher:** NASA Langley Research Center POWER Project.
    - **Variables:** 2m Air Temp (`T2M`), Relative Humidity (`RH2M`), 10m Wind Speed (`WS10M`), 10m Wind Direction (`WD10M`), Surface Pressure (`PS`), Precipitation (`PRECTOTCORR`), Dew Point (`T2MDEW`).
 
-### Processing Stages
+### Three-Layer Warehouse & Processing Stages
+
 ```text
-Raw ICARTT Wide Table -> DataCleaner (Reshape to Long Panel) -> GoldDatasetBuilder (Align Weather + 24h Target) -> Canonical Gold Parquet
+  +-------------------------------------------------------------------------------------------------+
+  | RAW LAYER (Immutable)                                                                           |
+  |  * PAQI Raw ICARTT (79k hours, 210 stations) --> NASA ASDC DAAC (DOI: 10.5067)                  |
+  |  * NASA POWER Reanalysis (Hourly Meteorology) --> Langley Research Center                       |
+  |  * Recorded in Cryptographic Manifest: data/manifests/manifest.csv (SHA-256 Verified)           |
+  +-----------------------------------------------+-------------------------------------------------+
+                                                  |
+                                                  v
+  +-----------------------------------------------+-------------------------------------------------+
+  | CLEANED LAYER (Interim Standardized)                                                            |
+  |  * DataCleaner: Reshapes wide sensor matrix (210 cols) to long hourly panel                     |
+  |  * Timestamps strictly converted to UTC (ISO-8601); zero PKT/UTC offset confusion              |
+  |  * Spatial filtering: Lahore (26 high-uptime stations) & Karachi (4 coastal monitors)            |
+  +-----------------------------------------------+-------------------------------------------------+
+                                                  |
+                                                  v
+  +-----------------------------------------------+-------------------------------------------------+
+  | PROCESSED / GOLD WAREHOUSE (`make data`)                                                        |
+  |  * GoldDatasetBuilder: Aligns meteorological covariates & engineers 24h targets (y = t+24h)     |
+  |  * Stable composite primary keys: record_id = SHA256(city_sensor_timestamp)[:16]                |
+  |  * Canonical Parquet: data/processed/gold_pm25_forecasting.parquet (176k rows, 16 columns)      |
+  +-------------------------------------------------------------------------------------------------+
 ```
 
 ### Gold Dataset Schema (`data/processed/gold_pm25_forecasting.parquet`)
@@ -475,3 +506,18 @@ This project is licensed under the **MIT License**.
 - **NASA Langley Atmospheric Science Data Center (ASDC) DAAC:** Hosting of the PAQI dataset (DOI: [10.5067/LOW-COST-SENSORS-AQ/PAKAIRQUALITY](https://doi.org/10.5067/LOW-COST-SENSORS-AQ/PAKAIRQUALITY)).
 - **NASA POWER Project:** Hourly meteorological reanalysis data from NASA Langley Research Center.
 - **Punjab Environmental Protection Department (EPD):** Regulatory standards and Clean Air Action Plan benchmarks.
+
+```text
+       ___________________________________________________________
+      /                                                           \
+     |   HACKINSIGHT 2026: DATA-TO-DECISION (TECHFEST '26)         |
+     |   Team: DataMinors | Track: Air Quality (Lahore & Karachi)  |
+     |   Status: 100% Compliant | 101/101 Automated Tests Passing  |
+     |   Release: v1.0-final | Live Web: vercel.app                |
+      \___________________________________________________________/
+                 \   ^__^
+                  \  (oo)\_______
+                     (__)\       )\/\
+                         ||----w |
+                         ||     ||
+```
