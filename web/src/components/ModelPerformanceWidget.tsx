@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cpu, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Cpu, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ModelMetricsPayload, CityForecast } from '../types';
 
@@ -12,24 +12,17 @@ interface ModelPerformanceWidgetProps {
 export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
   city,
   metrics,
-  forecast
+  forecast: _forecast
 }) => {
   // Extract real city metrics or fallback to overall test metrics from metrics_summary.json
   const cityMetrics = metrics?.test_by_city?.[city];
-
   const modelMae = cityMetrics?.model_mae;
-  const baseMae = cityMetrics?.base_mae;
-  const liftPct = cityMetrics?.mae_pct_improvement;
-
-  const empiricalCoverage = metrics?.test_uncertainty_80pct?.empirical_coverage_pct;
-  const featureCount = metrics?.feature_count;
-  const sensorsCount = forecast?.sensors_evaluated;
 
   return (
     <div
       className="airlab-card"
       style={{
-        padding: '20px 22px',
+        padding: '22px 24px',
         borderRadius: '22px',
         backgroundColor: '#FFFFFF',
         border: '1px solid rgba(226, 232, 240, 0.8)',
@@ -41,143 +34,118 @@ export const ModelPerformanceWidget: React.FC<ModelPerformanceWidgetProps> = ({
         overflow: 'hidden'
       }}
     >
-      {/* 1. Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '8px',
-            backgroundColor: '#EFF6FF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#2563EB'
-          }}>
-            <Cpu size={16} />
-          </div>
-          <div>
-            <h3 style={{ fontSize: '0.975rem', fontWeight: 700, color: '#1E293B', letterSpacing: '-0.01em', margin: 0 }}>
-              Model Performance
-            </h3>
-            <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
-              {metrics?.model_type ?? 'HistGradientBoosting'} • 24h Horizon
-            </span>
-          </div>
+      {/* 1. Header (Verified badge removed for decluttered look) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '10px',
+          backgroundColor: '#EFF6FF',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#2563EB',
+          flexShrink: 0
+        }}>
+          <Cpu size={18} />
         </div>
-
-        <span
-          style={{
-            fontSize: '0.675rem',
-            fontWeight: 700,
-            color: '#059669',
-            backgroundColor: '#ECFDF5',
-            padding: '4px 8px',
-            borderRadius: '12px',
-            border: '1px solid #A7F3D0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-        >
-          <CheckCircle size={12} color="#059669" />
-          Verified
-        </span>
+        <div>
+          <h3 style={{ fontSize: '0.975rem', fontWeight: 700, color: '#1E293B', letterSpacing: '-0.01em', margin: 0 }}>
+            Model Performance
+          </h3>
+          <span style={{ fontSize: '0.725rem', color: '#64748B', display: 'block', marginTop: '1px' }}>
+            {metrics?.model_type ?? 'HistGradientBoosting'} • 24h Horizon
+          </span>
+        </div>
       </div>
 
-      {/* 2. Middle Body: Test MAE + Baseline Comparison */}
-      <div style={{ margin: '14px 0' }}>
+      {/* 2. Middle Body: Clean display of the actual metric */}
+      <div style={{ margin: 'auto 0', padding: '18px 0' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={city}
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
           >
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <div style={{ fontSize: '2.3rem', fontWeight: 800, color: '#0F172A', lineHeight: 1, letterSpacing: '-0.03em' }}>
-                {modelMae !== undefined ? modelMae.toFixed(1) : '—'}
-              </div>
-              <div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>µg/m³ MAE</span>
-                {liftPct !== undefined && (
-                  <span style={{
-                    marginLeft: '8px',
-                    fontSize: '0.725rem',
-                    fontWeight: 700,
-                    color: '#16A34A',
-                    backgroundColor: '#DCFCE7',
-                    padding: '2px 6px',
-                    borderRadius: '8px'
-                  }}>
-                    -{liftPct.toFixed(1)}% error vs base
-                  </span>
-                )}
-              </div>
+            <div style={{
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: '#64748B',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '6px'
+            }}>
+              Mean Absolute Error (MAE)
             </div>
-
-            <div style={{ fontSize: '0.725rem', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>
-              {liftPct !== undefined && baseMae !== undefined
-                ? `${liftPct.toFixed(1)}% lower MAE than persistence baseline (${baseMae.toFixed(1)} µg/m³) on ${city} test partition`
-                : `Certified evaluation on ${city} test partition`}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{
+                fontSize: '3.25rem',
+                fontWeight: 800,
+                color: '#0F172A',
+                lineHeight: 1,
+                letterSpacing: '-0.03em'
+              }}>
+                {modelMae !== undefined ? modelMae.toFixed(1) : '—'}
+              </span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#64748B' }}>
+                µg/m³
+              </span>
             </div>
           </motion.div>
         </AnimatePresence>
-
-        {/* 3 Metric Badges: Conformal Coverage, Features, Active Stations */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '8px',
-          marginTop: '12px',
-          padding: '8px',
-          backgroundColor: '#F8FAFC',
-          borderRadius: '12px',
-          border: '1px solid #F1F5F9'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.625rem', color: '#64748B', fontWeight: 600 }}>Coverage (80% CI)</div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>
-              {empiricalCoverage !== undefined ? `${empiricalCoverage.toFixed(1)}%` : '—'}
-            </div>
-          </div>
-          <div style={{ textAlign: 'center', borderLeft: '1px solid #E2E8F0', borderRight: '1px solid #E2E8F0' }}>
-            <div style={{ fontSize: '0.625rem', color: '#64748B', fontWeight: 600 }}>Features</div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>
-              {featureCount !== undefined ? featureCount : '—'}
-            </div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.625rem', color: '#64748B', fontWeight: 600 }}>Sensors</div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginTop: '2px' }}>
-              {sensorsCount !== undefined ? sensorsCount : '—'}
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* 3. Bottom Verification Banner */}
+      {/* 3. Bottom Information Note with "i" icon */}
       <div
         style={{
-          backgroundColor: '#F0FDF4',
-          border: '1px solid #DCFCE7',
-          borderRadius: '14px',
-          padding: '8px 12px',
           display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
+          alignItems: 'flex-start',
+          gap: '8px',
+          paddingTop: '12px',
+          borderTop: '1px solid #F1F5F9',
+          position: 'relative',
+          zIndex: 1
         }}
       >
-        <ShieldCheck size={16} color="#16A34A" style={{ flexShrink: 0 }} />
-        <div style={{ fontSize: '0.725rem', lineHeight: 1.35, color: '#166534' }}>
-          <strong>Statistically Grounded ML Pipeline</strong>
-          <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.9 }}>
-            {cityMetrics?.n !== undefined
-              ? `${cityMetrics.n.toLocaleString()} hourly test observations evaluated for ${city}${metrics?.test_metrics?.n !== undefined ? ` (${metrics.test_metrics.n.toLocaleString()} combined network total with zero lookahead)` : ' with zero lookahead'}.`
-              : `Chronological held-out test evaluation with zero lookahead.`}
-          </span>
+        <div
+          style={{
+            width: '18px',
+            height: '18px',
+            borderRadius: '50%',
+            backgroundColor: '#F1F5F9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            color: '#64748B',
+            marginTop: '2px'
+          }}
+        >
+          <Info size={11} strokeWidth={2.5} />
         </div>
+        <p style={{ fontSize: '0.75rem', lineHeight: 1.4, color: '#64748B', margin: 0 }}>
+          {cityMetrics?.n !== undefined
+            ? `Average error across ${cityMetrics.n.toLocaleString()} test observations for ${city} with zero lookahead.`
+            : `Average prediction error evaluated on chronological test partition with zero lookahead.`}
+        </p>
+      </div>
+
+      {/* Subtle "i" watermark in background */}
+      <div
+        style={{
+          position: 'absolute',
+          right: '-14px',
+          bottom: '-14px',
+          opacity: 0.035,
+          pointerEvents: 'none',
+          userSelect: 'none',
+          color: '#0F172A'
+        }}
+        aria-hidden="true"
+      >
+        <Info size={110} strokeWidth={1.5} />
       </div>
     </div>
   );
