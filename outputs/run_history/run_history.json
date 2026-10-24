@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261024_190730",
+    "timestamp_utc": "2026-10-24T19:07:31.862868+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 1.301,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261024_161925",
     "timestamp_utc": "2026-10-24T16:19:26.453129+00:00",
     "status": "SUCCESS",
