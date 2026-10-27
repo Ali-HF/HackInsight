@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261027_065502",
+    "timestamp_utc": "2026-10-27T06:55:04.416077+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 1.444,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261027_010330",
     "timestamp_utc": "2026-10-27T01:03:31.561894+00:00",
     "status": "SUCCESS",
@@ -1087,16 +1098,5 @@
     "records_checked": 49116,
     "agent_grounding_passed": true,
     "error": null
-  },
-  {
-    "run_id": "20261020_132111",
-    "timestamp_utc": "2026-10-20T13:21:32.298802+00:00",
-    "status": "FAILED",
-    "duration_seconds": 21.154,
-    "forecast_output": null,
-    "quality_output": null,
-    "records_checked": 0,
-    "agent_grounding_passed": false,
-    "error": "FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'"
   }
 ]
