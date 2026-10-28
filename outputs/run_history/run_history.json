@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261028_143537",
+    "timestamp_utc": "2026-10-28T14:35:39.481102+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 1.55,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261028_073622",
     "timestamp_utc": "2026-10-28T07:36:24.537988+00:00",
     "status": "SUCCESS",
@@ -1082,17 +1093,6 @@
     "timestamp_utc": "2026-10-20T17:49:16.045665+00:00",
     "status": "FAILED",
     "duration_seconds": 0.029,
-    "forecast_output": null,
-    "quality_output": null,
-    "records_checked": 0,
-    "agent_grounding_passed": false,
-    "error": "TypeError: Body() got an unexpected keyword argument 'min_items'"
-  },
-  {
-    "run_id": "20261020_174857",
-    "timestamp_utc": "2026-10-20T17:49:04.539408+00:00",
-    "status": "FAILED",
-    "duration_seconds": 6.589,
     "forecast_output": null,
     "quality_output": null,
     "records_checked": 0,
