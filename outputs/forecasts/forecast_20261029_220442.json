@@ -1,0 +1,63 @@
+{
+  "run_id": "20261029_220442",
+  "timestamp_utc": "2026-10-29T22:04:44.082001+00:00",
+  "forecast_data": {
+    "issue_timestamp": "2026-10-29T22:04:43.472450+00:00",
+    "horizon_hours": 24,
+    "target_timestamp": "2026-10-30T22:04:43.472460+00:00",
+    "cities": {
+      "Lahore": {
+        "status": "success",
+        "city": "Lahore",
+        "sensor_id": "0166919645da6ef4",
+        "sensors_evaluated": 26,
+        "forecast_issue_time": "2024-12-30 23:00:00",
+        "forecast_target_time": "2024-12-31 23:00:00",
+        "current_pm25": 180.06,
+        "predicted_pm25_24h": 155.96,
+        "lower_80": 76.95,
+        "upper_80": 264.13,
+        "baseline_persistence": 180.06,
+        "coverage": 0.8,
+        "unit": "ug/m3",
+        "temperature_c": null,
+        "humidity_pct": null,
+        "precipitation_mm": 0.0,
+        "wind_speed_ms": null,
+        "message": "24h forecast for Lahore: 155.96 ug/m3 (80% CI: [76.95, 264.13] ug/m3, persistence baseline: 180.06 ug/m3)."
+      },
+      "Karachi": {
+        "status": "success",
+        "city": "Karachi",
+        "sensor_id": "212607b3f328c11e",
+        "sensors_evaluated": 4,
+        "forecast_issue_time": "2024-12-30 23:00:00",
+        "forecast_target_time": "2024-12-31 23:00:00",
+        "current_pm25": 95.5,
+        "predicted_pm25_24h": 106.69,
+        "lower_80": 52.49,
+        "upper_80": 180.91,
+        "baseline_persistence": 95.5,
+        "coverage": 0.8,
+        "unit": "ug/m3",
+        "temperature_c": null,
+        "humidity_pct": null,
+        "precipitation_mm": 0.0,
+        "wind_speed_ms": null,
+        "message": "24h forecast for Karachi: 106.69 ug/m3 (80% CI: [52.49, 180.91] ug/m3, persistence baseline: 95.5 ug/m3)."
+      }
+    }
+  },
+  "validation": {
+    "status": "PASS",
+    "total_records": 49116,
+    "valid_pm25_records": 49116,
+    "negative_readings": 0,
+    "supported_cities": [
+      "Karachi",
+      "Lahore"
+    ],
+    "latest_timestamp": "2024-12-30 23:00:00+00:00",
+    "validation_passed": true
+  }
+}

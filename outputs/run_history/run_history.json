@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261029_220442",
+    "timestamp_utc": "2026-10-29T22:04:44.082001+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 1.168,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261029_170802",
     "timestamp_utc": "2026-10-29T17:08:04.197814+00:00",
     "status": "SUCCESS",
@@ -1087,16 +1098,5 @@
     "records_checked": 0,
     "agent_grounding_passed": false,
     "error": "FileNotFoundError: Requested dataset not found at 'non_existent_source_file.parquet'"
-  },
-  {
-    "run_id": "20261020_175918",
-    "timestamp_utc": "2026-10-20T17:59:18.009400+00:00",
-    "status": "FAILED",
-    "duration_seconds": 0.004,
-    "forecast_output": null,
-    "quality_output": null,
-    "records_checked": 0,
-    "agent_grounding_passed": false,
-    "error": "RuntimeError: Simulated pipeline ingestion or service failure for testing."
   }
 ]
