@@ -1,10 +1,10 @@
 {
-  "run_id": "20261031_010833",
-  "timestamp_utc": "2026-10-31T01:08:35.290094+00:00",
+  "run_id": "20261031_073700",
+  "timestamp_utc": "2026-10-31T07:37:01.133479+00:00",
   "quality_assessment": {
     "schema_version": "2.0",
-    "run_id": "RUN-20261031010833",
-    "generated_at_utc": "2026-10-31T01:08:33.812397+00:00",
+    "run_id": "RUN-20261031073700",
+    "generated_at_utc": "2026-10-31T07:37:00.474119+00:00",
     "overall_status": "WARN",
     "total_records_checked": 49116,
     "records_affected_total": 3969,
@@ -26,7 +26,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "All contract schema columns are present.",
-        "timestamp_utc": "2026-10-31T01:08:33.696735+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.410555+00:00"
       },
       {
         "rule_id": "DQ-FIX-001",
@@ -37,7 +37,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "No untrimmed string whitespace detected.",
-        "timestamp_utc": "2026-10-31T01:08:33.705461+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.418439+00:00"
       },
       {
         "rule_id": "DQ-DUP-001",
@@ -48,7 +48,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "All 'record_id' identifiers are strictly unique.",
-        "timestamp_utc": "2026-10-31T01:08:33.713221+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.425183+00:00"
       },
       {
         "rule_id": "DQ-NULL-001",
@@ -59,7 +59,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "Zero null values in target column 'pm25_target_24h'.",
-        "timestamp_utc": "2026-10-31T01:08:33.713542+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.425468+00:00"
       },
       {
         "rule_id": "DQ-NULL-001",
@@ -70,7 +70,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "Zero null values in target column 'pm25'.",
-        "timestamp_utc": "2026-10-31T01:08:33.713796+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.425682+00:00"
       },
       {
         "rule_id": "DQ-FILL-001",
@@ -81,7 +81,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "Zero null values across all meteorological covariates.",
-        "timestamp_utc": "2026-10-31T01:08:33.714913+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.426457+00:00"
       },
       {
         "rule_id": "DQ-RNG-001",
@@ -92,7 +92,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "All PM2.5 observations conform to physical bounds [0, 1500] ug/m3.",
-        "timestamp_utc": "2026-10-31T01:08:33.715455+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.426945+00:00"
       },
       {
         "rule_id": "DQ-RNG-002",
@@ -103,7 +103,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "All temperature values conform to realistic range [-10, 60] \u00b0C.",
-        "timestamp_utc": "2026-10-31T01:08:33.715919+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.427379+00:00"
       },
       {
         "rule_id": "DQ-RNG-003",
@@ -114,7 +114,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "All relative humidity readings conform to [0, 100]%.",
-        "timestamp_utc": "2026-10-31T01:08:33.716436+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.427714+00:00"
       },
       {
         "rule_id": "DQ-TMP-001",
@@ -125,7 +125,7 @@
         "records_affected": 3591,
         "data_modified": false,
         "rationale": "Detected 3591 temporal gaps exceeding 1h (maximum gap: 1299.0h). Time series discontinuity preserved; FLAGGED.",
-        "timestamp_utc": "2026-10-31T01:08:33.775246+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.455628+00:00"
       },
       {
         "rule_id": "DQ-FLT-001",
@@ -136,7 +136,7 @@
         "records_affected": 297,
         "data_modified": false,
         "rationale": "Detected 23 sensor flatline episodes (>=6h constant pm25) affecting 297 records. Indicates potential frozen sensor; FLAGGED.",
-        "timestamp_utc": "2026-10-31T01:08:33.811120+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.473319+00:00"
       },
       {
         "rule_id": "DQ-TIM-001",
@@ -147,7 +147,7 @@
         "records_affected": 0,
         "data_modified": false,
         "rationale": "All timestamps parse validly in UTC. Range: 2024-07-23 05:00:00+00:00 to 2024-12-30 23:00:00+00:00.",
-        "timestamp_utc": "2026-10-31T01:08:33.812070+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.473932+00:00"
       },
       {
         "rule_id": "DQ-DST-001",
@@ -158,7 +158,7 @@
         "records_affected": 81,
         "data_modified": false,
         "rationale": "Detected 81 extreme PM2.5 readings exceeding 800.0 ug/m3. Preserved as severe episodic pollution events; FLAGGED for expert review.",
-        "timestamp_utc": "2026-10-31T01:08:33.812345+00:00"
+        "timestamp_utc": "2026-10-31T07:37:00.474082+00:00"
       }
     ],
     "findings": [
