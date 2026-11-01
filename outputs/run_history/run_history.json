@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261101_222931",
+    "timestamp_utc": "2026-11-01T22:29:32.203131+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 0.76,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261101_183843",
     "timestamp_utc": "2026-11-01T18:38:43.866711+00:00",
     "status": "SUCCESS",
@@ -1087,16 +1098,5 @@
     "records_checked": 0,
     "agent_grounding_passed": false,
     "error": "RuntimeError: Simulated pipeline ingestion or service failure for testing."
-  },
-  {
-    "run_id": "20261021_082505",
-    "timestamp_utc": "2026-10-21T08:25:05.017567+00:00",
-    "status": "FAILED",
-    "duration_seconds": 0.015,
-    "forecast_output": null,
-    "quality_output": null,
-    "records_checked": 0,
-    "agent_grounding_passed": false,
-    "error": "TypeError: Body() got an unexpected keyword argument 'min_items'"
   }
 ]
