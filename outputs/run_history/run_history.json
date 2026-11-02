@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261102_083356",
+    "timestamp_utc": "2026-11-02T08:33:58.393538+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 1.712,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261102_015641",
     "timestamp_utc": "2026-11-02T01:56:43.216677+00:00",
     "status": "SUCCESS",
@@ -1087,16 +1098,5 @@
     "records_checked": 0,
     "agent_grounding_passed": false,
     "error": "TypeError: isinstance() arg 2 must be a type, a tuple of types, or a union"
-  },
-  {
-    "run_id": "20261021_082559",
-    "timestamp_utc": "2026-10-21T08:26:01.416554+00:00",
-    "status": "FAILED",
-    "duration_seconds": 1.466,
-    "forecast_output": null,
-    "quality_output": null,
-    "records_checked": 0,
-    "agent_grounding_passed": false,
-    "error": "TypeError: Body() got an unexpected keyword argument 'min_items'"
   }
 ]
