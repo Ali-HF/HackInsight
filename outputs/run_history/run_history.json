@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261103_084322",
+    "timestamp_utc": "2026-11-03T08:43:22.942155+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 0.895,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261103_012324",
     "timestamp_utc": "2026-11-03T01:23:26.356209+00:00",
     "status": "SUCCESS",
@@ -1087,16 +1098,5 @@
     "records_checked": 0,
     "agent_grounding_passed": false,
     "error": "RecursionError: maximum recursion depth exceeded"
-  },
-  {
-    "run_id": "20261021_083227",
-    "timestamp_utc": "2026-10-21T08:39:36.705522+00:00",
-    "status": "FAILED",
-    "duration_seconds": 429.449,
-    "forecast_output": null,
-    "quality_output": null,
-    "records_checked": 0,
-    "agent_grounding_passed": false,
-    "error": "RuntimeError: Timed out while attempting to connect to ephemeral Prefect API server. Ephemeral server process exited with code 1."
   }
 ]
