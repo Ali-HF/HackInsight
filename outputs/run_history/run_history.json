@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261104_174805",
+    "timestamp_utc": "2026-11-04T17:48:07.734469+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 1.827,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261104_100039",
     "timestamp_utc": "2026-11-04T10:00:41.321161+00:00",
     "status": "SUCCESS",
@@ -1087,16 +1098,5 @@
     "records_checked": 0,
     "agent_grounding_passed": false,
     "error": "RuntimeError: Simulated pipeline ingestion or service failure for testing."
-  },
-  {
-    "run_id": "20261021_084640",
-    "timestamp_utc": "2026-10-21T08:46:48.980655+00:00",
-    "status": "SUCCESS",
-    "duration_seconds": 8.878,
-    "forecast_output": "outputs\\forecasts\\latest_forecast.json",
-    "quality_output": "outputs\\quality\\latest_quality.json",
-    "records_checked": 176392,
-    "agent_grounding_passed": true,
-    "error": null
   }
 ]
