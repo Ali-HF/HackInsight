@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "20261120_213623",
+    "timestamp_utc": "2026-11-20T21:36:24.769651+00:00",
+    "status": "SUCCESS",
+    "duration_seconds": 1.137,
+    "forecast_output": "outputs/forecasts/latest_forecast.json",
+    "quality_output": "outputs/quality/latest_quality.json",
+    "records_checked": 49116,
+    "agent_grounding_passed": true,
+    "error": null
+  },
+  {
     "run_id": "20261120_134055",
     "timestamp_utc": "2026-11-20T13:40:57.110021+00:00",
     "status": "SUCCESS",
@@ -1082,17 +1093,6 @@
     "timestamp_utc": "2026-10-26T17:43:24.430078+00:00",
     "status": "SUCCESS",
     "duration_seconds": 0.954,
-    "forecast_output": "outputs/forecasts/latest_forecast.json",
-    "quality_output": "outputs/quality/latest_quality.json",
-    "records_checked": 49116,
-    "agent_grounding_passed": true,
-    "error": null
-  },
-  {
-    "run_id": "20261026_113851",
-    "timestamp_utc": "2026-10-26T11:38:53.460517+00:00",
-    "status": "SUCCESS",
-    "duration_seconds": 1.536,
     "forecast_output": "outputs/forecasts/latest_forecast.json",
     "quality_output": "outputs/quality/latest_quality.json",
     "records_checked": 49116,
