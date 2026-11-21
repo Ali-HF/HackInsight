@@ -1,10 +1,10 @@
 {
-  "run_id": "20261121_025402",
-  "timestamp_utc": "2026-11-21T02:54:04.199104+00:00",
+  "run_id": "20261121_102127",
+  "timestamp_utc": "2026-11-21T10:21:28.615454+00:00",
   "forecast_data": {
-    "issue_timestamp": "2026-11-21T02:54:03.609283+00:00",
+    "issue_timestamp": "2026-11-21T10:21:28.019707+00:00",
     "horizon_hours": 24,
-    "target_timestamp": "2026-11-22T02:54:03.609290+00:00",
+    "target_timestamp": "2026-11-22T10:21:28.019714+00:00",
     "cities": {
       "Lahore": {
         "status": "success",
